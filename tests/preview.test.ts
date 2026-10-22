@@ -77,3 +77,12 @@ describe('application origin guard', () => {
     expect(crossOriginSubmission(new Request('https://news.example/',{headers:{Origin:'https://elsewhere.example'}}))).toBe(false);
   });
 });
+
+describe('raw request host boundary', () => {
+  it('rejects non-local raw Host even if the framework normalized Request.url to localhost', async () => {
+    const { localPreviewAllowed } = await import('../frontend/src/lib/preview/http');
+    const request = new Request('http://localhost:4321/preview/',{headers:{Host:'news.example:4321'}});
+    expect(localPreviewAllowed(request,config())).toBe(false);
+    expect((await handlePreviewLogin(new Request('http://localhost:4321/api/preview/session',{method:'POST',headers:{Host:'news.example:4321',Origin:'http://localhost:4321','Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({key})}),config(),now,new PreviewLimiter())).status).toBe(404);
+  });
+});

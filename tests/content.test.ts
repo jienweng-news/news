@@ -70,3 +70,16 @@ describe('content repository isolation', () => {
     expect((await repo.getPreview('unpublished-example'))?.previewOnly).toBe(true);
   });
 });
+
+describe('strict editorial dates', () => {
+  it.each(['2026-02-30T10:00:00Z','2026-04-31T10:00:00Z','2025-02-29T10:00:00Z','2026-10-01T24:00:00Z','2026-10-01T10:00:00'])('rejects invalid or timezone-free date %s', publishedAt => {
+    expect(() => normalizeArticle(rawArticle({ publishedAt }))).toThrow();
+  });
+  it('accepts actual leap days and explicit offsets', () => {
+    expect(normalizeArticle(rawArticle({ publishedAt:'2024-02-29T10:00:00+02:00' })).publishedAt).toBe('2024-02-29T08:00:00.000Z');
+  });
+  it('rejects invalid correction and modification dates too', () => {
+    expect(() => normalizeArticle(rawArticle({ corrections:[{date:'2026-02-30T10:00:00Z',note:'Correction'}] }))).toThrow();
+    expect(() => normalizeArticle(rawArticle({ publishedAt:'2026-01-01T10:00:00Z',updatedAt:'2026-04-31T10:00:00Z' }))).toThrow();
+  });
+});

@@ -12,7 +12,9 @@ export function withPreviewHeaders(response: Response): Response {
 }
 const error = (status: number, message = 'Preview request could not be completed.') => withPreviewHeaders(new Response(message,{ status }));
 export function localPreviewAllowed(request: Request, config: AppConfig): boolean {
-  return config.previewEnabled && ['localhost','127.0.0.1','[::1]'].includes(new URL(request.url).hostname);
+  const rawHost=request.headers.get('host');
+  const rawLocal=rawHost === null || /^(localhost|127\.0\.0\.1|\[::1\])(?::[0-9]{1,5})?$/i.test(rawHost);
+  return config.previewEnabled && rawLocal && ['localhost','127.0.0.1','[::1]'].includes(new URL(request.url).hostname);
 }
 function sameOrigin(request: Request): boolean { return request.headers.get('origin') === new URL(request.url).origin; }
 function cookie(value: string, request: Request, maxAge: number): string {

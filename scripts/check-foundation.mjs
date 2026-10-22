@@ -21,6 +21,14 @@ if (process.env.SMOKE_PREVIEW === '1') {
   assert.ok(key && secret, 'Preview smoke requires test-only session configuration');
   const headers = { Origin: new URL(base).origin, 'Content-Type': 'application/x-www-form-urlencoded' };
   const loginPath = '/api/preview/session';
+  // Use node:http: fetch may normalize/ignore a caller-supplied Host header.
+  const {request:httpRequest}=await import('node:http');
+  const untrustedHost=await new Promise((resolve,reject)=>{
+    const req=httpRequest(new URL('/preview/',base),{headers:{Host:'news.example:4325'}},res=>{res.resume();resolve({status:res.statusCode,cache:res.headers['cache-control']});});
+    req.on('error',reject);req.end();
+  });
+  assert.equal(untrustedHost.status,404,'Untrusted raw Host must not enable preview');
+  assert.equal(untrustedHost.cache,'private, no-store');
   const anonymous = await page('/preview/articles/unpublished-example/');
   assert.equal(anonymous.response.status, 401);
   assert.doesNotMatch(anonymous.html, /This draft is visible only/);

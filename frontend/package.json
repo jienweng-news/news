@@ -3,10 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev --host 0.0.0.0",
+    "dev": "astro dev --host 127.0.0.1",
     "check": "astro check",
     "build": "astro build",
-    "preview": "node dist/server/entry.mjs"
+    "preview": "node ../scripts/preview.mjs"
   },
   "dependencies": {
     "astro": "7.4.2",

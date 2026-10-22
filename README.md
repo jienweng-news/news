@@ -6,12 +6,12 @@ An Astro publication with a separate Sanity Studio workspace. The brand is a con
 
 Node 22.23.4 or newer. Run `npm ci` from the repository root (the initial install uses npm 11 to avoid an npm 10 peer-resolver crash). Copy `.env.example` to `.env` and keep actual secrets out of git.
 
-- `npm run dev` — public site on port 4321.
+- `npm run dev` — public site on loopback port 4321.
 - `npm run dev:studio` — Studio, after setting a real Sanity project/dataset.
 - `npm run check` — Astro/TypeScript diagnostics.
 - `npm test` — behavior tests.
 - `npm run build` — local Node server build; Vercel uses its own adapter when `VERCEL` is set.
-- `npm run preview` — local built server (default port 4321).
+- `npm run preview` — local built server on loopback (default port 4321; refuses all-interface binding).
 - `npm run verify:foundation` — HTTP smoke checks against a running local built server.
 
 The approved foundation targets Astro 7.4.2, Vercel adapter 11.0.16, Sanity integration 3.5.1 and Portable Text 1.0.1. Exact resolved dependencies live in `package-lock.json`. Package metadata compatibility is not equivalent to a deployment test.
