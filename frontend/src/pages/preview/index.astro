@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { runtimeConfig } from '../../lib/runtime';
+import { localPreviewAllowed, authenticatedPreview } from '../../lib/preview/http';
+const config = runtimeConfig(); const allowed = localPreviewAllowed(Astro.request,config);
+if (!allowed) Astro.response.status=404;
+const authenticated = allowed && await authenticatedPreview(Astro.request,config);
+---
+<BaseLayout title="Editorial preview" noindex>
+  <section class="preview-login"><p class="eyebrow">The editorial desk</p><h1>{allowed ? 'Preview before publishing.' : 'Preview is not enabled.'}</h1>
+  {!allowed ? <p>Preview requires local configuration. Remote preview is disabled until a durable access limiter is integrated.</p> : authenticated ? <><p>Your private preview session expires after fifteen minutes.</p>{config.contentMode === 'fixture' && <p><a href="/preview/articles/unpublished-example/">Open the labelled sample draft →</a></p>}<p>For a Sanity draft, open <code>/preview/articles/your-article-slug/</code>.</p><form method="POST" action="/api/preview/logout"><button type="submit">End preview session</button></form></> : <><p>Enter your locally configured preview access key. This is separate from your Sanity credentials.</p><form method="POST" action="/api/preview/session"><label for="preview-key">Preview access key</label><input id="preview-key" name="key" type="password" autocomplete="off" required maxlength="256" /><button type="submit">Open editorial preview →</button></form></>}
+  </section>
+</BaseLayout>

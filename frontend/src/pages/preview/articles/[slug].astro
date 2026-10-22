@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ArticleBody from '../../../components/ArticleBody.astro';
+import { runtimeConfig } from '../../../lib/runtime';
+import { createContentRepository } from '../../../lib/content/repository';
+import { loadPreviewArticle } from '../../../lib/preview/http';
+const config=runtimeConfig();
+const {article,status}=await loadPreviewArticle(Astro.request,config,Astro.params.slug||'',slug=>createContentRepository(config).getPreview(slug));
+Astro.response.status=status;
+---
+<BaseLayout title={article?.title||'Private preview'} noindex>{article ? <ArticleBody article={article} /> : <section class="empty-state"><p class="eyebrow">Editorial preview</p><h1>{status===401?'Sign in to preview.':status===503?'Preview is temporarily unavailable.':'This preview is not available.'}</h1><a href="/preview/">Return to the editorial desk →</a></section>}</BaseLayout>

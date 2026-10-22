@@ -8,6 +8,13 @@ const config = readConfig(env);
 export default defineConfig({
   site: config.siteUrl,
   envDir: '..',
+  security: {
+    // Apply the same-origin policy in middleware so preview errors also get privacy headers.
+    checkOrigin: false,
+    allowedDomains: config.appEnv === 'local'
+      ? [{ hostname: 'localhost' }, { hostname: '127.0.0.1' }, { hostname: '[::1]' }]
+      : [{ hostname: new URL(config.siteUrl).hostname, protocol: 'https' }, ...(env.VERCEL_URL ? [{ hostname: env.VERCEL_URL, protocol: 'https' }] : [])],
+  },
   output: 'server',
   adapter: env.VERCEL === '1' ? vercel() : node({ mode: 'standalone' }),
   vite: { define: { 'import.meta.env.APP_ENV': JSON.stringify(config.appEnv), 'import.meta.env.CONTENT_MODE': JSON.stringify(config.contentMode) } },

@@ -1,6 +1,6 @@
 # AI and Crypto Publication — Business and Delivery Checklist
 
-Updated: 2026-10-22. Product implementation has not started.
+Updated: 2026-10-22. Foundation implemented locally on `feat/editorial-foundation`; live Sanity/hosting and browser acceptance remain pending.
 
 Selected stack: **Astro + Sanity native SaaS + Plausible SaaS**, with a managed website host. Technical reference: Sanity's official Astro starter. Visual references: AstroNews for newsroom composition; The Magazine News for a simpler reading experience. Paid template code is not selected or purchased.
 
@@ -51,19 +51,21 @@ Still proposed: English-first; one founder/editor; no reader accounts or paid me
 - [ ] F01 — Review the official Sanity starter's current source, reuse license, framework requirements and environment variables. Use its integration patterns; no paid theme source may be copied without a suitable license.
 - [ ] F02 — Validate Astro 7 with compatible `@sanity/astro`, Portable Text, React integration and host-adapter versions. Record exact resolved versions and runtime in a committed lockfile and setup notes. If compatibility fails, record a tested fallback rather than force-upgrading.
 - [ ] F03 — Run type check and production build before adding newsroom features. Verify a published Sanity article, licensed image and preview flow on the candidate host.
-- [ ] F04 — Configure separate public content reads and private preview credentials. Reject fixture-content mode in production; local samples must be visibly labelled.
+- [x] F04 — Configure separate public content reads and private preview credentials. Reject fixture-content mode in production; local samples must be visibly labelled.
 - [ ] F05 — Use an original editorial layout: lead story, compact latest list, AI/Crypto sections and readable article pages. Refer to AstroNews for hierarchy and The Magazine News for restraint; final layout is not chosen by demo timing alone.
 - [ ] F06 — Add no client framework, carousel, animation library or tag manager without a reader-facing reason. A dependency in `package.json` does not prove it is shipped to readers; verify the built bundles.
 
 ### Sanity content and permissions
 
-- [ ] F07 — Define article, author, category, affiliateOffer, campaign, project and siteSettings schemas; use Portable Text and Sanity media references with license/credit/alt fields.
-- [ ] F08 — Require article section, format, unique slug, title, summary, body, byline, publication/update dates, source links for news, and relationship disclosure when applicable.
-- [ ] F09 — Keep subscriber details, contracts, confidential notes, raw feed inboxes and job logs outside Sanity Free public documents. Published fields are public even if the website hides them.
-- [ ] F10 — Implement manual publishing, correction entries and withdrawal. Document that Studio validation is not CMS-enforced draft-only access for a privileged token.
+- [x] F07 — Define article, author, category, affiliateOffer, campaign, project and siteSettings schemas; use Portable Text and Sanity media references with license/credit/alt fields.
+- [x] F08 — Require article section, format, unique slug, title, summary, body, byline, publication/update dates, source links for news, and relationship disclosure when applicable.
+- [x] F09 — Keep subscriber details, contracts, confidential notes, raw feed inboxes and job logs outside Sanity Free public documents. Published fields are public even if the website hides them.
+- [x] F10 — Implement manual publishing, correction entries and withdrawal. Document that Studio validation is not CMS-enforced draft-only access for a privileged token.
 - [ ] F11 — Verify available Sanity roles against the chosen plan. Free's Administrator/Viewer model does not satisfy a separate Editor or draft-only automation role; resolve an upgrade or different access design before requiring either.
-- [ ] F12 — Authenticate preview, set `private, no-store` and `noindex`, and exclude preview from analytics. Do not treat an unlisted URL or `robots.txt` as authentication.
+- [x] F12 — Authenticate preview, set `private, no-store` and `noindex`, and exclude preview from analytics. Do not treat an unlisted URL or `robots.txt` as authentication.
 - [ ] F13 — Demonstrate create → preview → publish → correct → withdraw. Test anonymous draft/API access, invalid content, duplicate slugs and missing media without leaking secrets.
+
+**Local evidence:** [foundation operations](../operations/editorial-foundation.md). F02/F03/F11/F13 remain open because provider/staging/manual live checks are incomplete. Preview has local authentication only; remote preview is deliberately disabled until durable limiting exists.
 
 **Exit evidence:** compatible locked dependencies; passing production build; staging publication lifecycle; anonymous requests cannot read drafts; Founder can edit without changing code. Proposed file boundaries are in the launch specification; fix them in the Phase 1 engineering plan.
 

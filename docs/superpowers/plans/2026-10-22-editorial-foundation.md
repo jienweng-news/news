@@ -1,6 +1,6 @@
 # Editorial Foundation Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Execution method is selected at handoff; no child agents have been started.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking. Execution method is selected at handoff; no child agents have been started.
 
 **Goal:** Deliver a locally runnable Astro publication foundation with Sanity schemas, complete article HTML, and authenticated draft preview.
 
@@ -56,11 +56,11 @@ Local commands: `npm run dev`, `npm run dev:studio`, `npm run check`, `npm test`
 
 **Consumes:** environment contract above. **Produces:** `readConfig(env: Record<string, string | undefined>): AppConfig` in `frontend/src/lib/config.ts`. AppConfig has appEnv, contentMode, siteUrl, siteName, optional Sanity IDs/token, and previewEnabled; private secrets never serialize to public props.
 
-- [ ] Establish the root/frontend/studio workspace manifests and Vitest runner so a failing configuration test can execute. Pin the four verified packages; resolve and pin remaining compatible packages and record license/runtime checks without copying unverified template code.
-- [ ] Add `tests/config.test.ts`: default local fixture succeeds; APP_ENV production plus fixture throws; VERCEL_ENV production plus local/fixture throws; production HTTP site URL throws; Sanity mode without IDs throws; no preview secrets yields previewEnabled false.
-- [ ] Run `npm test -- tests/config.test.ts`; expect failure because readConfig is absent.
-- [ ] Implement readConfig and Astro/Studio environment wiring. Configure server output, adapter, TypeScript and root scripts. Preserve existing docs/assets and keep secrets/build artifacts out of git.
-- [ ] Run the configuration tests and `npm run check`; expect passing tests/type checks. Record resolved dependency/runtime versions in README and commit the task.
+- [x] Establish the root/frontend/studio workspace manifests and Vitest runner so a failing configuration test can execute. Pin the four verified packages; resolve and pin remaining compatible packages and record license/runtime checks without copying unverified template code.
+- [x] Add `tests/config.test.ts`: default local fixture succeeds; APP_ENV production plus fixture throws; VERCEL_ENV production plus local/fixture throws; production HTTP site URL throws; Sanity mode without IDs throws; no preview secrets yields previewEnabled false.
+- [x] Run `npm test -- tests/config.test.ts`; expect failure because readConfig is absent.
+- [x] Implement readConfig and Astro/Studio environment wiring. Configure server output, adapter, TypeScript and root scripts. Preserve existing docs/assets and keep secrets/build artifacts out of git.
+- [x] Run the configuration tests and `npm run check`; expect passing tests/type checks. Record resolved dependency/runtime versions in README and commit the task.
 
 ### Task 2: Public article contract and isolated content access
 
@@ -70,28 +70,28 @@ Article fields: id, slug, title, summary, section (`ai|crypto`), format (`news|a
 
 `normalizeArticle(raw: unknown, mode: "published" | "preview" = "published"): Article` validates required fields, dates, section/format, source links for news and relationship disclosure. Accept only http/https external links; reject executable URL schemes. Published normalization rejects draft IDs; authenticated preview normalization may accept them and must flag the result as preview-only. Invalid documents are omitted from listings and fail closed on detail routes, with a safe diagnostic.
 
-- [ ] Add `tests/content.test.ts` for valid AI/crypto fixtures, missing author/body, invalid dates, missing news sources, unsafe links, commercial disclosure and malformed reference rejection. Mock clients to assert public query uses published perspective with no preview token, draft IDs cannot normalize as public, missing article returns null, and CMS errors throw ContentUnavailableError.
-- [ ] Run `npm test -- tests/content.test.ts`; expect missing contracts/repository failures.
-- [ ] Implement types/normalization, labelled local fixtures, public Sanity reader and separate server preview reader using the current supported SDK APIs. Rendered samples describe editorial formats, not invented current events or affiliations.
-- [ ] Run configuration/content tests; expect all pass. Check no browser-accessible module exports private clients/tokens; commit the task.
+- [x] Add `tests/content.test.ts` for valid AI/crypto fixtures, missing author/body, invalid dates, missing news sources, unsafe links, commercial disclosure and malformed reference rejection. Mock clients to assert public query uses published perspective with no preview token, draft IDs cannot normalize as public, missing article returns null, and CMS errors throw ContentUnavailableError.
+- [x] Run `npm test -- tests/content.test.ts`; expect missing contracts/repository failures.
+- [x] Implement types/normalization, labelled local fixtures, public Sanity reader and separate server preview reader using the current supported SDK APIs. Rendered samples describe editorial formats, not invented current events or affiliations.
+- [x] Run configuration/content tests; expect all pass. Check no browser-accessible module exports private clients/tokens; commit the task.
 
 ### Task 3: Studio schemas and trusted manual editing
 
-**Consumes:** article contract. **Produces:** eight registered Sanity document schemas and a Studio that builds with matching field names; `studio/schemaTypes/index.ts` exports schemaTypes. No workflow claims exceed actual permissions.
+**Consumes:** article contract. **Produces:** seven registered Sanity document schemas and a Studio that builds with matching field names; `studio/schemaTypes/index.ts` exports schemaTypes. No workflow claims exceed actual permissions.
 
-- [ ] Add `tests/schema.test.ts`: required fields match Article contract; title/slug/section/author/body/date validation rejects omissions; news requires evidence; commercial relationships require disclosure; media credit/license is validated when media exists. Verify slug uniqueness validation against a mocked query, including draft/published IDs belonging to the same article.
-- [ ] Run `npm test -- tests/schema.test.ts`; expect absent schemas/validators to fail.
-- [ ] Define article, author, category, affiliateOffer, campaign, project and siteSettings. Use public-only campaign/offer fields, safe links and correction entries. Wire Studio project/dataset via environment with clear missing-configuration output.
-- [ ] Run schema/content tests and `npm run build --workspace studio` with valid test project identifiers; expect a build without live mutations. Document create/preview/publish/correct/withdraw and Free-plan role/API-bypass limits. Commit the task.
+- [x] Add `tests/schema.test.ts`: required fields match Article contract; title/slug/section/author/body/date validation rejects omissions; news requires evidence; commercial relationships require disclosure; media credit/license is validated when media exists. Verify slug uniqueness validation against a mocked query, including draft/published IDs belonging to the same article.
+- [x] Run `npm test -- tests/schema.test.ts`; expect absent schemas/validators to fail.
+- [x] Define article, author, category, affiliateOffer, campaign, project and siteSettings. Use public-only campaign/offer fields, safe links and correction entries. Wire Studio project/dataset via environment with clear missing-configuration output.
+- [x] Run schema/content tests and `npm run build --workspace studio` with valid test project identifiers; expect a build without live mutations. Document create/preview/publish/correct/withdraw and Free-plan role/API-bypass limits. Commit the task.
 
 ### Task 4: Public article HTML and editorial shell
 
 **Consumes:** ContentRepository and Article. **Produces:** `/`, `/articles/[slug]/` and `/404`; reusable BaseLayout, ArticleBody, ArticleMeta, Disclosure and FixtureBanner. Article route returns 404 for unknown slug and 503 for backend failure; invalid content produces a safe unavailable response, never draft content.
 
-- [ ] Add public smoke assertions to `scripts/check-foundation.mjs`: GET both fixture article routes and check title, body, byline, sources and dates in raw HTML; unknown slug returns 404; fixture notice exists in local mode; no preview token or analytics scripts appear; non-none relationship displays disclosure. Assertions use stable semantic elements/data attributes rather than full HTML snapshots.
-- [ ] Run the smoke script against the pre-rendering implementation; expect missing routes or assertions to fail.
-- [ ] Implement responsive original typography/layout, Portable Text rendering, safe links, canonical metadata, visible fixture banner, homepage latest list, accessible focus styles and empty states. Use no paid source or fabricated content. Retain space for later sponsor components without rendering fake sponsors.
-- [ ] Run `npm run check`, `npm test`, `npm run build`; start `npm run preview -- --host 127.0.0.1`, then `npm run verify:foundation`; expect all semantic smoke assertions pass. Verify real upstream 503 handling with a controlled mock/integration check. Stop the preview process and commit the task.
+- [x] Add public smoke assertions to `scripts/check-foundation.mjs`: GET both fixture article routes and check title, body, byline, sources and dates in raw HTML; unknown slug returns 404; fixture notice exists in local mode; no preview token or analytics scripts appear; non-none relationship displays disclosure. Assertions use stable semantic elements/data attributes rather than full HTML snapshots.
+- [x] Run the smoke script against the pre-rendering implementation; expect missing routes or assertions to fail.
+- [x] Implement responsive original typography/layout, Portable Text rendering, safe links, canonical metadata, visible fixture banner, homepage latest list, accessible focus styles and empty states. Use no paid source or fabricated content. Retain space for later sponsor components without rendering fake sponsors.
+- [x] Run `npm run check`, `npm test`, `npm run build`; start `npm run preview -- --host 127.0.0.1`, then `npm run verify:foundation`; expect all semantic smoke assertions pass. Verify real upstream 503 handling with a controlled mock/integration check. Stop the preview process and commit the task.
 
 ### Task 5: Authenticated draft preview and foundation handoff
 
@@ -99,12 +99,12 @@ Article fields: id, slug, title, summary, section (`ai|crypto`), format (`news|a
 
 POST `/api/preview/session` receives the access key in the body, checks same-origin and body-size limit, then issues an HttpOnly SameSite=Strict signed cookie, Secure on HTTPS. Do not put access keys in URLs or persist them in localStorage. Rate-limit repeated failures with host-compatible storage or leave remote preview disabled until supported; a local in-memory limiter is not a production security guarantee. POST logout clears the cookie. Authenticate before invoking getPreview; middleware forces no-store/noindex on all `/preview` and `/api/preview` responses including errors. Public article queries never use this session.
 
-- [ ] Add `tests/preview.test.ts`: valid session works for 15 minutes; expired/tampered/malformed sessions fail; absent key/secrets disables login; cross-origin submission is rejected; unauthenticated preview never calls getPreview; all errors include no-store/noindex. Test logouts and verify the response never echoes supplied secrets.
-- [ ] Run preview tests; expect failures before session/routes exist.
-- [ ] Implement session helpers, login form, session/logout endpoints, preview article rendering and header enforcement. Keep credentials in private server code and preview content out of public responses.
-- [ ] Extend smoke checks for unauthenticated rejection, valid local session, expiry/tamper failure, cookie/header attributes and safe logout. With no Sanity token, use labelled draft fixtures only locally; a live draft test remains pending until configured.
-- [ ] Run `npm run check`, `npm test`, `npm run build` and production-preview smoke checks; expect pass. Inspect built public assets for secrets. Record browser checks as unverified if T3's host sandbox remains unavailable; do not invent Lighthouse or live-CMS results.
-- [ ] Update operations notes with setup commands, actual tests, service inputs still needed, and live acceptance steps. Check off only proven master checklist items; commit and hand back the runnable foundation.
+- [x] Add `tests/preview.test.ts`: valid session works for 15 minutes; expired/tampered/malformed sessions fail; absent key/secrets disables login; cross-origin submission is rejected; unauthenticated preview never calls getPreview; all errors include no-store/noindex. Test logouts and verify the response never echoes supplied secrets.
+- [x] Run preview tests; expect failures before session/routes exist.
+- [x] Implement session helpers, login form, session/logout endpoints, preview article rendering and header enforcement. Keep credentials in private server code and preview content out of public responses.
+- [x] Extend smoke checks for unauthenticated rejection, valid local session, expiry/tamper failure, cookie/header attributes and safe logout. With no Sanity token, use labelled draft fixtures only locally; a live draft test remains pending until configured.
+- [x] Run `npm run check`, `npm test`, `npm run build` and production-preview smoke checks; expect pass. Inspect built public assets for secrets. Record browser checks as unverified if T3's host sandbox remains unavailable; do not invent Lighthouse or live-CMS results.
+- [x] Update operations notes with setup commands, actual tests, service inputs still needed, and live acceptance steps. Check off only proven master checklist items; commit and hand back the runnable foundation.
 
 ## Phase completion versus live acceptance
 
@@ -116,4 +116,8 @@ Local completion means build/type/tests/HTTP smoke checks pass using labelled fi
 - Contracts: repository methods, article field names, configuration and preview helpers are defined before consumers.
 - Failure coverage: environment mismatch, public draft leakage, malformed content, 404/503 distinction and forged/expired preview sessions have owning tasks.
 - External dependencies: live Sanity and host checks are explicit pending acceptance, not silently simulated success.
-- Execution: recommend native execution for this tightly coupled foundation; independent review may follow the implementation. No execution method is yet selected by the founder.
+- Execution: recommend native execution for this tightly coupled foundation; independent review may follow the implementation. Founder selected native execution; all five tasks implemented locally. Live Sanity/host acceptance and final review are tracked separately.
+
+## Execution evidence
+
+Native implementation on `feat/editorial-foundation`. Local configuration, repository, schema, page and preview tests, Astro diagnostics, Node build and HTTP smoke checks passed. See [operations evidence](../../operations/editorial-foundation.md). Checkboxes indicate local implementation/verification; the account-dependent live checks in the task text and completion section remain pending, as does real browser performance testing.
