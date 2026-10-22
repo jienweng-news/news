@@ -1,0 +1,7 @@
+---
+import type { Article } from '../lib/content/types';
+interface Props { article: Article }
+const { article } = Astro.props;
+const date = (v: string) => new Intl.DateTimeFormat('en', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(v));
+---
+<div class="article-meta"><span data-article-author>By <strong>{article.author.name}</strong></span><span>Published <time datetime={article.publishedAt}>{date(article.publishedAt)}</time></span>{article.updatedAt !== article.publishedAt && <span>Updated <time datetime={article.updatedAt}>{date(article.updatedAt)}</time></span>}</div>

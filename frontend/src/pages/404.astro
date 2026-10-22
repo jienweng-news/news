@@ -1,0 +1,5 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+Astro.response.status = 404;
+---
+<BaseLayout title="Page not found" noindex><section class="empty-state"><p class="eyebrow">404</p><h1>Nothing on this page.</h1><p>Check the address or return to the latest articles.</p><a href="/">Back to the latest →</a></section></BaseLayout>

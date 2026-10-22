@@ -1,0 +1,30 @@
+---
+import '../styles/global.css';
+import { runtimeConfig } from '../lib/runtime';
+import FixtureBanner from '../components/FixtureBanner.astro';
+interface Props { title: string; description?: string; noindex?: boolean; canonical?: string; }
+const { title, description = 'Reporting, practical guides and analysis across AI and crypto.', noindex = false, canonical } = Astro.props;
+const config = runtimeConfig();
+const canonicalUrl = canonical || new URL(Astro.url.pathname, config.siteUrl).href;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · {config.siteName}</title><meta name="description" content={description} />
+    <meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:type" content="website" /><meta property="og:url" content={canonicalUrl} />
+    <meta name="twitter:card" content="summary" />
+    {noindex || config.contentMode === 'fixture' ? <meta name="robots" content="noindex, nofollow" /> : <link rel="canonical" href={canonicalUrl} />}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="page-shell">
+      <div class="topline"><span>AI &amp; crypto, in context</span><span>Reporting / Guides / Analysis</span></div>
+      <header class="site-header"><a class="wordmark" href="/" aria-label={`${config.siteName} homepage`}>{config.siteName}<span aria-hidden="true">.</span></a><p class="masthead-note">A closer look at<br />what comes next.</p></header>
+      <nav class="main-nav" aria-label="Main navigation"><a href="/">The latest</a><a href="/#ai">Artificial intelligence</a><a href="/#crypto">Crypto</a><span class="nav-caption">Ideas. Evidence. Perspective.</span></nav>
+      <FixtureBanner visible={config.contentMode === 'fixture'} />
+      <main id="main"><slot /></main>
+      <footer class="site-footer"><a class="wordmark small" href="/">{config.siteName}<span aria-hidden="true">.</span></a><p>Technology moves quickly.<br />Understanding takes a closer look.</p>{config.appEnv === 'local' && <a class="footer-link" href="/preview/">Editorial preview ↗</a>}<span class="footer-label">AI &amp; Crypto</span></footer>
+    </div>
+  </body>
+</html>
