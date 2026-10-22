@@ -20,8 +20,8 @@ for (const path of ['/brand/token-on-air-cutout.svg', '/brand/token-on-air-compa
 assert.match(home.html, /Token on Air/);
 assert.match(home.html, /Understand what’s next\./);
 assert.match(home.html, /aria-label="Main navigation"/);
-assert.match(home.html, /href="\/ai\/"/);
-assert.match(home.html, /href="\/crypto\/"/);
+assert.match(home.html, /href="\/en\/ai\/"/);
+assert.match(home.html, /href="\/en\/crypto\/"/);
 assert.match(home.html, /Development sample/);
 assert.match(home.html, /name="robots" content="noindex, nofollow"/);
 for (const [section, included, excluded] of [

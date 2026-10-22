@@ -8,7 +8,7 @@ import FixtureBanner from '../components/FixtureBanner.astro';
 interface Props { title: string; description?: string; noindex?: boolean; canonical?: string;locale?:Locale;alternatePaths?:Partial<Record<Locale,string>>; }
 const { title, description = 'Reporting, practical guides and analysis across AI and crypto.', noindex = false, canonical,locale=localeFromPath(Astro.url.pathname),alternatePaths } = Astro.props;
 const config = runtimeConfig();
-const routes=alternatePaths||Object.fromEntries(locales.map(l=>[l,localePath(l,Astro.url.pathname.replace(/^\/(en|zh|zh-cn)\//,''))]));
+const routes=alternatePaths||Object.fromEntries(locales.map(l=>[l,localePath(l,Astro.url.pathname.replace(/^\/(en|zh|zh-cn)(\/|$)/,''))]));
 const canonicalUrl = canonical || new URL(Astro.url.pathname, config.siteUrl).href;
 ---
 <!doctype html>

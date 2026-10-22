@@ -18,7 +18,7 @@ export function createContentRepository(config: AppConfig): ContentRepository {
       const raw = config.contentMode === 'fixture'
         ? (preview && fixtureDraft.slug === slug ? fixtureDraft : fixtureArticles.find(a => a.slug === slug || a.translations[localeKey[locale]].slug === slug))
         : await (preview ? previewClient(config).fetch(previewQuery, { slug, localeKey:localeKey[locale] }) : client!.fetch(articleQuery, { slug, localeKey:localeKey[locale] }));
-      return raw ? normalizeLocalizedArticle(raw,locale, preview ? 'preview' : 'published') : null;
+      if(!raw)return null;const article=normalizeLocalizedArticle(raw,locale,preview?'preview':'published');return article.slug===slug?article:null;
     } catch { throw new ContentUnavailableError(); }
   }
   return {

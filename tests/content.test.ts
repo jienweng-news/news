@@ -83,3 +83,8 @@ describe('strict editorial dates', () => {
     expect(() => normalizeArticle(rawArticle({ publishedAt:'2026-01-01T10:00:00Z',updatedAt:'2026-04-31T10:00:00Z' }))).toThrow();
   });
 });
+it('does not serve a translated story at another edition slug',async()=>{
+ clientFactory.mockImplementation(()=>({fetch:publicFetch}));const raw=rawArticle();publicFetch.mockResolvedValue({...raw,translations:{en:{...raw,slug:'actual-en'},zh:{...raw,slug:'actual-zh'},zhCn:{...raw,slug:'actual-zh-cn'}}});
+ const repo=createContentRepository(readConfig({CONTENT_MODE:'sanity',SANITY_PROJECT_ID:'testproject',SANITY_DATASET:'production'}));
+ expect(await repo.getPublished('actual-en','zh')).toBeNull();expect((await repo.getPublished('actual-zh','zh'))?.slug).toBe('actual-zh');
+});

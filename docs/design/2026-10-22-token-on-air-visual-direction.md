@@ -1,6 +1,6 @@
 # Token on Air visual direction
 
-Status: founder selected the Persona-inspired newsroom concept on 2026-10-22 after comparing it with Editorial × graphic. Application implementation remains pending.
+Status: founder selected the Persona-inspired newsroom concept on 2026-10-22 after comparing it with Editorial × graphic. Newsroom and Cutout logo implemented locally; browser acceptance remains pending.
 
 ## Confirmed direction
 

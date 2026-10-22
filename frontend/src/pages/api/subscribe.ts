@@ -1,9 +1,9 @@
 import type {APIRoute} from 'astro';
 import {newsletterReady,subscribe} from '../../lib/newsletter';
-import {isLocale} from '../../lib/i18n';
+import {isLocale,t,type Locale} from '../../lib/i18n';
 export const POST:APIRoute=async({request})=>{
  const json=request.headers.get('accept')?.includes('application/json');
- const reply=(status:number,accepted=false,locale='en')=>json?new Response(JSON.stringify({accepted}),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}}):new Response(null,{status:303,headers:{Location:`/${locale}/?signup=${accepted?'accepted':'unavailable'}`,'Cache-Control':'no-store'}});
+ const reply=(status:number,accepted=false,locale='en')=>json?new Response(JSON.stringify({accepted}),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}}):new Response(`<!doctype html><html lang="${locale}"><meta charset="utf-8"><meta name="robots" content="noindex"><title>Token on Air</title><h1>${t(locale as Locale,accepted?'signupAccepted':'signupError')}</h1><a href="/${locale}/">${t(locale as Locale,'back')}</a></html>`,{status,headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}});
  if(request.headers.get('origin')!==new URL(request.url).origin)return new Response('Forbidden',{status:403});
  if(!newsletterReady(process.env))return reply(503);
  const reader=request.body?.getReader();let total=0;const chunks:Uint8Array[]=[];

@@ -37,7 +37,7 @@ if (process.argv.includes('--server')) {
       for (const path of ['/', '/ai/', '/crypto/']) {
         const response = await fetch(base + path); const html = await response.text();
         assert.equal(response.status, mode === 'outage' ? 503 : 200, `${mode} ${path} status`);
-        assert.equal(response.headers.get('cache-control'), 'no-store');
+        if(path==='/'&&mode!=='outage')assert.match(response.headers.get('cache-control'),/s-maxage=30/);else assert.equal(response.headers.get('cache-control'), 'no-store');
         if (mode === 'outage') {
           assert.match(html, /name="robots" content="noindex, nofollow"/);
           assert.ok(html.includes('Stories are temporarily unavailable.'));

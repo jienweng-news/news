@@ -10,4 +10,13 @@ for(const [locale,lang,headline]of [['en','en','The latest'],['zh','zh-Hant','�
  if(locale==='zh')assert.ok(body.includes('如何評估 AI 工具'));if(locale==='zh-cn')assert.ok(body.includes('如何评估 AI 工具'));
  assert.equal((await fetch(`${base}/${locale}/articles/unpublished-example/`)).status,404);
 }
+for(const locale of ['en','zh','zh-cn']){
+ const feed=await fetch(`${base}/${locale}/rss.xml`);assert.equal(feed.status,200);assert.match(await feed.text(),/<rss version="2.0"/);
+ for(const path of ['about','policy','privacy','contact','advertise','search'])assert.equal((await fetch(`${base}/${locale}/${path}/`)).status,200);
+}
+assert.match(await (await fetch(base+'/sitemap.xml')).text(),/<urlset/);
+assert.equal((await fetch(base+'/api/health')).status,200);
+const language=await fetch(base+'/api/language',{method:'POST',headers:{Origin:base,'Content-Type':'application/x-www-form-urlencoded'},body:'target=%2Fzh-cn%2F',redirect:'manual'});assert.equal(language.status,303);assert.equal(language.headers.get('location'),'/zh-cn/');assert.match(language.headers.get('set-cookie'),/toa_locale=zh-cn/);
+const unsafe=await fetch(base+'/api/language',{method:'POST',headers:{Origin:base,'Content-Type':'application/x-www-form-urlencoded'},body:'target=https%3A%2F%2Fevil.test',redirect:'manual'});assert.equal(unsafe.status,400);
+const signup=await fetch(base+'/api/subscribe',{method:'POST',headers:{Origin:base,Accept:'application/json','Content-Type':'application/x-www-form-urlencoded'},body:'email=reader%40example.com&language=en&consent=yes'});assert.equal(signup.status,503);assert.deepEqual(await signup.json(),{accepted:false});
 console.log('Multilingual launch HTTP smoke passed: root/private redirect, saved language, locale HTML/navigation/article/SEO and draft isolation.');
