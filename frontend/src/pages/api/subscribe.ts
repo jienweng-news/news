@@ -13,6 +13,6 @@ export const POST:APIRoute=async({request})=>{
  try{
  const verification=await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({secret:process.env.TURNSTILE_SECRET_KEY!,response:data.get('cf-turnstile-response')||''}),signal:AbortSignal.timeout(8000)});
  const result=await verification.json();if(!result.success||result.hostname!==new URL(request.url).hostname)return reply(400,false,locale);
- await subscribe(Object.fromEntries(data),{enabled:true,apiKey:process.env.BEEHIIV_API_KEY,publicationId:process.env.BEEHIIV_PUBLICATION_ID,languageField:process.env.BEEHIIV_LANGUAGE_FIELD});return reply(200,true,locale);
+ await subscribe(Object.fromEntries(data),{enabled:true,apiKey:process.env.KIT_API_KEY,formId:process.env.KIT_FORM_ID,languageField:process.env.KIT_LANGUAGE_FIELD});return reply(200,true,locale);
  }catch{return reply(503,false,locale);}
 };

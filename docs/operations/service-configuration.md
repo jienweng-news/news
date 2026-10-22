@@ -11,3 +11,7 @@ Still missing: Vercel project connection, beehiiv publication/setup, verified pu
 Additional read-only application check: the real repository list and missing-article queries succeeded in en/zh/zh-cn; each list contained0articles and missing slugs returned null. This checks the live GROQ query paths without creating content. Preflight now reads the ignored root .env for local configuration while retaining its live-acceptance gates.
 
 Configured-preview regression: dev health initially returned500 because the config loader read .env without making server-only values available to request handlers. Astro config now loads the ignored root environment into the server process; scripts/check-live-cms.mjs observed RED500→GREEN200, with all three editions rendering without fixtures or local analytics. Full102-test/check/build and public/private fixture HTTP suite still pass.
+
+## Kit follow-up
+
+Founder supplied public embed UID17c6e3f357 and hello@tokenonair.com. Kit replaces beehiiv. Numeric API form ID and secure setup remain pending; see kit-setup.md. Vercel project token-on-air now exists under lai-jien-wengs-projects and has been deployed. Earlier missing-service notes describe the configuration-recording checkpoint.
