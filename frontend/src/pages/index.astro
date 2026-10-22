@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { createContentRepository } from '../lib/content/repository';
+import { runtimeConfig } from '../lib/runtime';
+import type { ArticleCard } from '../lib/content/types';
+const config = runtimeConfig(); let articles: ArticleCard[] = []; let unavailable = false;
+try { articles = await createContentRepository(config).listPublished(); } catch { unavailable = true; Astro.response.status = 503; }
+Astro.response.headers.set('Cache-Control', 'no-store');
+const lead = articles[0];
+---
+<BaseLayout title="The latest" noindex={unavailable}>
+  <div class="edition-heading"><h1>The latest</h1><span>Technology, with perspective</span></div>
+  {unavailable ? <section class="empty-state"><h2>The desk is temporarily unavailable.</h2><p>Please try again shortly.</p></section> : lead ? <div class="front-grid">
+    <article class="lead-story"><div class="eyebrow"><span class:list={['section-label',lead.section]}>{lead.section === 'ai' ? 'Artificial intelligence' : 'Crypto'}</span><span>{lead.format}</span></div><a class="lead-link" href={`/articles/${lead.slug}/`}><div class="editorial-art" aria-hidden="true"><span class="art-axis">IDEAS / EVIDENCE / IMPACT</span><div class="art-orbit"></div><div class="art-square"></div><span class="art-caption">A closer look.</span></div><h2>{lead.title}</h2></a><p class="deck">{lead.summary}</p><div class="story-footer"><span>{lead.author.name}</span><a href={`/articles/${lead.slug}/`}>Read the guide ↗</a></div></article>
+    <aside class="latest-column" aria-label="More from the desk"><h2 class="small-heading">From the desk</h2>{articles.slice(1).map((a,i) => <article class="compact-story"><span class="story-number">0{i+1}</span><div><p class="eyebrow"><span class:list={['section-label',a.section]}>{a.section === 'ai' ? 'AI' : 'Crypto'}</span><span>{a.format}</span></p><h3><a href={`/articles/${a.slug}/`}>{a.title}</a></h3><p>{a.summary}</p><span class="byline">{a.author.name}</span></div></article>)}<div class="desk-note"><span class="eyebrow">Our editorial approach</span><h3>Less noise.<br />More context.</h3><p>Practical explanations, clear sources, and a distinction between reporting and promotion.</p></div></aside>
+  </div> : <section class="empty-state"><h2>The first edition is taking shape.</h2><p>Reviewed articles will appear here when published.</p></section>}
+  <div class="section-grid">{(['ai','crypto'] as const).map(section => <section class="section-front" id={section}><div class="section-heading"><h2>{section === 'ai' ? 'Artificial intelligence' : 'Crypto'}</h2><span class:list={['section-dot',section]} aria-hidden="true"></span></div>{articles.filter(a => a.section === section).map(a => <article><p class="eyebrow">{a.format}</p><h3><a href={`/articles/${a.slug}/`}>{a.title}</a></h3><p>{a.summary}</p></article>)}{!articles.some(a => a.section === section) && <p>Reviewed coverage is on the way.</p>}</section>)}</div>
+</BaseLayout>

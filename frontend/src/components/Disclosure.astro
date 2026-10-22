@@ -1,0 +1,7 @@
+---
+import type { Article } from '../lib/content/types';
+interface Props { article: Article }
+const { article } = Astro.props;
+const labels = { affiliate: 'Affiliate disclosure', sponsored: 'Sponsored content', 'owned-project': 'Ownership disclosure', none: '' };
+---
+{article.relationship !== 'none' && <aside class="disclosure" data-disclosure><strong>{labels[article.relationship]}</strong><p>{article.disclosure}</p></aside>}

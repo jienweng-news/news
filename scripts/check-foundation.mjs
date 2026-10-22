@@ -1,0 +1,58 @@
+import assert from 'node:assert/strict';
+const base = process.env.SMOKE_BASE_URL || 'http://127.0.0.1:4321';
+const page = async (path, options) => { const response = await fetch(new URL(path, base), options); return { response, html: await response.text() }; };
+const home = await page('/');
+assert.equal(home.response.status, 200, 'home must render');
+assert.match(home.html, /Development sample/);
+for (const slug of ['evaluating-ai-tools', 'understanding-wallet-custody']) {
+  const { response, html } = await page(`/articles/${slug}/`);
+  assert.equal(response.status, 200); assert.match(html, /data-article-body/); assert.match(html, /Development sample/);
+  assert.match(html, /<time[^>]+datetime=/); assert.match(html, /data-article-author/);
+  assert.doesNotMatch(html, /plausible\.io\/js|googletagmanager|private-test-token/);
+  assert.match(html, /not current reporting/);
+}
+assert.equal((await page('/articles/missing/')).response.status, 404);
+assert.equal((await page('/articles/unpublished-example/')).response.status, 404);
+assert.equal((await page('/404/')).response.status, 404);
+console.log('Public HTTP smoke: homepage, AI/Crypto article HTML, labels, dates, author, no trackers, and draft/missing 404 pass.');
+if (process.env.SMOKE_PREVIEW === '1') {
+  const key = process.env.PREVIEW_ACCESS_KEY;
+  const secret = process.env.PREVIEW_SIGNING_SECRET;
+  assert.ok(key && secret, 'Preview smoke requires test-only session configuration');
+  const headers = { Origin: new URL(base).origin, 'Content-Type': 'application/x-www-form-urlencoded' };
+  const loginPath = '/api/preview/session';
+  // Use node:http: fetch may normalize/ignore a caller-supplied Host header.
+  const {request:httpRequest}=await import('node:http');
+  const untrustedHost=await new Promise((resolve,reject)=>{
+    const req=httpRequest(new URL('/preview/',base),{headers:{Host:'news.example:4325'}},res=>{res.resume();resolve({status:res.statusCode,cache:res.headers['cache-control']});});
+    req.on('error',reject);req.end();
+  });
+  assert.equal(untrustedHost.status,404,'Untrusted raw Host must not enable preview');
+  assert.equal(untrustedHost.cache,'private, no-store');
+  const anonymous = await page('/preview/articles/unpublished-example/');
+  assert.equal(anonymous.response.status, 401);
+  assert.doesNotMatch(anonymous.html, /This draft is visible only/);
+  assert.equal(anonymous.response.headers.get('cache-control'), 'private, no-store');
+  assert.equal(anonymous.response.headers.get('x-robots-tag'), 'noindex, nofollow');
+  const denied = await page(loginPath, { method:'POST', headers, body:new URLSearchParams({key:'incorrect'}), redirect:'manual' });
+  assert.equal(denied.response.status,401); assert.ok(!denied.html.includes(key));
+  const cross = await page(loginPath, { method:'POST', headers:{...headers, Origin:'https://untrusted.example'}, body:new URLSearchParams({key}), redirect:'manual' });
+  assert.equal(cross.response.status,403);
+  const { response: accepted } = await page(loginPath, { method:'POST', headers, body:new URLSearchParams({key}), redirect:'manual' });
+  assert.equal(accepted.status,303);
+  const setCookie = accepted.headers.get('set-cookie'); assert.match(setCookie,/HttpOnly/); assert.match(setCookie,/SameSite=Strict/);
+  const session = setCookie.split(';')[0];
+  const preview = await page('/preview/articles/unpublished-example/', {headers:{Cookie:session}});
+  assert.equal(preview.response.status,200); assert.match(preview.html,/data-preview-notice/); assert.match(preview.html,/data-disclosure/);
+  assert.match(preview.html,/This draft is visible only/); assert.doesNotMatch(preview.html,/plausible\.io\/js|googletagmanager/);
+  assert.ok(!preview.html.includes(key) && !preview.html.includes(secret));
+  const tampered = await page('/preview/articles/unpublished-example/',{headers:{Cookie:session+'x'}}); assert.equal(tampered.response.status,401);
+  const {createHmac,randomBytes}=await import('node:crypto');
+  const payload=Buffer.from(JSON.stringify({v:1,issuedAt:Date.now()-1000000,expiresAt:Date.now()-100000,nonce:randomBytes(16).toString('base64url')})).toString('base64url');
+  const expired=`${payload}.${createHmac('sha256',secret).update(payload).digest('base64url')}`;
+  assert.equal((await page('/preview/articles/unpublished-example/',{headers:{Cookie:`news_preview=${expired}`}})).response.status,401);
+  const missingPreview = await page('/preview/missing/'); assert.equal(missingPreview.response.status,404); assert.equal(missingPreview.response.headers.get('cache-control'),'private, no-store');
+  const logout=await page('/api/preview/logout',{method:'POST',headers:{Origin:new URL(base).origin,Cookie:session},redirect:'manual'});
+  assert.equal(logout.response.status,303); assert.match(logout.response.headers.get('set-cookie'),/Max-Age=0/);
+  console.log('Preview HTTP smoke: authentication, draft isolation, disclosure, headers, tampering, expiry, cross-origin rejection and cookie clearing pass.');
+}

@@ -1,0 +1,5 @@
+---
+interface Props { visible: boolean }
+const { visible } = Astro.props;
+---
+{visible && <aside class="fixture-banner" aria-label="Development content"><span class="status-dot"></span><strong>Development sample</strong><span>Sample articles only — not current reporting. Production publishing is not connected.</span></aside>}

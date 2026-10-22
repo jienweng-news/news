@@ -1,0 +1,18 @@
+---
+import { PortableText } from 'astro-portabletext';
+import type { Article } from '../lib/content/types';
+import ArticleMeta from './ArticleMeta.astro';
+import Disclosure from './Disclosure.astro';
+interface Props { article: Article }
+const { article } = Astro.props;
+---
+<article class="article-page">
+  <a class="back-link" href="/">← Back to the latest</a>
+  {article.previewOnly && <aside class="preview-notice" data-preview-notice><strong>Private editorial preview</strong> — unpublished changes may appear here.</aside>}
+  <header class="article-header"><div class="eyebrow"><span class:list={['section-label', article.section]}>{article.section === 'ai' ? 'Artificial intelligence' : 'Crypto'}</span><span>{article.format}</span></div><h1>{article.title}</h1><p class="article-deck">{article.summary}</p><ArticleMeta article={article} /></header>
+  <Disclosure article={article} />
+  {article.media && <figure><img src={article.media.url} alt={article.media.alt} width="1200" height="675" fetchpriority="high" /><figcaption>{article.media.credit} · {article.media.license}</figcaption></figure>}
+  <div class="prose" data-article-body><PortableText value={article.body} /></div>
+  {article.sources.length > 0 && <section class="source-list" aria-label="Sources"><h2>Sources &amp; references</h2><ul>{article.sources.map(source => <li><a href={source} rel="noopener noreferrer">{new URL(source).hostname} ↗</a></li>)}</ul></section>}
+  {article.corrections.length > 0 && <section class="source-list"><h2>Corrections</h2>{article.corrections.map(c => <p><time datetime={c.date}>{c.date.slice(0,10)}</time> — {c.note}</p>)}</section>}
+</article>
