@@ -37,7 +37,7 @@ Type: self-hosted Barlow Condensed Bold (SIL OFL, frontend/public/fonts/OFL.txt)
 
 ## Layout
 
-Composition: max 1320px shell; desktop 40px gutters, tablet 24px, mobile20px. Lead/latest split 1.7:1; equal AI/Crypto columns; single column under640px. A cutout masthead and red/black typographic artwork supply identity when no licensed lead image exists. Latest headlines use an ink panel; no fabricated time-relative urgency or story counts. Analysis appears only with matching real records.
+Composition: full browser-width shell; desktop 40px gutters, tablet 24px, mobile20px. Lead/latest split 1.7:1; equal AI/Crypto columns; single column under640px. A cutout masthead and red/black typographic artwork supply identity when no licensed lead image exists. Latest headlines use an ink panel; no fabricated time-relative urgency or story counts. Analysis appears only with matching real records.
 
 ## Components
 
@@ -52,3 +52,5 @@ Approved logo: Cutout02, implemented with local outlined SVG wordmark (560×300)
 ## Approved styling refinement — direction B
 
 Founder selected dramatic Persona direction B: full-width ink masthead, compact Cutout logo, restrained angled red edition title and ink topic tabs, upright story/body text, and a full-width dark newsletter panel with envelope geometry and red action. The AI/Crypto independent-perspective topline is removed. Newsletter uses two columns on desktop and one on mobile, preserving explicit labels, language choices, consent, disabled availability and provider guards. Existing content, permissions and analytics behavior are unchanged.
+
+Founder requested full browser width after reviewing the live screenshot. The page shell has no maximum width; desktop/tablet/mobile gutters remain 40/24/20px. Masthead extends to both browser edges. Article and prose width limits remain for reading comfort.
