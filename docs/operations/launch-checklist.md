@@ -15,7 +15,7 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 ## Domains and delivery
 - [x] tokenonair.com and www.tokenonair.com resolve to Vercel and previously passed HTTPS checks. www CNAME: d6ca6c9003ff43c3.vercel-dns-017.com.
 - [x] Production configuration persisted in Vercel project token-on-air, team lai-jien-wengs-projects; Sanity4k0o7q9m/production, GA4 G-WQMMLS9H2X, Kit form10082025.
-- [ ] Record final deployment and fresh HTTP verification below.
+- [x] Final deployment dpl_CdsV1Fc9PMNrSXRYsxzXGotjZWWf,2026-10-22: both custom domains pass fresh HTTP checks below.
 - [ ] Connect/verify repository-driven Vercel deployment; current release method is local prebuilt CLI deployment. No Git automation acceptance claimed.
 - [ ] Configure an external uptime monitor for /api/health and provider usage alerts. No monitoring service account supplied.
 - [ ] Perform recorded rollback and private backup/restore drill. No production rollback or CMS restore has been attempted.
@@ -55,7 +55,22 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 
 ## Verification record
 - Consent RED: four new/updated test failures before implementation; GREEN: six analytics-client tests and113 total tests pass.
-- Terms/disclaimer RED: built HTTP smoke returned404; GREEN record added after final check.
+- Terms/disclaimer RED: built HTTP smoke returned404; GREEN: all new routes return200 in built local smoke.
 - Browser: preview_open failed explicitly with AppArmor sandbox error. No visual/browser acceptance claimed.
 - Public DNS: Zoho MX/SPF and www CNAME verified; DMARC absent as above.
-- Final build/review/deployment evidence: pending this execution.
+- Node build, Astro check (56files, no errors/warnings/hints), automation/client checks, Studio build and built HTTP smoke pass.
+- Fresh public Sanity count:0 published article documents.
+- npm audit:16 inherited transitive advisories (7high,9moderate,0critical), concentrated in Sanity Studio/CLI dependencies. Suggested fix is a Sanity major downgrade, not applied blindly. Dependency disposition remains a launch gate.
+- Final fresh review (GPT-6-astra): one Important analytics withdrawal/storage-write defect fixed with failing-then-passing regression; no Critical/Minor findings. Final suite114/114; analytics7/7.
+- Vercel production deployment: dpl_CdsV1Fc9PMNrSXRYsxzXGotjZWWf, https://token-on-gtg6bcd90-lai-jien-wengs-projects.vercel.app; public aliases https://tokenonair.com and https://www.tokenonair.com.
+- Fresh live checks passed on both hosts: HTTPS root redirect, all three homepages, terms/disclaimer/privacy/contact pages, public contact mailto, Malay privacy section, consent markup/latest script, RSS, sitemap, health, and disabled signup503 with accepted:false. No subscriber created or mail sent.
+- Project Node version aligned to22.x; function output is nodejs22.x. Secrets/activation flags were not enabled by the deployment.
+
+## Execution decisions and limits
+- Subsequent owner choices supersede stale original spec wording: retain three locales and existing deployment. Reversing this choice would require scope changes.
+- Finish accessible work without inventing account acceptance or publisher identity; activation stays gated.
+- Publish owner-confirmed Zoho address; a mistaken owner confirmation would require correcting contact delivery.
+- Include Malay privacy text, not a fourth news edition, based on Malaysian regulator guidance; owner/legal language review remains needed. Reference: https://www.pdp.gov.my/ppdpv1/wp-content/uploads/2025/01/A-Quick-Guide-to-PRIVACY-NOTICE.pdf .
+- Reviewer exclusions remain gates: real browser keyboard/zoom/cookies; GA event delivery/settings/retention; Kit confirmation/suppression/sender; legal sufficiency/operator identity; autonomous Dots publishing. CLI/HTTP verifies deployment endpoints but does not establish these external behaviors.
+- Failed browser-storage writes retain denial in the current page without a reload into an old grant. Persistence across later navigation is not guaranteed if the browser refuses storage writes.
+- No deferred review minors. Impeccable regex scan found0 anti-patterns and37 design-token advisories; parsed visual checks did not run. Existing sidecar drift was not repaired as an unrelated change.
