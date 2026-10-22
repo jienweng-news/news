@@ -54,3 +54,5 @@ Approved logo: Cutout02, implemented with local outlined SVG wordmark (560×300)
 Founder selected dramatic Persona direction B: full-width ink masthead, compact Cutout logo, restrained angled red edition title and ink topic tabs, upright story/body text, and a full-width dark newsletter panel with envelope geometry and red action. The AI/Crypto independent-perspective topline is removed. Newsletter uses two columns on desktop and one on mobile, preserving explicit labels, language choices, consent, disabled availability and provider guards. Existing content, permissions and analytics behavior are unchanged.
 
 Founder requested full browser width after reviewing the live screenshot. The page shell has no maximum width; desktop/tablet/mobile gutters remain 40/24/20px. Masthead extends to both browser edges. Article and prose width limits remain for reading comfort.
+
+Lower surfaces also span edge to edge: newsletter and footer use ink backgrounds with shared 40/24/20px gutters. The intervening analytics consent row uses matching minimum44px buttons and preserves native hidden states and opt-in behavior.
