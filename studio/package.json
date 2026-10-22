@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "sanity dev --host 0.0.0.0",
-    "build": "sanity build"
+    "dev": "node ../scripts/studio.mjs dev --host 0.0.0.0",
+    "build": "node ../scripts/studio.mjs build"
   },
   "dependencies": {
     "sanity": "6.20.0",
