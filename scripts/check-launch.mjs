@@ -12,7 +12,7 @@ for(const [locale,lang,headline]of [['en','en','The latest'],['zh','zh-Hant','æœ
 }
 for(const locale of ['en','zh','zh-cn']){
  const feed=await fetch(`${base}/${locale}/rss.xml`);assert.equal(feed.status,200);assert.match(await feed.text(),/<rss version="2.0"/);
- for(const path of ['about','policy','privacy','contact','advertise','search'])assert.equal((await fetch(`${base}/${locale}/${path}/`)).status,200);
+ for(const path of ['about','policy','privacy','contact','advertise','search','terms','disclaimer'])assert.equal((await fetch(`${base}/${locale}/${path}/`)).status,200);
 }
 assert.match(await (await fetch(base+'/sitemap.xml')).text(),/<urlset/);
 assert.equal((await fetch(base+'/api/health')).status,200);

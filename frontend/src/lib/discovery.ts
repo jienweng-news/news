@@ -12,7 +12,7 @@ export function buildFeed(cards:ArticleCard[],locale:Locale,siteUrl:string):stri
 export function buildSitemap(editions:Record<Locale,ArticleCard[]>,siteUrl:string):string{
  const absolute=(path:string)=>xmlEscape(new URL(path,siteUrl).href);const urls:string[]=[];
  for(const locale of locales){
-  for(const path of ['', 'ai','crypto','search','about','policy','contact','privacy','advertise'])urls.push(`<url><loc>${absolute(localePath(locale,path))}</loc></url>`);
+  for(const path of ['', 'ai','crypto','search','about','policy','contact','privacy','advertise','terms','disclaimer'])urls.push(`<url><loc>${absolute(localePath(locale,path))}</loc></url>`);
   for(const a of editions[locale].filter(a=>!a.previewOnly)){
    const slugs=a.localeSlugs||{[locale]:a.slug};
    urls.push(`<url><loc>${absolute(localePath(locale,`articles/${slugs[locale]||a.slug}`))}</loc><lastmod>${a.updatedAt}</lastmod>${Object.entries(slugs).map(([l,slug])=>`<xhtml:link rel="alternate" hreflang="${languageTag[l as Locale]}" href="${absolute(`/${l}/articles/${slug}/`)}"/>`).join('')}</url>`);
