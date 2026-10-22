@@ -3,11 +3,11 @@
 Founder selected Kit with the website's own newsletter design. Public embed reference:
 `https://token-on-air.kit.com/17c6e3f357/index.js`, UID `17c6e3f357`.
 Sender/contact address supplied by founder: `hello@tokenonair.com`.
-Neither embed availability, confirmation settings nor sender delivery/authentication has been verified. Public script fetch returned a403 Cloudflare verification page. No embedded Kit JavaScript is loaded on the website.
+Founder supplied numeric form ID `10082025` (editor URL https://app.kit.com/forms/designers/10082025/edit) and confirmed confirmation email enabled with auto-confirm disabled. These settings are owner-reported; actual signup, sender delivery/authentication and confirmation lifecycle remain unverified. Public script fetch returned a403 Cloudflare verification page. No embedded Kit JavaScript is loaded on the website.
 
 ## Pending provider setup
 
-1. Obtain numeric form ID from Kit form editor URL or authenticated forms API; the public hexadecimal UID cannot be passed as the API form ID.
+1. Numeric form ID10082025 has been supplied. The public hexadecimal UID remains a reference only.
 2. Enable confirmation email and disable auto-confirm. Verify actual confirmation lifecycle with an owner-approved test mailbox before enabling public signup.
 3. Create a subscriber custom field with key `newsletter_language`; values sent are `en`, `zh`, `zh-cn`, `all`. Verify that Kit stores the chosen value and that recipient filters use it.
 4. Configure Kit V4 API key privately in Vercel, never in chat or committed files. Server environment name: `KIT_API_KEY`.
