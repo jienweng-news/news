@@ -9,3 +9,5 @@ Read-only Sanity SDK check succeeded without a token, published perspective, dat
 Still missing: Vercel project connection, beehiiv publication/setup, verified public mailbox, Sanity editor reference and isolated publisher permissions, Dots handoff and independent verifier. No GA4 event, live publication, email or deployment was performed by recording these IDs.
 
 Additional read-only application check: the real repository list and missing-article queries succeeded in en/zh/zh-cn; each list contained0articles and missing slugs returned null. This checks the live GROQ query paths without creating content. Preflight now reads the ignored root .env for local configuration while retaining its live-acceptance gates.
+
+Configured-preview regression: dev health initially returned500 because the config loader read .env without making server-only values available to request handlers. Astro config now loads the ignored root environment into the server process; scripts/check-live-cms.mjs observed RED500→GREEN200, with all three editions rendering without fixtures or local analytics. Full102-test/check/build and public/private fixture HTTP suite still pass.
