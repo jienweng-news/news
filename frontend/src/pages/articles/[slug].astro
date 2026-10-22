@@ -1,14 +1,5 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import ArticleBody from '../../components/ArticleBody.astro';
-import { createContentRepository } from '../../lib/content/repository';
-import { resolveArticlePage } from '../../lib/content/page';
-import { runtimeConfig } from '../../lib/runtime';
-const repo = createContentRepository(runtimeConfig());
-const { article, status } = await resolveArticlePage(repo.getPublished, Astro.params.slug || '');
-Astro.response.status = status;
-Astro.response.headers.set('Cache-Control', 'no-store');
+import {validSlug} from '../../lib/content/normalize';
+const slug=Astro.params.slug||'';if(!validSlug(slug))return new Response('Not found',{status:404});
+return Astro.redirect(`/en/articles/${slug}/`,307);
 ---
-<BaseLayout title={article?.title || (status === 503 ? 'Temporarily unavailable' : 'Article not found')} description={article?.summary} noindex={status !== 200}>
-  {article ? <ArticleBody article={article} /> : <section class="empty-state"><p class="eyebrow">{status}</p><h1>{status === 503 ? 'The desk is temporarily unavailable.' : 'This article isn’t here.'}</h1><p>{status === 503 ? 'We could not load editorial content. Please try again shortly.' : 'It may have been withdrawn, or this link may be incorrect.'}</p><a href="/">Return to the latest →</a></section>}
-</BaseLayout>

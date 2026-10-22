@@ -1,0 +1,6 @@
+---
+import SectionPage from '../../components/SectionPage.astro';
+import {isLocale} from '../../lib/i18n';
+const {locale,section}=Astro.params;if(!isLocale(locale)||!['ai','crypto'].includes(section||''))return new Response('Not found',{status:404});
+---
+<SectionPage locale={locale} section={section as 'ai'|'crypto'}/>

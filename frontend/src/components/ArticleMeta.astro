@@ -1,7 +1,8 @@
 ---
+import {t,languageTag,type Locale} from '../lib/i18n';
 import type { Article } from '../lib/content/types';
-interface Props { article: Article }
-const { article } = Astro.props;
-const date = (v: string) => new Intl.DateTimeFormat('en', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(v));
+interface Props { article: Article;locale?:Locale }
+const { article,locale='en' } = Astro.props;
+const date = (v: string) => new Intl.DateTimeFormat(languageTag[locale], { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(v));
 ---
-<div class="article-meta"><span data-article-author>Edited by <strong>jienweng</strong></span><span>Published <time datetime={article.publishedAt}>{date(article.publishedAt)}</time></span>{article.updatedAt !== article.publishedAt && <span>Updated <time datetime={article.updatedAt}>{date(article.updatedAt)}</time></span>}</div>
+<div class="article-meta"><span data-article-author>{t(locale,'editor')} <strong>jienweng</strong></span><span>{t(locale,'published')} <time datetime={article.publishedAt}>{date(article.publishedAt)}</time></span>{article.updatedAt !== article.publishedAt && <span>{t(locale,'updated')} <time datetime={article.updatedAt}>{date(article.updatedAt)}</time></span>}</div>

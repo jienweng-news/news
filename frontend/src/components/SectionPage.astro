@@ -4,16 +4,17 @@ import StoryList from './StoryList.astro';
 import { createContentRepository } from '../lib/content/repository';
 import { selectSection } from '../lib/content/newsroom';
 import { runtimeConfig } from '../lib/runtime';
+import {t,type Locale} from '../lib/i18n';
 import type { Section, ArticleCard } from '../lib/content/types';
-interface Props { section: Section }
-const { section } = Astro.props;
-const title = section === 'ai' ? 'Artificial intelligence' : 'Crypto';
+interface Props { section: Section;locale?:Locale }
+const { section,locale='en' } = Astro.props;
+const title = t(locale,section);
 let articles: ArticleCard[] = []; let unavailable = false;
-try { articles = selectSection(await createContentRepository(runtimeConfig()).listPublished(), section); }
+try { articles = selectSection(await createContentRepository(runtimeConfig()).listPublished(locale), section); }
 catch { unavailable = true; Astro.response.status = 503; }
 Astro.response.headers.set('Cache-Control', 'no-store');
 ---
-<BaseLayout title={title} noindex={unavailable} description={section === 'ai' ? 'AI news, practical guides and analysis from Token on Air.' : 'Crypto news, practical guides and analysis from Token on Air.'}>
-  <div class="section-page-heading"><a class="back-link" href="/">Back to the latest</a><h1>{title}</h1><p>{section === 'ai' ? 'Models, tools and the businesses shaping intelligence.' : 'Networks, markets and the changing ownership of technology.'}</p></div>
-  {unavailable ? <section class="empty-state"><h2>Stories are temporarily unavailable.</h2><p>Please try again shortly.</p></section> : articles.length ? <div class="section-stories"><StoryList articles={articles} /></div> : <section class="empty-state"><h2>Coverage is on the way.</h2><p>Stories will appear here when published.</p></section>}
+<BaseLayout locale={locale} title={title} noindex={unavailable} description={section === 'ai' ? 'AI news, practical guides and analysis from Token on Air.' : 'Crypto news, practical guides and analysis from Token on Air.'}>
+  <div class="section-page-heading"><a class="back-link" href={`/${locale}/`}>{t(locale,'back')}</a><h1>{title}</h1><p>{t(locale,'technology')}</p></div>
+  {unavailable ? <section class="empty-state"><h2>{t(locale,'unavailable')}</h2><p>{t(locale,'retry')}</p></section> : articles.length ? <div class="section-stories"><StoryList locale={locale} headingLevel="h2" articles={articles} /></div> : <section class="empty-state"><h2>{t(locale,'preparing')}</h2><p>{t(locale,'empty')}</p></section>}
 </BaseLayout>

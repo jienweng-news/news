@@ -1,30 +1,36 @@
 ---
 import '../styles/global.css';
+import {localeFromPath,localePath,languageTag,locales,localeLabel,t,type Locale} from '../lib/i18n';
 import { runtimeConfig } from '../lib/runtime';
 import FixtureBanner from '../components/FixtureBanner.astro';
-interface Props { title: string; description?: string; noindex?: boolean; canonical?: string; }
-const { title, description = 'Reporting, practical guides and analysis across AI and crypto.', noindex = false, canonical } = Astro.props;
+interface Props { title: string; description?: string; noindex?: boolean; canonical?: string;locale?:Locale;alternatePaths?:Partial<Record<Locale,string>>; }
+const { title, description = 'Reporting, practical guides and analysis across AI and crypto.', noindex = false, canonical,locale=localeFromPath(Astro.url.pathname),alternatePaths } = Astro.props;
 const config = runtimeConfig();
+const routes=alternatePaths||Object.fromEntries(locales.map(l=>[l,localePath(l,Astro.url.pathname.replace(/^\/(en|zh|zh-cn)\//,''))]));
 const canonicalUrl = canonical || new URL(Astro.url.pathname, config.siteUrl).href;
 ---
 <!doctype html>
-<html lang="en">
+<html lang={languageTag[locale]}>
   <head>
     <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} · {config.siteName}</title><meta name="description" content={description} />
     <meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:type" content="website" /><meta property="og:url" content={canonicalUrl} />
+    {Object.entries(routes).map(([l,path])=>path&&<link rel="alternate" hreflang={languageTag[l as Locale]} href={new URL(path,config.siteUrl).href}/>)}
+    {routes.en&&<link rel="alternate" hreflang="x-default" href={new URL(routes.en,config.siteUrl).href}/>}
+    <link rel="alternate" type="application/rss+xml" title={`${config.siteName} ${localeLabel[locale]}`} href={`/${locale}/rss.xml`}/>
     <meta name="twitter:card" content="summary" /><link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     {noindex || config.contentMode === 'fixture' ? <meta name="robots" content="noindex, nofollow" /> : <link rel="canonical" href={canonicalUrl} />}
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="page-shell">
-      <div class="topline"><span>AI / Crypto / Culture of technology</span><span>Independent perspective</span></div>
-      <header class="site-header"><a class="brand-link" href="/" aria-label={`${config.siteName} homepage`}><img class="brand-logo" src="/brand/token-on-air-cutout.svg" alt="Token on Air" width="560" height="300" fetchpriority="high" /></a><p class="masthead-note">Understand<br />what’s next.</p></header>
-      <nav class="main-nav" aria-label="Main navigation">{[{href:'/',label:'The latest'},{href:'/ai/',label:'Artificial intelligence'},{href:'/crypto/',label:'Crypto'}].map(item => <a href={item.href} aria-current={Astro.url.pathname === item.href ? 'page' : undefined}>{item.label}</a>)}<span class="nav-caption">Stay curious.</span></nav>
-      <FixtureBanner visible={config.contentMode === 'fixture'} />
+      <div class="topline"><span>AI / Crypto</span><span>{t(locale,'notice')}</span></div>
+      <header class="site-header"><a class="brand-link" href={localePath(locale)} aria-label={`${config.siteName} homepage`}><img class="brand-logo" src="/brand/token-on-air-cutout.svg" alt="Token on Air" width="560" height="300" fetchpriority="high" /></a><p class="masthead-note">{t(locale,'tagline')}</p></header>
+      <nav class="main-nav" aria-label="Main navigation">{[{href:localePath(locale),label:t(locale,'latest')},{href:localePath(locale,'ai'),label:t(locale,'ai')},{href:localePath(locale,'crypto'),label:t(locale,'crypto')},{href:localePath(locale,'search'),label:t(locale,'search')}].map(item => <a href={item.href} aria-current={Astro.url.pathname === item.href ? 'page' : undefined}>{item.label}</a>)}<span class="nav-caption">{t(locale,'curious')}</span></nav>
+      <form class="language-switch" action="/api/language" method="POST" aria-label="Language">{locales.map(l=><button type="submit" name="target" value={routes[l]||localePath(l)} aria-current={l===locale?'true':undefined} lang={languageTag[l]}>{localeLabel[l]}</button>)}</form>
+      <FixtureBanner locale={locale} visible={config.contentMode === 'fixture'} />
       <main id="main"><slot /></main>
-      <footer class="site-footer"><a class="brand-link footer-brand" href="/" aria-label="Token on Air homepage"><img class="brand-logo" src="/brand/token-on-air-cutout.svg" alt="Token on Air" width="560" height="300" loading="lazy" /></a><p>Understand what’s next.<br />Editor: jienweng</p>{config.appEnv === 'local' && <a class="footer-link" href="/preview/">Editorial preview</a>}<span class="footer-label">AI / Crypto</span></footer>
+      <footer class="site-footer"><a class="brand-link footer-brand" href={localePath(locale)} aria-label="Token on Air homepage"><img class="brand-logo" src="/brand/token-on-air-cutout.svg" alt="Token on Air" width="560" height="300" loading="lazy" /></a><p>{t(locale,'tagline')}<br />{t(locale,'editor')}: jienweng</p>{config.appEnv === 'local' && <a class="footer-link" href="/preview/">Editorial preview</a>}<nav class="footer-policies" aria-label="Publication">{(['about','policy','contact','privacy','advertise'] as const).map(page=><a href={localePath(locale,page)}>{t(locale,page)}</a>)}</nav></footer>
     </div>
   </body>
 </html>
