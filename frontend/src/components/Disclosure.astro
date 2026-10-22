@@ -1,7 +1,8 @@
 ---
+import {t,type Locale} from '../lib/i18n';
 import type { Article } from '../lib/content/types';
-interface Props { article: Article }
-const { article } = Astro.props;
-const labels = { affiliate: 'Affiliate disclosure', sponsored: 'Sponsored content', 'owned-project': 'Ownership disclosure', none: '' };
+interface Props { article: Article;locale?:Locale }
+const { article,locale='en' } = Astro.props;
+const labels = { affiliate: t(locale,'affiliate'), sponsored: t(locale,'sponsored'), 'owned-project': t(locale,'owned'), none: '' };
 ---
 {article.relationship !== 'none' && <aside class="disclosure" data-disclosure><strong>{labels[article.relationship]}</strong><p>{article.disclosure}</p></aside>}

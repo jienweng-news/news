@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "extensions": {
+    "motion": [
+      {
+        "name": "color-state",
+        "value": "160ms ease-out",
+        "purpose": "Masthead and lead headline hover, reduced-motion aware."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile",
+        "value": "640px"
+      },
+      {
+        "name": "tablet",
+        "value": "850px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Newsroom navigation",
+      "kind": "nav",
+      "description": "Topic navigation with visible active and focus states.",
+      "html": "<nav class=\"ds-nav\"><a href=\"/\" aria-current=\"page\">The latest</a><a href=\"/ai/\">Artificial intelligence</a><a href=\"/crypto/\">Crypto</a></nav>",
+      "css": ".ds-nav{display:flex;flex-wrap:wrap;gap:30px;border-top:3px solid var(--ink);border-bottom:1px solid var(--ink);padding:16px 0;font:700 13px Arial,sans-serif}.ds-nav a{color:var(--ink);text-decoration:none}.ds-nav a[aria-current]{color:var(--red);text-decoration:underline;text-underline-offset:7px}.ds-nav a:hover{text-decoration:underline}.ds-nav a:focus-visible{outline:3px solid var(--red);outline-offset:5px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Persona-inspired newsroom with calm article reading",
+    "overview": "Original red, black and warm paper identity. Graphic masthead, condensed headlines and dark latest column support equal AI/Crypto prominence.",
+    "keyCharacteristics": [
+      "Condensed headlines",
+      "Upright readable article text",
+      "Equal topic sections"
+    ],
+    "dos": [
+      "Keep fixture and preview labels visible",
+      "Use actual publication dates"
+    ],
+    "donts": [
+      "Use game assets or fabricated reporting claims",
+      "Ship inactive signup or locale controls"
+    ]
+  }
+}

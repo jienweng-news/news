@@ -1,0 +1,8 @@
+---
+import {t,type Locale} from '../lib/i18n';
+import type { Relationship } from '../lib/content/types';
+interface Props { relationship: Relationship; locale?:Locale }
+const { relationship,locale='en' } = Astro.props;
+const labels = { none: '', sponsored: t(locale,'sponsored'), affiliate: t(locale,'affiliate'), 'owned-project': t(locale,'owned') };
+---
+{relationship !== 'none' && <span class="relationship-label">{labels[relationship]}</span>}

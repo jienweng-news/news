@@ -1,8 +1,12 @@
+import { existsSync } from 'node:fs';
 import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
 import vercel from '@astrojs/vercel';
 import { loadEnv } from 'vite';
 import { readConfig } from './src/lib/config.ts';
+// Make server-only local settings available to request handlers as well as build config.
+const projectEnvFile = new URL('../.env', import.meta.url);
+if (existsSync(projectEnvFile)) process.loadEnvFile(projectEnvFile);
 const env = { ...loadEnv(process.env.NODE_ENV || 'development', new URL('..', import.meta.url).pathname, ''), ...process.env };
 const config = readConfig(env);
 export default defineConfig({

@@ -26,7 +26,7 @@ export function readConfig(env: Record<string, string | undefined>): AppConfig {
   if (contentMode === 'sanity' && (!projectId || !/^[a-z0-9]+$/.test(projectId) || !dataset || !/^[a-z0-9_-]+$/.test(dataset))) throw new Error('Valid Sanity project and dataset IDs are required');
   const key = env.PREVIEW_ACCESS_KEY; const secret = env.PREVIEW_SIGNING_SECRET;
   return {
-    appEnv, contentMode, siteUrl: site.origin, siteName: env.PUBLIC_SITE_NAME?.trim() || 'News',
+    appEnv, contentMode, siteUrl: site.origin, siteName: env.PUBLIC_SITE_NAME?.trim() || 'Token on Air',
     sanityProjectId: projectId, sanityDataset: dataset, sanityReadToken: env.SANITY_READ_TOKEN,
     previewEnabled: appEnv === 'local' && !hosted && Boolean(key && key.length >= 32 && secret && secret.length >= 32),
     previewAccessKey: key, previewSigningSecret: secret,

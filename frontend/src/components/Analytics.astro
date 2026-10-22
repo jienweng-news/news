@@ -1,0 +1,10 @@
+---
+import {runtimeConfig} from '../lib/runtime';
+import {analyticsEnabled} from '../lib/analytics';
+import {t,type Locale} from '../lib/i18n';
+interface Props{locale:Locale}
+const {locale}=Astro.props;const config=runtimeConfig();const id=process.env.GA4_MEASUREMENT_ID;
+const enabled=analyticsEnabled(config.appEnv,config.contentMode,id)&&!Astro.url.pathname.startsWith('/preview');
+---
+{enabled&&<aside class="analytics-choice" data-analytics-id={id} data-locale={locale} aria-label={t(locale,'analytics')}><p>{t(locale,'analyticsNote')}</p><div><button type="button" data-analytics-allow>{t(locale,'allow')}</button><button type="button" data-analytics-decline>{t(locale,'decline')}</button><button type="button" data-analytics-reset hidden>{t(locale,'preferences')}</button></div></aside>}
+{enabled&&<script is:inline type="module" src="/scripts/analytics.js"></script>}

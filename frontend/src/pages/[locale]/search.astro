@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import StoryList from '../../components/StoryList.astro';
+import {isLocale,t} from '../../lib/i18n';
+import {searchArticles} from '../../lib/discovery';
+import {runtimeConfig} from '../../lib/runtime';
+import {createContentRepository} from '../../lib/content/repository';
+const {locale}=Astro.params;if(!isLocale(locale))return new Response('Not found',{status:404});
+const q=(Astro.url.searchParams.get('q')||'').slice(0,101);let results:Awaited<ReturnType<ReturnType<typeof createContentRepository>['listPublished']>>=[];let unavailable=false;
+if(q.trim())try{results=searchArticles(await createContentRepository(runtimeConfig()).listPublished(locale),q);}catch{unavailable=true;Astro.response.status=503;}
+Astro.response.headers.set('Cache-Control','no-store');
+---
+<BaseLayout locale={locale} title={t(locale,'search')} noindex>
+ <section class="section-page-heading"><h1>{t(locale,'search')}</h1><form class="search-form" method="GET"><label class="sr-only" for="q">{t(locale,'searchLabel')}</label><input id="q" name="q" type="search" maxlength="100" value={q} placeholder={t(locale,'searchLabel')}/><button>{t(locale,'search')}</button></form></section>
+ {unavailable?<p>{t(locale,'unavailable')}</p>:results.length?<StoryList articles={results} locale={locale} headingLevel="h2"/>:q.trim()&&<p>{t(locale,'noResults')}</p>}
+</BaseLayout>

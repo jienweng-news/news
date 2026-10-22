@@ -59,7 +59,7 @@ function body(value: unknown): BodyBlock[] {
   return blocks;
 }
 export function normalizeArticle(raw: unknown, mode: 'published' | 'preview' = 'published'): Article {
-  const a = object(raw); const id = text(a.id);
+  const a = object(raw); if(mode==='published'&&a.publicationState==='withdrawn')throw new InvalidArticleError(); const id = text(a.id);
   if (mode === 'published' && /^(drafts|versions)\./.test(id)) throw new InvalidArticleError();
   const section = text(a.section); const format = text(a.format); const relationship = text(a.relationship);
   if (!['ai', 'crypto'].includes(section) || !['news', 'analysis', 'guide', 'review', 'announcement'].includes(format) || !['none', 'affiliate', 'sponsored', 'owned-project'].includes(relationship)) throw new InvalidArticleError();

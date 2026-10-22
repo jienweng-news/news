@@ -1,0 +1,7 @@
+---
+import PolicyPage from '../../components/PolicyPage.astro';
+import SectionPage from '../../components/SectionPage.astro';
+import {isLocale} from '../../lib/i18n';
+const {locale,section}=Astro.params;if(!isLocale(locale)||!['ai','crypto','about','policy','contact','privacy','advertise'].includes(section||''))return new Response('Not found',{status:404});
+---
+{['ai','crypto'].includes(section!)?<SectionPage locale={locale} section={section as 'ai'|'crypto'}/>:<PolicyPage locale={locale} page={section as 'about'|'policy'|'contact'|'privacy'|'advertise'}/>}
