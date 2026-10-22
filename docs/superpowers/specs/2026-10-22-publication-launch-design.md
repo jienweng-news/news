@@ -1,7 +1,7 @@
 # AI and Crypto Publication — Launch Design
 
 Date: 2026-10-22
-Status: architecture selected; concrete launch design ready for review before product implementation.
+Status: launch design approved by the founder on 2026-10-22 ("apporveand move on"); foundation implementation plan prepared for review.
 
 ## Intent and selected direction
 

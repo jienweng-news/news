@@ -38,7 +38,7 @@ Still proposed: English-first; one founder/editor; no reader accounts or paid me
 - [ ] B06 — Approve a monthly cash ceiling. Initial planning ceiling: $150/month for infrastructure/automation, excluding labor and legal/accounting; validate against actual quotes.
 - [ ] B07 — Obtain current quotes for commercial frontend hosting, Sanity entitlements, Plausible, email, domain, recovery/export storage and optional AI usage. Record recurring versus usage costs and hard caps.
 - [ ] B08 — Build a six-month cash worksheet including zero revenue, observed revenue, founder labor, a 20% implementation contingency, and a stop-spending threshold.
-- [ ] B09 — Review the launch specification and template recommendation; record any scope changes before converting Phase 1 into coding tasks.
+- [x] B09 — Founder approved the launch specification and template recommendation on 2026-10-22. Foundation tasks are in [the implementation plan](../superpowers/plans/2026-10-22-editorial-foundation.md); product coding has not started.
 
 **Exit evidence:** one written business brief and budget; named owners; concrete launch design reviewed. Branding and accounts may remain configurable during local development, but must be resolved before Phase 5 exit.
 
