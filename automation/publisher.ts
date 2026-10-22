@@ -3,6 +3,7 @@ import {normalizeLocalizedArticle} from '../frontend/src/lib/content/localized';
 import {object,safeUrl,text} from '../frontend/src/lib/content/normalize';
 import {locales,localeKey} from '../frontend/src/lib/i18n';
 import {JobQueue} from './queue';
+import {feedPublicationTime} from './feed';
 export const requiredChecks=['sourceRights','primaryEvidence','claimsVerified','translationConsistency','originalWording','duplicateCheck','relationshipVerified'] as const;
 export function canonical(value:unknown):string{if(Array.isArray(value))return `[${value.map(canonical).join(',')}]`;if(value&&typeof value==='object')return `{${Object.keys(value).sort().map(k=>`${JSON.stringify(k)}:${canonical((value as any)[k])}`).join(',')}}`;return JSON.stringify(value);}
 export const candidateHash=(candidate:unknown)=>createHash('sha256').update(canonical(candidate)).digest('hex');
@@ -31,7 +32,10 @@ export async function publishJob(queue:JobQueue,id:string,candidate:unknown,conf
  if(job.state!=='processing'||job.lease_until<Date.now())throw new Error('Active job lease required');
  const en=editions[0];const item=JSON.parse(job.payload);if(!en.sources.includes(item.url))throw new Error('Discovery source must be attributed');
  const documentId=`story.${id}`;
- const document=publicationDocument(editions,id,config.editorId,hash);
+ const sourceTime=feedPublicationTime(item.publishedAt);const importedAt=new Date().toISOString();
+ if(!Number.isFinite(sourceTime)||sourceTime>Date.now()+300000||!Number.isFinite(job.created_at)||job.created_at>Date.now()+300000)throw new Error('Invalid source provenance');
+ const document={...publicationDocument(editions,id,config.editorId,hash),publishedAt:importedAt,updatedAt:importedAt,
+  provenance:{sourceUrl:item.url,sourcePublishedAt:new Date(sourceTime).toISOString(),discoveredAt:new Date(job.created_at).toISOString(),importedAt}};
  if(!queue.lockPublisher())throw new Error('Publisher busy');
  try{const result=await write(document);if(result.id!==documentId||result.hash!==hash)throw new Error('Publication identity mismatch');queue.published(id,documentId,hash);return documentId;}catch{queue.hold(id,'Publish failed; inspect CMS before retry');throw new Error('Publication failed');}finally{queue.unlockPublisher();}
 }

@@ -11,6 +11,6 @@ export async function correctJob(queue:JobQueue,id:string,input:unknown,config:P
  const {editions,hash}=validateCandidate(input,config.validationSecret);if(!queue.lockPublisher())throw new Error('Publisher busy');
  try{const existing=await read(job.document_id);const en=editions[0];if(!existing||existing.publicationState==='withdrawn'||new Date(existing.publishedAt).toISOString()!==en.publishedAt||Date.parse(en.updatedAt)<=Date.parse(existing.updatedAt)||en.corrections.length<=(existing.corrections?.length||0))throw new Error('Preserve publication time and add dated corrections');
   if(locales.some((l,i)=>existing.translations?.[localeKey[l]]?.slug?.current!==editions[i].slug))throw new Error('Preserve published edition slugs');
-  const doc=publicationDocument(editions,id,config.editorId!,hash);await replace(doc,existing._rev);queue.published(id,job.document_id,hash);queue.audit(id,'corrected',hash);
+  const doc={...publicationDocument(editions,id,config.editorId!,hash),...(existing.provenance?{provenance:existing.provenance}:{})};await replace(doc,existing._rev);queue.published(id,job.document_id,hash);queue.audit(id,'corrected',hash);
  }finally{queue.unlockPublisher();}
 }

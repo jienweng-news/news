@@ -35,6 +35,7 @@ export default defineType({
     defineField({ name: 'author', type: 'reference', to: [{ type: 'author' }], validation: r => r.required() }),
     bodyField,
     defineField({ name: 'publishedAt', type: 'datetime', description: 'Preserve first publication time when correcting.', validation: r => r.required() }),
+    defineField({name:'provenance',title:'Discovery provenance',type:'object',readOnly:true,fields:[{name:'sourceUrl',type:'url'},{name:'sourcePublishedAt',type:'datetime'},{name:'discoveredAt',type:'datetime'},{name:'importedAt',type:'datetime'}]}),
     defineField({ name: 'updatedAt', type: 'datetime', validation: r => r.required() }),
     defineField({ name: 'language', type: 'string', initialValue: 'en', validation: r => r.required() }),
     defineField({ name: 'sources', type: 'array', of: [{ type: 'url', validation: r => r.uri({ scheme: ['http','https'] }) }] }),

@@ -1,18 +1,13 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import StoryList from './StoryList.astro';
-import { createContentRepository } from '../lib/content/repository';
 import { selectSection } from '../lib/content/newsroom';
-import { runtimeConfig } from '../lib/runtime';
 import {t,type Locale} from '../lib/i18n';
 import type { Section, ArticleCard } from '../lib/content/types';
-interface Props { section: Section;locale?:Locale }
-const { section,locale='en' } = Astro.props;
-const title = t(locale,section);
-let articles: ArticleCard[] = []; let unavailable = false;
-try { articles = selectSection(await createContentRepository(runtimeConfig()).listPublished(locale), section); }
-catch { unavailable = true; Astro.response.status = 503; }
-Astro.response.headers.set('Cache-Control', 'no-store');
+interface Props { section: Section;locale:Locale;articles:ArticleCard[];unavailable:boolean }
+const {section,locale,articles:allArticles,unavailable}=Astro.props;
+const title=t(locale,section);
+const articles=selectSection(allArticles,section);
 ---
 <BaseLayout locale={locale} title={title} noindex={unavailable} description={section === 'ai' ? 'AI news, practical guides and analysis from Token on Air.' : 'Crypto news, practical guides and analysis from Token on Air.'}>
   <div class="section-page-heading"><a class="back-link" href={`/${locale}/`}>{t(locale,'back')}</a><h1>{title}</h1><p>{t(locale,'technology')}</p><a class="feed-link" href={`/${locale}/${section}/rss.xml`}>{t(locale,'feeds')}</a></div>

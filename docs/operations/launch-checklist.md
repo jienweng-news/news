@@ -10,7 +10,7 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 - [x] About, editorial policy, contact, advertising, privacy, terms and disclaimer pages. Privacy includes Bahasa Malaysia text; this does not add a Malay news edition.
 - [x] Public contact hello@tokenonair.com: owner confirms Zoho send/receive works, 2026-10-22. MAIL_VERIFIED=1 in Vercel Production.
 - [ ] Final policy/operator review: confirm legal operating identity and actual provider retention settings. Pages describe supplied facts, not a claim of legal certification.
-- [ ] Real desktop/mobile keyboard/zoom/overflow and consent browser QA. T3 preview is blocked by host AppArmor; HTTP and script tests are separate evidence.
+- [ ] Real desktop/mobile keyboard/zoom/overflow and consent browser QA. T3 browser setup approved and completed. Initial live desktop/mobile390px overflow and consent decline/reopen checks passed; full keyboard/zoom and opt-in/revocation acceptance remain pending.
 
 ## Domains and delivery
 - [x] tokenonair.com and www.tokenonair.com resolve to Vercel and previously passed HTTPS checks. www CNAME: d6ca6c9003ff43c3.vercel-dns-017.com.
@@ -23,7 +23,7 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 
 ## Kit newsletter — owner setup required
 - [x] Form numeric ID10082025 and public UID17c6e3f357 recorded.
-- [x] Owner confirms confirmation email enabled and Auto-confirm unchecked. Real lifecycle test remains pending.
+- [x] Owner confirms confirmation email enabled and Auto-confirm unchecked. Test receipt and confirmation completed; unsubscribe/suppression acceptance remains pending.
 - [x] Credentials present in Vercel Production (existence verified; sensitive values are not exportable). Kit Settings → Developer → V4 Keys → Add a new key; save as KIT_API_KEY in Vercel Production, sensitive. Never paste it into chat.
 - [x] Turnstile site/secret variables present in Vercel Production (hostname/token acceptance still pending). Cloudflare Turnstile → Add widget, Managed, tokenonair.com and www.tokenonair.com, pre-clearance off; save Site key as PUBLIC_TURNSTILE_SITE_KEY and Secret key as TURNSTILE_SECRET_KEY (sensitive) in Vercel Production.
 - [x] Kit V4 accepted the saved API key; form10082025 exists; created and verified custom field newsletter_language on2026-10-22 through an authenticated temporary Vercel check.

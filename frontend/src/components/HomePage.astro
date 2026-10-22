@@ -2,16 +2,11 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import StoryList from './StoryList.astro';
 import RelationshipLabel from './RelationshipLabel.astro';
-import { createContentRepository } from '../lib/content/repository';
 import { composeNewsroom } from '../lib/content/newsroom';
-import { runtimeConfig } from '../lib/runtime';
 import { t, localePath, type Locale } from '../lib/i18n';
-interface Props { locale:Locale }
-const {locale}=Astro.props;
 import type { ArticleCard } from '../lib/content/types';
-const config = runtimeConfig(); let articles: ArticleCard[] = []; let unavailable = false;
-try { articles = await createContentRepository(config).listPublished(locale); } catch { unavailable = true; Astro.response.status = 503; }
-Astro.response.headers.set('Cache-Control', unavailable||config.contentMode==='fixture'?'no-store':'public, max-age=0, s-maxage=30');
+interface Props { locale:Locale; articles:ArticleCard[]; unavailable:boolean }
+const {locale,articles,unavailable}=Astro.props;
 const { lead, latest, sections, analysis } = composeNewsroom(articles);
 ---
 <BaseLayout locale={locale} title={t(locale,'latest')} noindex={unavailable}>
