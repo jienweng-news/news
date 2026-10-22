@@ -46,3 +46,5 @@ Articles: quiet upright body; expressive title; visible editor, timestamps, sour
 Interaction: semantic links, main navigation current-state, skip link, visible3px focus, high-contrast selection, reduced-motion-aware short color transitions. No client framework, animation library or runtime font request introduced by this slice.
 
 Verification: build/type checks and HTTP smoke passed. Rendered visual comparison, narrow-viewport overflow and keyboard browser checks remain outstanding because T3 preview is blocked by host AppArmor. Do not treat responsive CSS as measured browser evidence.
+
+Approved logo: Cutout02, implemented with local outlined SVG wordmark (560×300), compact TOA (160×160) and T favicon (64×64). Use the wordmark at260px desktop/210px mobile and150px footer; keep its original aspect ratio. Logo glyphs are paths derived from the local OFL font, with no external resources.

@@ -6,4 +6,4 @@ Three generated concept samples requested by founder on 2026-10-22: [sample shee
 2. Cutout: expressive stacked Token on Air wordmark.
 3. Monogram: interlocked TOA mark.
 
-Recommendation: develop Cutout for the masthead and Signal as a favicon direction. No founder selection yet; these are raster concepts, not installed production logos or cleared trademarks. Final direction needs coherent vector artwork, small-size and single-color checks before replacing the current typographic masthead.
+Founder approved **02 Cutout**. Implemented as outlined SVG wordmark, matching compact TOA mark and simplified T favicon; Signal was not selected. Masthead and footer use the wordmark. Rebuild source: `assets/brand/generate-logos.py`, using the repository’s OFL-licensed Barlow Condensed Bold. No runtime font dependency inside the logo. Raster sheet remains the approved concept reference; vector implementation is an adaptation, not a pixel tracing. Browser small-size/visual acceptance and trademark clearance are not claimed.

@@ -13,18 +13,18 @@ const canonicalUrl = canonical || new URL(Astro.url.pathname, config.siteUrl).hr
     <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} · {config.siteName}</title><meta name="description" content={description} />
     <meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:type" content="website" /><meta property="og:url" content={canonicalUrl} />
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary" /><link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     {noindex || config.contentMode === 'fixture' ? <meta name="robots" content="noindex, nofollow" /> : <link rel="canonical" href={canonicalUrl} />}
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="page-shell">
       <div class="topline"><span>AI / Crypto / Culture of technology</span><span>Independent perspective</span></div>
-      <header class="site-header"><a class="wordmark" href="/" aria-label={`${config.siteName} homepage`}>{config.siteName}<span aria-hidden="true">.</span></a><p class="masthead-note">Understand<br />what’s next.</p></header>
+      <header class="site-header"><a class="brand-link" href="/" aria-label={`${config.siteName} homepage`}><img class="brand-logo" src="/brand/token-on-air-cutout.svg" alt="Token on Air" width="560" height="300" fetchpriority="high" /></a><p class="masthead-note">Understand<br />what’s next.</p></header>
       <nav class="main-nav" aria-label="Main navigation">{[{href:'/',label:'The latest'},{href:'/ai/',label:'Artificial intelligence'},{href:'/crypto/',label:'Crypto'}].map(item => <a href={item.href} aria-current={Astro.url.pathname === item.href ? 'page' : undefined}>{item.label}</a>)}<span class="nav-caption">Stay curious.</span></nav>
       <FixtureBanner visible={config.contentMode === 'fixture'} />
       <main id="main"><slot /></main>
-      <footer class="site-footer"><a class="wordmark small" href="/">{config.siteName}<span aria-hidden="true">.</span></a><p>Understand what’s next.<br />Editor: jienweng</p>{config.appEnv === 'local' && <a class="footer-link" href="/preview/">Editorial preview</a>}<span class="footer-label">AI / Crypto</span></footer>
+      <footer class="site-footer"><a class="brand-link footer-brand" href="/" aria-label="Token on Air homepage"><img class="brand-logo" src="/brand/token-on-air-cutout.svg" alt="Token on Air" width="560" height="300" loading="lazy" /></a><p>Understand what’s next.<br />Editor: jienweng</p>{config.appEnv === 'local' && <a class="footer-link" href="/preview/">Editorial preview</a>}<span class="footer-label">AI / Crypto</span></footer>
     </div>
   </body>
 </html>

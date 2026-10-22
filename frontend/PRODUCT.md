@@ -28,7 +28,7 @@ Public editor credit: `jienweng` (exact casing), without an AI-generated label. 
 
 ## Evidence on Hand
 
-Approved launch specification: ../docs/superpowers/specs/2026-10-22-publication-launch-design.md. Business decisions: ../docs/plans/ai-crypto-publication-checklist.md. Existing product code includes the editorial foundation and branded newsroom with AI/Crypto topic pages and labelled fixtures. The founder-selected mockup is ../docs/design/token-on-air-newsroom-concept.html. Its illustrative stories must remain labelled; the mockup does not establish live reporting or verified browser behavior.
+Approved launch specification: ../docs/superpowers/specs/2026-10-22-publication-launch-design.md. Business decisions: ../docs/plans/ai-crypto-publication-checklist.md. Existing product code includes the editorial foundation and branded newsroom with AI/Crypto topic pages and labelled fixtures. The founder approved Cutout logo concept02; outlined SVG wordmark, compact TOA mark and small T favicon implement it. The founder-selected mockup is ../docs/design/token-on-air-newsroom-concept.html. Its illustrative stories must remain labelled; the mockup does not establish live reporting or verified browser behavior.
 
 ## Product Principles
 

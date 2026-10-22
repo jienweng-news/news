@@ -6,6 +6,17 @@ async function page(path) {
 }
 const home = await page('/');
 assert.equal(home.response.status, 200);
+assert.match(home.html, /src="\/brand\/token-on-air-cutout.svg"/);
+assert.match(home.html, /alt="Token on Air"/);
+assert.match(home.html, /rel="icon"[^>]*href="\/favicon.svg"/);
+for (const path of ['/brand/token-on-air-cutout.svg', '/brand/token-on-air-compact.svg', '/favicon.svg']) {
+  const asset = await page(path);
+  assert.equal(asset.response.status, 200, `${path} must resolve`);
+  assert.match(asset.response.headers.get('content-type') || '', /image\/svg\+xml/);
+  assert.match(asset.html, /<svg/);
+  assert.doesNotMatch(asset.html, /<script|<text|<image/);
+}
+
 assert.match(home.html, /Token on Air/);
 assert.match(home.html, /Understand what’s next\./);
 assert.match(home.html, /aria-label="Main navigation"/);
