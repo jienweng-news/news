@@ -1,15 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import StoryList from './StoryList.astro';
-import {createContentRepository} from '../lib/content/repository';
 import {paginateNews} from '../lib/content/newsroom';
-import {runtimeConfig} from '../lib/runtime';
 import {t,localePath,type Locale} from '../lib/i18n';
-interface Props {locale:Locale;page:string}
-const {locale,page}=Astro.props;let result=null;let unavailable=false;
-try{result=paginateNews(await createContentRepository(runtimeConfig()).listPublished(locale),page);}catch{unavailable=true;}
-Astro.response.status=unavailable?503:result?200:404;
-Astro.response.headers.set('Cache-Control','no-store');
+interface Props {locale:Locale;result:ReturnType<typeof paginateNews>;unavailable:boolean}
+const {locale,result,unavailable}=Astro.props;
 const pagePath=(n:number)=>localePath(locale,n===1?'archive':`archive/${n}`);
 const title=unavailable?t(locale,'unavailable'):!result?t(locale,'notFound'):`${t(locale,'archive')}${result.page>1?` · ${t(locale,'page')} ${result.page}`:''}`;
 // Page membership can differ across editions; switch to each edition's first page.

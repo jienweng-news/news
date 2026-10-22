@@ -1,6 +1,14 @@
 ---
 import ArchivePage from '../../../components/ArchivePage.astro';
+import {createContentRepository} from '../../../lib/content/repository';
+import {runtimeConfig} from '../../../lib/runtime';
+import {paginateNews} from '../../../lib/content/newsroom';
 import {isLocale} from '../../../lib/i18n';
 const {locale}=Astro.params;if(!isLocale(locale))return new Response('Not found',{status:404});
+let result=null;let unavailable=false;
+try{result=paginateNews(await createContentRepository(runtimeConfig()).listPublished(locale),'1');}catch{unavailable=true;}
+Astro.response.status=unavailable?503:result?200:404;
+Astro.response.headers.set('Cache-Control','no-store');
+
 ---
-<ArchivePage locale={locale} page="1"/>
+<ArchivePage locale={locale} result={result} unavailable={unavailable}/>
