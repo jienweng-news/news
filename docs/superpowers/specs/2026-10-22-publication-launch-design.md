@@ -37,6 +37,18 @@ Proposed frontend host: Vercel, using Astro's documented ISR adapter. Commercial
 
 Visual direction: an editorial layout with strong typography, readable article widths, restrained section accents, mobile-first navigation and reserved image dimensions. Use text labels and metadata to distinguish sections and commercial content; do not rely only on color. No ticker or market-price widgets at launch.
 
+## Template references, versions and performance
+
+Use Sanity's official Clean Astro starter as the integration reference, not as a finished newsroom. Develop an original layout using AstroNews's lead/latest/section hierarchy and The Magazine News's restrained reading design as references. Bookworm Light is a free fallback reference. Paid theme code requires verified licensing; no purchase is authorized by template selection.
+
+Target Astro 7 only after a compatible Sanity/Portable Text/host-adapter production build and preview test. Pin the resolved compatible versions and runtime in the implementation lockfile. The inspected Sanity starter declares Astro `^6.1.6`; Bookworm pins `7.0.3`, while their public demos report `6.4.8` and `6.1.9` respectively. Paid themes advertise Astro 7 but exact dependencies are unverified.
+
+Astro's reported 15–61% build speedup is a vendor benchmark, not a promise about this site's reader speed. The direct-demo measurements omit browser execution and complete dependency graphs; use them as research only. Full findings and raw data are in [the template review](../../research/2026-10-22-template-performance-review.md).
+
+Benchmark the actual production build on home, AI section, article, review and search with representative content, the same host/test profile and at least three runs per route. Record version/commit/tool details, medians and ranges. Proposed release lab targets: mobile LCP ≤2.5 seconds, CLS ≤0.1, Total Blocking Time ≤200 ms. TBT is not field INP. Proposed article initial compressed budgets: executable JavaScript ≤100 kB including analytics, CSS ≤50 kB, hero image ≤200 kB. Count imported chunks, CSS, fonts and images; script-tag bytes alone are insufficient. Record approved exceptions and test a realistic sponsor placement.
+
+After enough field traffic exists, monitor p75 LCP ≤2.5 seconds, INP ≤200 ms and CLS ≤0.1 by route/device. No samples means unknown. Optimize images, fonts and scripts rather than promising a template's advertised Lighthouse score. Browser performance testing remains pending because the research environment's browser sandbox was blocked.
+
 ## Content contract
 
 Public articles contain: ID; unique slug; title; summary; AI/Crypto section; news/analysis/guide/review/announcement format; Portable Text body; author references; source URLs; event date where relevant; first publication and modification dates; language; rights-cleared media; SEO fields; corrections; and explicit commercial relationship (`none`, `affiliate`, `sponsored`, or `owned-project`) with accompanying disclosure.
@@ -115,6 +127,8 @@ The worker is not part of the first public-site foundation. It gets a separate p
 - Deploy previews before production, retain rollback instructions, and monitor publication failures and stale feeds independently of website uptime.
 
 ## Incremental implementation sequence
+
+Phase IDs and completion evidence are maintained in the [master checklist](../../plans/ai-crypto-publication-checklist.md). Business decisions are Phase 0; manual content preparation proceeds alongside engineering; public launch does not depend on automated feed ingestion.
 
 1. Foundation: Astro project, Sanity schemas/Studio, content adapter with labelled local fixtures, article rendering, private preview and configuration validation.
 2. Discovery and delivery: homepage/sections/authors/guides, RSS/sitemap, redirects, search, ISR webhook integration and propagation tests.
