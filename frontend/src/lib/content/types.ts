@@ -1,3 +1,4 @@
+import type { Locale } from '../i18n';
 export type Section = 'ai' | 'crypto';
 export type Format = 'news' | 'analysis' | 'guide' | 'review' | 'announcement';
 export type Relationship = 'none' | 'affiliate' | 'sponsored' | 'owned-project';
@@ -12,11 +13,11 @@ export interface Article {
   author: { name: string; slug: string; bio?: string }; publishedAt: string; updatedAt: string; language: string;
   sources: string[]; media?: { url: string; alt: string; credit: string; license: string };
   corrections: { date: string; note: string }[]; relationship: Relationship; disclosure?: string;
-  fixture: boolean; previewOnly: boolean;
+  fixture: boolean; previewOnly: boolean; localeSlugs?: Partial<Record<Locale,string>>;
 }
 export type ArticleCard = Omit<Article, 'body' | 'corrections'>;
 export interface ContentRepository {
-  listPublished(): Promise<ArticleCard[]>;
-  getPublished(slug: string): Promise<Article | null>;
-  getPreview(slug: string): Promise<Article | null>;
+  listPublished(locale?: Locale): Promise<ArticleCard[]>;
+  getPublished(slug: string, locale?: Locale): Promise<Article | null>;
+  getPreview(slug: string, locale?: Locale): Promise<Article | null>;
 }
