@@ -1,0 +1,14 @@
+---
+import {localeLabel,locales,t,type Locale} from '../lib/i18n';
+import {newsletterReady} from '../lib/newsletter';
+interface Props {locale:Locale}
+const {locale}=Astro.props;const enabled=newsletterReady(process.env);const status=Astro.url.searchParams.get('signup');
+---
+<section class="newsletter" aria-labelledby="newsletter-heading"><h2 id="newsletter-heading">{t(locale,'subscribe')}</h2><p>{t(locale,'signupNote')}</p>
+ {status&&<p role="status">{t(locale,status==='accepted'?'signupAccepted':'signupError')}</p>}
+ <form method="POST" action="/api/subscribe"><input type="hidden" name="locale" value={locale}/><div class="newsletter-fields"><label>{t(locale,'email')}<input name="email" type="email" autocomplete="email" maxlength="254" required disabled={!enabled}/></label><label>{t(locale,'language')}<select name="language" disabled={!enabled}>{locales.map(l=><option value={l} selected={l===locale}>{localeLabel[l]}</option>)}<option value="all">{t(locale,'allLanguages')}</option></select></label></div>
+ <label class="signup-consent"><input type="checkbox" name="consent" value="yes" required disabled={!enabled}/>{t(locale,'subscribeConsent')} <a href={`/${locale}/privacy/`}>{t(locale,'privacy')}</a></label><div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"/></label></div>
+ {enabled&&<div class="cf-turnstile" data-sitekey={process.env.PUBLIC_TURNSTILE_SITE_KEY}></div>}
+ <button type="submit" disabled={!enabled}>{t(locale,'submit')}</button>{!enabled&&<p class="signup-unavailable">{t(locale,'signupError')}</p>}</form>
+ {enabled&&<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
+</section>
