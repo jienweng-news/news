@@ -83,3 +83,11 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 - [x] Follow-on deployment dpl_9wktTR1nPgBxCcWUjLYHf7FdTvcX at https://token-on-j91ztu62h-lai-jien-wengs-projects.vercel.app. Both custom hosts pass scripts/check-live-discovery.mjs: new navigation/archive/feed/sitemap routes, invalid archive404, canonical first-page redirect, missing-author404 and health.
 - [x]120 tests pass; Astro check61files zero errors/warnings/hints; worker/client checks, Studio build, Node/Vercel builds and local HTTP smoke pass.
 - [x] Fresh review found no Critical/Important issue and one minor archive locale-context issue; fixed via RED/GREEN under resolve-all request. Post-deploy checks then caught Vercel streaming status issue on archive404; moved status/data loading into route frontmatter and verified live RED→GREEN. No deferred review minors.
+
+## Backfill preparation — approved implementation
+- [x] Strict zoned source dates; Atom updated-only entries no longer masquerade as first publication. Calendar validation retains valid high-precision ISO timestamps and RSS dates without seconds.
+- [x] Worker writes source/discovery/import provenance separately and sets first site publication to actual import time. Corrections preserve source provenance and site publication time.
+- [x] Homepage/section data and status resolve in route frontmatter before streaming. Actual Vercel outage probe dpl_bKAg3dWSRDWH43DnCVHhGRANQP5v returned503 and unavailable/noindex HTML for both routes. Temporary deployment removed; public domains were not switched to the probe.
+- [x]123 tests, worker typecheck, Astro62files without diagnostics, Node/Studio/Vercel builds and local HTTP smoke passed. Fresh reviewer found valid-date-format regression; fixed with RED/GREEN coverage. No unresolved review findings.
+- [x] Production deployed as dpl_CwgXuPHNzm2SreAJkFxkKavQwbZq, https://token-on-p8rtug5l9-lai-jien-wengs-projects.vercel.app. Initial mobile390px browser checks passed all three homepages with no horizontal overflow or Google requests after prior decline.
+- [ ] Actual backfill publication remains pending secure Sanity writer configuration, source/evidence review and verified original multilingual candidate content. No content writes or newsletter sends performed in this change.
