@@ -23,8 +23,8 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 ## Kit newsletter — owner setup required
 - [x] Form numeric ID10082025 and public UID17c6e3f357 recorded.
 - [x] Owner confirms confirmation email enabled and Auto-confirm unchecked. Real lifecycle test remains pending.
-- [ ] Kit Settings → Developer → V4 Keys → Add a new key; save as KIT_API_KEY in Vercel Production, sensitive. Never paste it into chat.
-- [ ] Cloudflare Turnstile → Add widget, Managed, tokenonair.com and www.tokenonair.com, pre-clearance off; save Site key as PUBLIC_TURNSTILE_SITE_KEY and Secret key as TURNSTILE_SECRET_KEY (sensitive) in Vercel Production.
+- [x] Credentials present in Vercel Production (existence verified; sensitive values are not exportable). Kit Settings → Developer → V4 Keys → Add a new key; save as KIT_API_KEY in Vercel Production, sensitive. Never paste it into chat.
+- [x] Turnstile site/secret variables present in Vercel Production (hostname/token acceptance still pending). Cloudflare Turnstile → Add widget, Managed, tokenonair.com and www.tokenonair.com, pre-clearance off; save Site key as PUBLIC_TURNSTILE_SITE_KEY and Secret key as TURNSTILE_SECRET_KEY (sensitive) in Vercel Production.
 - [ ] Create/verify Kit custom field key newsletter_language. Existing implementation accepts en, zh, zh-cn, all. No live field verification yet.
 - [ ] Kit Settings → Email → Verified Sending Domains: verify tokenonair.com with exact Kit-provided DNS records in Cloudflare; CNAMEs DNS only. Keep Zoho MX/SPF intact. Set sender hello@tokenonair.com and verify sender address.
 - [ ] Complete mailing address/footer settings in Kit with the operator's actual details; no address invented.
@@ -35,7 +35,7 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 ## Email DNS
 - [x] Public MX resolves to mx.zoho.com / mx2.zoho.com / mx3.zoho.com; SPF includes zohomail.com (2026-10-22).
 - [ ] Zoho DKIM: verify using the selector supplied by Zoho; selector not supplied here.
-- [ ] DMARC: _dmarc.tokenonair.com returned ENOTFOUND on 2026-10-22. Add the provider-guided record after checking sender alignment; avoid inventing reporting inboxes or replacing an existing policy.
+- [x] DMARC now resolves to v=DMARC1; p=none on2026-10-22. Kit cka._domainkey selector also resolves. These records do not prove real sender alignment or Kit dashboard verification.
 - [ ] Kit sender authentication: pending owner setup above.
 
 ## Analytics
