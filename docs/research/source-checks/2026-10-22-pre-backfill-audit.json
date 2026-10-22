@@ -1,0 +1,403 @@
+{
+  "checkedAt": "2026-10-22T14:34:12.920Z",
+  "deployment": "dpl_9wktTR1nPgBxCcWUjLYHf7FdTvcX",
+  "scope": "HTTP audit; browser unavailable; metadata discovery only, not editorial verification or publication",
+  "pages": [
+    {
+      "path": "/en/",
+      "status": 200,
+      "title": "The latest \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/en/",
+      "lang": "en"
+    },
+    {
+      "path": "/en/ai/",
+      "status": 200,
+      "title": "Artificial intelligence \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/en/ai/",
+      "lang": "en"
+    },
+    {
+      "path": "/en/crypto/",
+      "status": 200,
+      "title": "Crypto \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/en/crypto/",
+      "lang": "en"
+    },
+    {
+      "path": "/en/archive/",
+      "status": 200,
+      "title": "News archive \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/en/archive/",
+      "lang": "en"
+    },
+    {
+      "path": "/en/search/",
+      "status": 200,
+      "title": "Search \u00b7 Token on Air",
+      "lang": "en"
+    },
+    {
+      "path": "/en/about/",
+      "status": 200,
+      "title": "About \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/en/about/",
+      "lang": "en"
+    },
+    {
+      "path": "/en/policy/",
+      "status": 200,
+      "title": "Editorial policy \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/en/policy/",
+      "lang": "en"
+    },
+    {
+      "path": "/en/contact/",
+      "status": 200,
+      "title": "Contact \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/en/contact/",
+      "lang": "en"
+    },
+    {
+      "path": "/en/privacy/",
+      "status": 200,
+      "title": "Privacy \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/en/privacy/",
+      "lang": "en"
+    },
+    {
+      "path": "/en/advertise/",
+      "status": 200,
+      "title": "Advertise \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/en/advertise/",
+      "lang": "en"
+    },
+    {
+      "path": "/en/terms/",
+      "status": 200,
+      "title": "Terms of use \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/en/terms/",
+      "lang": "en"
+    },
+    {
+      "path": "/en/disclaimer/",
+      "status": 200,
+      "title": "Disclaimer \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/en/disclaimer/",
+      "lang": "en"
+    },
+    {
+      "path": "/zh/",
+      "status": 200,
+      "title": "\u6700\u65b0\u5831\u5c0e \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh/",
+      "lang": "zh-Hant"
+    },
+    {
+      "path": "/zh/ai/",
+      "status": 200,
+      "title": "\u4eba\u5de5\u667a\u6167 \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh/ai/",
+      "lang": "zh-Hant"
+    },
+    {
+      "path": "/zh/crypto/",
+      "status": 200,
+      "title": "\u52a0\u5bc6\u8ca8\u5e63 \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh/crypto/",
+      "lang": "zh-Hant"
+    },
+    {
+      "path": "/zh/archive/",
+      "status": 200,
+      "title": "\u5831\u5c0e\u5b58\u6a94 \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh/archive/",
+      "lang": "zh-Hant"
+    },
+    {
+      "path": "/zh/search/",
+      "status": 200,
+      "title": "\u641c\u5c0b \u00b7 Token on Air",
+      "lang": "zh-Hant"
+    },
+    {
+      "path": "/zh/about/",
+      "status": 200,
+      "title": "\u95dc\u65bc\u6211\u5011 \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh/about/",
+      "lang": "zh-Hant"
+    },
+    {
+      "path": "/zh/policy/",
+      "status": 200,
+      "title": "\u7de8\u8f2f\u653f\u7b56 \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh/policy/",
+      "lang": "zh-Hant"
+    },
+    {
+      "path": "/zh/contact/",
+      "status": 200,
+      "title": "\u806f\u7d61\u6211\u5011 \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh/contact/",
+      "lang": "zh-Hant"
+    },
+    {
+      "path": "/zh/privacy/",
+      "status": 200,
+      "title": "\u96b1\u79c1 \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh/privacy/",
+      "lang": "zh-Hant"
+    },
+    {
+      "path": "/zh/advertise/",
+      "status": 200,
+      "title": "\u5ee3\u544a\u5408\u4f5c \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh/advertise/",
+      "lang": "zh-Hant"
+    },
+    {
+      "path": "/zh/terms/",
+      "status": 200,
+      "title": "\u4f7f\u7528\u689d\u6b3e \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh/terms/",
+      "lang": "zh-Hant"
+    },
+    {
+      "path": "/zh/disclaimer/",
+      "status": 200,
+      "title": "\u514d\u8cac\u8072\u660e \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh/disclaimer/",
+      "lang": "zh-Hant"
+    },
+    {
+      "path": "/zh-cn/",
+      "status": 200,
+      "title": "\u6700\u65b0\u62a5\u9053 \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh-cn/",
+      "lang": "zh-Hans"
+    },
+    {
+      "path": "/zh-cn/ai/",
+      "status": 200,
+      "title": "\u4eba\u5de5\u667a\u80fd \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh-cn/ai/",
+      "lang": "zh-Hans"
+    },
+    {
+      "path": "/zh-cn/crypto/",
+      "status": 200,
+      "title": "\u52a0\u5bc6\u8d27\u5e01 \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh-cn/crypto/",
+      "lang": "zh-Hans"
+    },
+    {
+      "path": "/zh-cn/archive/",
+      "status": 200,
+      "title": "\u62a5\u9053\u5f52\u6863 \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh-cn/archive/",
+      "lang": "zh-Hans"
+    },
+    {
+      "path": "/zh-cn/search/",
+      "status": 200,
+      "title": "\u641c\u7d22 \u00b7 Token on Air",
+      "lang": "zh-Hans"
+    },
+    {
+      "path": "/zh-cn/about/",
+      "status": 200,
+      "title": "\u5173\u4e8e\u6211\u4eec \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh-cn/about/",
+      "lang": "zh-Hans"
+    },
+    {
+      "path": "/zh-cn/policy/",
+      "status": 200,
+      "title": "\u7f16\u8f91\u653f\u7b56 \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh-cn/policy/",
+      "lang": "zh-Hans"
+    },
+    {
+      "path": "/zh-cn/contact/",
+      "status": 200,
+      "title": "\u8054\u7cfb\u6211\u4eec \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh-cn/contact/",
+      "lang": "zh-Hans"
+    },
+    {
+      "path": "/zh-cn/privacy/",
+      "status": 200,
+      "title": "\u9690\u79c1 \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh-cn/privacy/",
+      "lang": "zh-Hans"
+    },
+    {
+      "path": "/zh-cn/advertise/",
+      "status": 200,
+      "title": "\u5e7f\u544a\u5408\u4f5c \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh-cn/advertise/",
+      "lang": "zh-Hans"
+    },
+    {
+      "path": "/zh-cn/terms/",
+      "status": 200,
+      "title": "\u4f7f\u7528\u6761\u6b3e \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh-cn/terms/",
+      "lang": "zh-Hans"
+    },
+    {
+      "path": "/zh-cn/disclaimer/",
+      "status": 200,
+      "title": "\u514d\u8d23\u58f0\u660e \u00b7 Token on Air",
+      "canonical": "https://tokenonair.com/zh-cn/disclaimer/",
+      "lang": "zh-Hans"
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200
+    },
+    {
+      "path": "/preview/",
+      "status": 404
+    },
+    {
+      "path": "/api/health",
+      "status": 200
+    },
+    {
+      "path": "/en/articles/does-not-exist/",
+      "status": 404
+    }
+  ],
+  "sources": [
+    {
+      "id": "openai",
+      "status": 200,
+      "count": 10
+    },
+    {
+      "id": "deepmind",
+      "status": 200,
+      "count": 1
+    },
+    {
+      "id": "google-ai",
+      "status": 200,
+      "count": 1
+    },
+    {
+      "id": "google-research",
+      "status": 200,
+      "count": 1
+    },
+    {
+      "id": "huggingface",
+      "status": 200,
+      "count": 6
+    },
+    {
+      "id": "microsoft-research",
+      "status": 200,
+      "count": 2
+    },
+    {
+      "id": "nvidia",
+      "status": 200,
+      "count": 16
+    },
+    {
+      "id": "ethereum",
+      "status": 200,
+      "count": 0
+    },
+    {
+      "id": "bitcoin-core",
+      "status": 200,
+      "count": 0
+    },
+    {
+      "id": "a16z-crypto",
+      "status": 200,
+      "count": 0
+    },
+    {
+      "id": "chainalysis",
+      "status": 200,
+      "count": 0
+    },
+    {
+      "id": "techcrunch-ai",
+      "status": 200,
+      "count": 20
+    },
+    {
+      "id": "the-decoder",
+      "status": 200,
+      "count": 10
+    },
+    {
+      "id": "coindesk",
+      "status": 200,
+      "count": 25
+    },
+    {
+      "id": "the-block",
+      "status": 200,
+      "count": 19
+    },
+    {
+      "id": "decrypt",
+      "status": 200,
+      "count": 31
+    },
+    {
+      "id": "unchained",
+      "status": 200,
+      "count": 10
+    },
+    {
+      "id": "blockworks",
+      "status": 200,
+      "count": 0
+    },
+    {
+      "id": "ithome",
+      "status": 200,
+      "count": 30
+    },
+    {
+      "id": "inside",
+      "status": 200,
+      "count": 10
+    },
+    {
+      "id": "techorange",
+      "status": 200,
+      "count": 16
+    },
+    {
+      "id": "panews",
+      "status": 200,
+      "count": 100
+    },
+    {
+      "id": "grenade",
+      "status": 200,
+      "count": 7
+    },
+    {
+      "id": "blocktempo",
+      "status": 200,
+      "count": 10
+    },
+    {
+      "id": "arxiv-ai",
+      "status": 200,
+      "count": 370
+    }
+  ]
+}

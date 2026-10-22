@@ -27,3 +27,19 @@ Comments/community (moderation and abuse handling), accounts/bookmarks (identity
 
 ## Operational gates
 See launch-checklist.md for credentials, sender authentication, CMS writes, browser QA, legal/operator facts, monitoring, backup/restore, rollback and Git deployment status. Supplied production secrets are sensitive and cannot be exported; a placeholder export is not usable credential evidence. Public DNS and owner attestations do not prove actual mail delivery.
+
+## Pre-backfill audit — 2026-10-22 14:34 UTC
+
+Vercel CLI inspected production deployment dpl_9wktTR1nPgBxCcWUjLYHf7FdTvcX: Ready, both custom domains attached. Fresh HTTP checks passed for36 localized reader/policy pages, robots, sitemap and health; unknown article and private preview returned404. Existing discovery smoke passed both hosts, including malformed archive URLs, feeds and missing authors. Search deliberately has no canonical; it is a non-indexed utility. Evidence: docs/research/source-checks/2026-10-22-pre-backfill-audit.json. These checks establish status and metadata, not rendered visual/accessibility or actual article acceptance.
+
+Read-only bounded feed discovery found695 distinct URLs within48hours across25 feeds, all HTTP200. PANews100, Grenade7, BlockTempo10. Counts reflect feed windows and include research papers/vendor announcements; they are neither verified news nor695 unique events. Full metadata snapshot is private at .private/audit/source-snapshot.json; no article bodies copied and no CMS writes performed. Feed access does not change source rights approvals or enable polling.
+
+### Findings before backfill
+- Blocking: no verified scoped Sanity writing connection/editor record; no live story lifecycle acceptance.
+- Blocking for autonomous operation: Dots is only available through ChatGPT UI; no callable generator, independent semantic verifier or durable worker has been connected.
+- Date integrity: feed queue retains source publishedAt and queue created_at, but publicationDocument drops those provenance timestamps. A backfill needs separate sourcePublishedAt, discoveredAt and importedAt fields; site publishedAt must describe actual first publication here. Preserve dates on corrections and make source time clearly labelled if displayed.
+- Date parsing: Atom updated currently substitutes for missing published, so updates can look like fresh first publication. Explicit timestamp provenance and missing/ambiguous-date handling need coverage before unattended ingestion.
+- Hosting resilience: HomePage/SectionPage still set failure status in nested components. The earlier archive issue shows Vercel streaming can commit headers first; move data/status handling to routes and verify an outage response before calling outage handling complete.
+- Browser checks remain blocked by AppArmor. Turnstile, consent interactions and responsive visual QA are not passed.
+
+Recommended initial backfill: reviewed original multilingual summaries from the last48hours, source-driven selection, cluster duplicate events before drafting, retain source timestamps in UTC, publish using actual site timestamps, then verify article/search/feed/sitemap and correction/withdrawal propagation. Start with a small checked batch; do not publish the entire feed dump or enable24/7 operation from this metadata probe.
