@@ -7,19 +7,4 @@ const {locale}=Astro.props;const config=runtimeConfig();const id=process.env.GA4
 const enabled=analyticsEnabled(config.appEnv,config.contentMode,id)&&!Astro.url.pathname.startsWith('/preview');
 ---
 {enabled&&<aside class="analytics-choice" data-analytics-id={id} data-locale={locale} aria-label={t(locale,'analytics')}><p>{t(locale,'analyticsNote')}</p><div><button type="button" data-analytics-allow>{t(locale,'allow')}</button><button type="button" data-analytics-decline>{t(locale,'decline')}</button><button type="button" data-analytics-reset hidden>{t(locale,'preferences')}</button></div></aside>}
-<script>
- import {cleanAnalyticsPath} from '../lib/analytics';
- const panel=document.querySelector<HTMLElement>('[data-analytics-id]');
- if(panel){
-  const id=panel.dataset.analyticsId!;let allowed=false;let loaded=false;
-  const scope=window as unknown as {dataLayer:unknown[];gtag:(...args:unknown[])=>void};scope.dataLayer=[];scope.gtag=function(){scope.dataLayer.push(arguments);};
-  const buttons=()=>{panel.querySelectorAll<HTMLElement>('[data-analytics-allow],[data-analytics-decline]').forEach(e=>e.hidden=true);panel.querySelector<HTMLElement>('[data-analytics-reset]')!.hidden=false;};
-  const load=()=>{allowed=true;buttons();if(loaded){scope.gtag('consent','update',{analytics_storage:'granted'});return;}loaded=true;scope.gtag('consent','default',{analytics_storage:'granted',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});scope.gtag('js',new Date());scope.gtag('config',id,{send_page_view:false,allow_google_signals:false,allow_ad_personalization_signals:false});const script=document.createElement('script');script.async=true;script.src=`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;document.head.append(script);scope.gtag('event','page_view',{page_location:location.origin+cleanAnalyticsPath(location.href),page_referrer:document.referrer?new URL(document.referrer).origin:'',page_title:'Token on Air',language:panel.dataset.locale});};
-  try{const consent=localStorage.getItem('toa_analytics');if(consent==='granted')load();else if(consent==='denied')buttons();}catch{}
-  panel.querySelector('[data-analytics-allow]')?.addEventListener('click',()=>{try{localStorage.setItem('toa_analytics','granted');}catch{}load();});
-  panel.querySelector('[data-analytics-decline]')?.addEventListener('click',()=>{try{localStorage.setItem('toa_analytics','denied');}catch{}buttons();});
-  panel.querySelector('[data-analytics-reset]')?.addEventListener('click',()=>{allowed=false;scope.gtag('consent','update',{analytics_storage:'denied'});try{localStorage.removeItem('toa_analytics');}catch{}for(const row of document.cookie.split(';')){const name=row.split('=')[0].trim();if(name.startsWith('_ga'))document.cookie=`${name}=; Max-Age=0; path=/; SameSite=Lax`;}location.reload();});
-  document.addEventListener('click',event=>{if(!allowed)return;const link=(event.target as Element)?.closest<HTMLAnchorElement>('a[data-commercial-event]');if(!link)return;const name=link.dataset.commercialEvent;if(!['affiliate_click','sponsor_click','owned_project_click'].includes(name||''))return;const placement=link.dataset.placement;if(placement&&/^[a-z0-9_-]{1,64}$/.test(placement))scope.gtag('event',name,{placement,language:panel.dataset.locale});});
-  if(new URL(location.href).searchParams.get('signup')==='accepted'&&allowed){scope.gtag('event','newsletter_signup',{language:panel.dataset.locale});history.replaceState(null,'',location.pathname);}
- }
-</script>
+{enabled&&<script is:inline type="module" src="/scripts/analytics.js"></script>}

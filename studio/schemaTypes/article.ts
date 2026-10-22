@@ -28,6 +28,8 @@ export default defineType({
     defineField({ name: 'summary', type: 'text', rows: 3, validation: r => r.max(500) }),
     defineField({ name: 'slug', type: 'slug', options: { source: 'title', isUnique: isUniqueArticleSlug } }),
     defineField({ name: 'translations', title: 'Three-language editions', type: 'object', fields: ['en','zh','zhCn'].map(key => ({name:key,type:'object',fields:[{name:'title',type:'string'},{name:'summary',type:'text'},{name:'slug',type:'slug',options:{source:`translations.${key}.title`}},bodyField,{name:'disclosure',type:'text'}]})) }),
+    defineField({name:'publicationState',type:'string',initialValue:'published',options:{list:['published','withdrawn']}}),
+    defineField({name:'automation',type:'object',readOnly:true,hidden:true,fields:[{name:'jobId',type:'string'},{name:'candidateHash',type:'string'}]}),
     defineField({ name: 'section', type: 'string', options: { list: ['ai', 'crypto'] }, validation: r => r.required() }),
     defineField({ name: 'format', type: 'string', options: { list: ['news','analysis','guide','review','announcement'] }, initialValue: 'news', validation: r => r.required() }),
     defineField({ name: 'author', type: 'reference', to: [{ type: 'author' }], validation: r => r.required() }),

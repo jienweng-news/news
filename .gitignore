@@ -7,3 +7,8 @@ dist/
 !.env.example
 .superpowers/
 .sanity/
+
+.private/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
