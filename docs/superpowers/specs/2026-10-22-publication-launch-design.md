@@ -5,21 +5,31 @@ Status: launch design approved by the founder on 2026-10-22 ("apporveand move on
 
 ## Intent and selected direction
 
-The founder selected Astro + Sanity native SaaS after comparing it with Next.js + Payload. Plausible SaaS supplies publication analytics. The product covers AI and crypto news, practical guides/reviews, affiliate relationships, later advertising/sponsorships, and clearly disclosed founder-owned projects.
+The founder selected Astro + Sanity native SaaS after comparing it with Next.js + Payload. The founder subsequently selected Google Analytics 4 standard for free analytics, superseding paid Plausible. The product covers AI and crypto news, practical guides/reviews, affiliate relationships, later advertising/sponsorships, and clearly disclosed founder-owned projects.
 
 The launch should produce a usable editorial publication with complete article HTML, useful discovery, RSS, and measurable reader conversions. It should not require an account to read, use copied competitor stories as inventory, or depend on unreviewed model output.
 
-English is the working launch language, not a founder-confirmed market decision. Use `News` as a temporary configuration value for the name. Branding, contact details, domain, service accounts, and spending limits remain configurable launch inputs. Do not invent a legal entity, partner relationship, subscriber count, or published reporting.
+English and Traditional Chinese are founder-confirmed launch languages. The current implementation remains English-only; bilingual support requires a follow-on design and implementation. The founder selected the independent media brand **Token on Air**, with `tokenonair.com` purchased according to the founder’s confirmation. Registrar access, DNS, TLS and hosting connection remain unverified; brand clearance remains unverified. The founder confirmed `Token on Air` as the shared brand for both language editions, using a Traditional Chinese tagline rather than a separate Chinese name. The founder selected the taglines **Understand what’s next.** (English) and **看懂科技下一步。** (Traditional Chinese). The founder selected the Persona-inspired newsroom visual direction; implementation and browser verification remain pending. The implementation still uses `News` as a temporary configuration value until branding is applied. Contact details, domain connection, service accounts, and spending limits remain launch inputs. Do not invent a legal entity, partner relationship, subscriber count, or published reporting.
+
+## Audience decision
+
+The founder selected both builders/founders/technology users and investors/market followers. Geographic focus is global AI/crypto coverage with a Taiwan/Asia lens. Translation coverage/review staffing and the balance between practical and market coverage remain undecided; no priority between these audience groups is assumed approved.
+
+## Bilingual launch decision
+
+Provide English and Traditional Chinese reader experiences. The founder confirmed both English and Traditional Chinese versions for every qualifying story. Use one shared automated editorial operation with linked language versions, AI-generated translations with automated evidence/terminology checks and synchronized corrections/disclosures; unresolved translations are held. Define release timing and partial-language failure behavior in the automation plan; bilingual coverage does not imply unverified versions are published.
+
+The follow-on discovery plan must define locale codes and URLs, translation-group identity, per-language slugs/navigation/search/RSS, self-canonical and hreflang metadata, and behavior for unavailable translations. Never expose an unreviewed translation or a language-switch link to a missing page. Re-estimate delivery and content workload; the earlier single-language estimates are not a bilingual commitment.
 
 ## Delivery boundaries
 
 1. Astro renders the public website on a managed host.
 2. Sanity hosts editorial content, licensed media, and Studio. Do not provision a self-hosted CMS.
-3. Plausible measures traffic and specific conversions; approved revenue remains in partner/payment records.
+3. GA4 measures traffic and configured events/key events; approved revenue remains in partner/payment records.
 4. A managed email provider, selected before newsletter implementation, owns subscriptions, consent state, delivery and suppression.
 5. Source polling and private editorial triage are a separate later service. Keep its state outside Sanity Free's public dataset.
 
-Proposed frontend host: Vercel, using Astro's documented ISR adapter. Commercial production requires a suitable commercial plan. Do not buy a plan or deploy production as part of design work. A provider change must meet the same freshness, preview isolation and recovery acceptance requirements.
+Founder-selected frontend host: Vercel, using Astro's documented ISR adapter. Commercial production requires a suitable commercial plan. Do not buy a plan or deploy production as part of design work. A provider change must meet the same freshness, preview isolation and recovery acceptance requirements.
 
 ## Launch scope and page behavior
 
@@ -35,7 +45,7 @@ Proposed frontend host: Vercel, using Astro's documented ISR adapter. Commercial
 - `/rss.xml`, `/ai/rss.xml`, `/crypto/rss.xml`: latest 50 matching published articles, stable IDs, valid dates, canonical links, escaped descriptions, and an absolute self URL.
 - `/sitemap.xml` and `/robots.txt`: canonical published pages and discovery links; previews excluded. RSS alone is not the search indexing strategy.
 
-Visual direction: an editorial layout with strong typography, readable article widths, restrained section accents, mobile-first navigation and reserved image dimensions. Use text labels and metadata to distinguish sections and commercial content; do not rely only on color. No ticker or market-price widgets at launch.
+Visual direction: the founder-approved [Persona-inspired newsroom](../../design/2026-10-22-token-on-air-visual-direction.md), with an original red/black/warm-white palette, cutout-style masthead, condensed display headlines, angled section treatments and a dark latest-headlines column. Retain a lead/latest/section news hierarchy, calm upright article body text, readable widths, mobile-first navigation and reserved image dimensions. Use text labels and metadata to distinguish sections and commercial content; do not rely only on color. No ticker or market-price widgets at launch.
 
 ## Template references, versions and performance
 
@@ -61,11 +71,11 @@ Slugs must be unique across articles. Changes create explicit permanent redirect
 
 ## Editorial access and automation
 
-Start with manual publishing by a trusted founder. Sanity Free includes Administrator and Viewer, not dedicated Editor/Contributor roles. Studio validation and custom actions improve workflow but do not make a privileged API token draft-only.
+The implemented foundation supports manual publishing by a trusted founder. The founder now selected automatic AI-written website publication as the target operation; that separate subsystem is not implemented. Sanity Free includes Administrator and Viewer, not dedicated Editor/Contributor roles. Studio validation and custom actions improve workflow but do not make a privileged API token draft-only.
 
 Preview is server-authenticated, returns `Cache-Control: private, no-store`, is `noindex`, and never exposes a read/write token in browser bundles. Unauthenticated preview requests are rejected. API access to published data is intentionally public on Free; drafts require authorized access.
 
-Do not add automation writes in the first milestone. The later ingestion service must validate model output, set drafts explicitly, and never expose a general mutation endpoint. If CMS-enforced draft-only automation or contributor separation is a requirement, resolve Sanity's actual role/token capability and plan before enabling it; application checks alone are insufficient against token compromise.
+Do not add automation writes in the first milestone. The later ingestion service must validate model output and evidence, then use a separate controlled publisher after checks pass; never expose a general mutation endpoint. Resolve actual role/token capabilities before enabling publish credentials. Application checks alone do not prevent misuse of a compromised privileged token.
 
 Sanity Free's history is limited. Editorial correction records and scheduled exports are necessary; do not promise an enterprise audit trail.
 
@@ -87,7 +97,7 @@ Generate an index only from published article IDs, title, summary, section, slug
 
 ## Analytics and commercial measurement
 
-Use one primary audience tracker: Plausible, enabled only with a configured production domain. No tracker on previews, tests or local development. Do not install several overlapping analytics SDKs by default.
+Use Google Analytics 4 standard as the founder-selected primary audience tracker, enabled only with a configured production domain and appropriate consent behavior. Configure the following desired custom events; mark intended business outcomes as key events and avoid duplicate automatic/custom tracking. Sanitize page URLs and event parameters before collection. No tracker on previews, tests or local development. Do not install several overlapping analytics SDKs by default.
 
 Events:
 
@@ -112,7 +122,7 @@ Affiliate links need visible disclosure before the first commercial link and `re
 
 The supplied PANews, Grenade and BlockTempo feeds remain discovery sources. Preserve the original and redirected URLs; detect per-item language rather than trusting feed-level labels. Add verified AI primary sources before claiming balanced coverage.
 
-Private ingestion stores minimal permitted metadata, durable idempotency keys, fetch validators and retry state. Use timeouts, size caps, safe XML parsing and outbound host restrictions, including validation after redirects. Link related coverage into clusters; an editor verifies primary evidence before preparing an original draft. Do not automatically translate and republish competitor articles.
+Private ingestion stores minimal permitted metadata, durable idempotency keys, fetch validators and retry state. Use timeouts, size caps, safe XML parsing and outbound host restrictions, including validation after redirects. Link related coverage into clusters; the writing service prepares an original attributed draft and an independent validation stage checks factual claims against retrievable evidence before a controlled publisher can publish. Failed checks hold the item; model confidence alone does not establish accuracy. Do not automatically translate and republish competitor articles.
 
 The worker is not part of the first public-site foundation. It gets a separate private storage/authentication design and implementation plan before development.
 
@@ -128,11 +138,11 @@ The worker is not part of the first public-site foundation. It gets a separate p
 
 ## Incremental implementation sequence
 
-Phase IDs and completion evidence are maintained in the [master checklist](../../plans/ai-crypto-publication-checklist.md). Business decisions are Phase 0; manual content preparation proceeds alongside engineering; public launch does not depend on automated feed ingestion.
+Phase IDs and completion evidence are maintained in the [master checklist](../../plans/ai-crypto-publication-checklist.md). Business decisions are Phase 0; content preparation can proceed alongside engineering; launching the founder-selected automatic editorial operation requires the separately specified ingestion, validation and publication subsystem.
 
 1. Foundation: Astro project, Sanity schemas/Studio, content adapter with labelled local fixtures, article rendering, private preview and configuration validation.
 2. Discovery and delivery: homepage/sections/authors/guides, RSS/sitemap, redirects, search, ISR webhook integration and propagation tests.
-3. Commercial measurement: Plausible goals, public affiliate/sponsor components, owned-project pages and provider-backed newsletter signup.
+3. Commercial measurement: supported free-tracker conversions, public affiliate/sponsor components, owned-project pages and provider-backed newsletter signup.
 4. Operations and launch: CI, exports/restore drill, monitoring, original editorial inventory, policies and production acceptance.
 5. Private ingestion: approved source registry, queue/inbox, clustering and draft assistance; resolve least-privilege CMS capabilities before enabling writes.
 
@@ -148,3 +158,92 @@ Each milestone gets a scoped implementation plan with exact interfaces and verif
 - Sanity quotas: https://www.sanity.io/docs/platform-management/plans-and-payments
 - Plausible conversion events: https://plausible.io/docs/goal-conversions
 - Vercel commercial hosting terms: https://vercel.com/legal/terms
+
+
+## Founder editorial decisions — 2026-10-22
+
+The founder confirmed 40% practical AI/crypto coverage and 60% markets, funding and industry developments. This is an editorial-format balance, separate from the AI-versus-crypto topic balance; measure unique stories rather than counting translations twice.
+
+The founder explicitly selected AI-written articles with automatic website publication and no routine per-article human approval, superseding the earlier draft-only proposal. Target workflow: permitted RSS discovery → evidence-linked original writing → independent automated validation → controlled publication. Hold items that fail checks. Require source attribution, editor credit `jienweng` (no AI-generated label per founder instruction), deduplication, translation consistency, daily/spend limits, audit evidence, a kill switch, and a corrections/escalation owner. Automated checks reduce risk but do not guarantee accuracy. Full-text republication, close paraphrases and translations of source articles require appropriate rights; feed availability is not a license. Daily volume, source allowlist, model/budget and risk scope remain unresolved. This requires a separate automation design/implementation plan; no live automation exists yet. Newsletter/social sends and deployment remain separate actions.
+
+
+### Freshness and throughput decision
+
+The founder prefers higher, source-driven publication rather than four unique stories per day, and prioritizes timely coverage. Proposed targets, pending implementation measurements: poll approved feeds every five minutes where source limits permit, then aim to publish valid original stories within 10–15 minutes of discovery. This is not a promise of end-to-end latency from the underlying event: source publication/feed delays are external. Track source, discovery and publication times separately; prioritize fresh clusters, deduplicate overlapping reporting, update existing stories for material changes, and avoid presenting stale startup/backlog items as breaking news. No unlimited spend or numeric daily cap is approved. The founder confirmed 24/7 automatic website publishing. Source-specific lookback/staleness rules, burst/concurrency limits, alerts/escalation ownership and budget remain open.
+
+
+### Cost and provider preferences
+
+The founder selected Dots for AI generation and asked to exclude its generation charges from the current cash budget; its identity/API/access/throughput remain unverified. The founder selected Vercel hosting and free analytics, superseding paid Plausible. The founder selected GA4 standard; property/data-stream setup and event verification remain pending. Sanity Free remains the CMS recommendation after a current official-source recheck; Payload Cloud new deployments are paused. See ../../research/2026-10-22-managed-cms-recheck.md for evidence, quota constraints and commercial-hosting limitations. No paid plan purchase or deployment is authorized by this preference update.
+
+
+### Bilingual content-model decision
+
+The founder approved a single bilingual Sanity article document per unique story, using localized fields for English and Traditional Chinese titles, slugs, summaries and rich-text bodies, and shared source/media references. Emit separate locale URLs, search records, feeds and SEO metadata without duplicating the CMS article document. Validate Portable Text localization, attribute/document-size limits, locale slug uniqueness and a publish transaction that requires both languages to pass checks. Both locales share a publication lifecycle; if either fails, hold publication rather than publish an unverified translation. Draft copies and other document types remain quota usage. Sanity documents both field-level and document-level localization: https://www.sanity.io/docs/studio/localization . No Payload migration is selected; the founder’s self-hosting question is comparative research.
+
+
+### CMS reconfirmation
+
+After reviewing Payload infrastructure requirements, the founder explicitly reconfirmed continuing with Sanity managed CMS, initially Free within verified quotas and access constraints. No Payload migration is planned. This does not approve a paid upgrade or deployment.
+
+
+### Dots identity and integration direction
+
+The founder clarified that Dots is OpenAI ChatGPT dots, the always-on agent. Official documentation describes ongoing responsibilities, schedules and connected plugins: https://learn.chatgpt.com/docs/dots , https://learn.chatgpt.com/docs/dots/getting-started , https://learn.chatgpt.com/docs/dots/controls . It does not establish this account’s access, a website-callable Dots inference API or a five-minute execution guarantee.
+
+Proposed architecture: a durable private discovery queue that records feed freshness independently of agent availability; the dot pulls/claims jobs over an authenticated supported tool connection, researches primary evidence and produces both locale versions; it submits structured articles to a controlled publisher that validates schema, job identity, sources and idempotency, then writes one bilingual Sanity article. Keep Sanity credentials inside the publisher. Dot permissions/automatic action review and connection availability require live verification. Do not schedule or claim a running dot from this Codex thread. Preserve queued jobs and alert on stalls rather than silently substituting a paid inference API. A ready-to-configure brief is at ../../operations/dots-editorial-brief.md .
+
+
+### Topic-balance decision
+
+The founder selected source-driven AI-versus-crypto coverage, without a fixed daily topic quota. Both sections retain equal navigation prominence. Prioritize fresh relevant unique developments with adequate evidence, while monitoring source concentration. The 40/60 practical-versus-markets/funding/industry mix is a separate rolling target. Add primary AI sources rather than treating the initial crypto-heavy feeds as representative of all technology news.
+
+
+### Newsletter launch decision
+
+The founder selected newsletter signup at launch and digest sending later, once publishing is stable. Implement provider-backed signup, confirmation, unsubscribe/suppression and accessible feedback. The founder selected beehiiv Free; account/publication setup, API/form integration, sender identity and digest start date remain open. Do not represent subscriber collection as authorization to send an issue automatically.
+
+
+### Newsletter provider decision
+
+Founder selected beehiiv Free for launch signup, retaining Astro for the website and keeping subscriber data in the email provider. Verify current plan entitlements, confirmation/unsubscribe/suppression, export, language-preference handling, signup integration and sender-domain authentication before production. Current pricing evidence: https://www.beehiiv.com/pricing . Selection does not authorize a paid upgrade or sending an issue; digest distribution remains deferred.
+
+
+### Newsletter language preference
+
+Founder approved English, Traditional Chinese or both choices at signup. Preselect the current page language, allow the subscriber to change it, and persist the preference in beehiiv subject to verified Free-plan field/segmentation capabilities. One subscriber choosing both is not two subscriber records. Sending remains deferred.
+
+
+### Editor credit decision
+
+The founder selected the exact public editor name `jienweng`, rejected “Token on Air Desk” and requested no AI-generated disclosure. Use an editor relationship and visible editor label rather than implying human authorship, personal reporting or per-article human review. Preserve source attribution, corrections and commercial disclosures. Biography and credentials must come from the founder; do not invent them.
+
+
+### Fixed discovery inputs
+
+The founder selected a fixed source list and requested expansion. The curated list is ../../research/2026-10-22-fixed-source-list.md , with 25 HTTP/XML-verified feeds in ../../research/source-checks/2026-10-22-fixed-sources.json . This adds 22 sources to the original three and balances primary AI/crypto evidence with international and Taiwan newsrooms. Per-source automated-use terms and operational checks remain pending. Sources are not automatically enabled, and new feeds require approval. Page-watch candidates and blocked endpoints remain outside active ingestion.
+
+
+### Locale URLs and first-visit selection
+
+Founder confirmed Astro i18n routes `/en/` and `/zh/`. `/zh/` is the existing Traditional Chinese edition, using `lang="zh-Hant"` and matching hreflang metadata rather than changing to Simplified Chinese based on country. At `/` only, use a valid saved manual preference first, then trusted Vercel geolocation: country CN or TW selects `/zh/`; other or absent country selects `/en/`. IP geography is approximate and can reflect a VPN/proxy. No GPS or precise-location permission is needed. Explicit locale paths always win and never geo-redirect.
+
+Implement root selection using temporary redirects with `private, no-store` to prevent a user's choice/region being shared through a cached root response. Keep language-specific pages independently cacheable with self-canonicals, reciprocal `en`/`zh-Hant` hreflang and an appropriate x-default. Both versions must remain discoverable through language links and locale sitemaps, without relying on geolocation or user-agent-specific content. Persist manual switches and link to the same article in the other locale. Verify source trust for Vercel headers and local no-geolocation fallback. Official references: https://docs.astro.build/en/guides/internationalization/ , https://vercel.com/docs/headers/request-headers , https://developers.google.com/search/docs/specialty/international/locale-adaptive-pages .
+
+
+### Startup lookback and Chinese-script proposal
+
+Founder confirmed a 48-hour initial discovery lookback, processing freshest eligible items first with deduplication and accurate event/source dates. A rotating feed may contain fewer than 48 hours; do not infer completeness. Extended-outage recovery remains a bounded policy to define.
+
+The founder asked whether to add Simplified Chinese for China in addition to Traditional Chinese for Taiwan. Recommended, not yet confirmed: retain `/zh/` for Traditional (`zh-Hant`), add `/zh-cn/` for Simplified (`zh-Hans`), and retain `/en/` English. Use root-only CN → Simplified and TW → Traditional, with explicit locale URLs/saved user choices preceding geography. Consider HK/MO Traditional as part of confirmation. All three variants can live in one localized article document; validate language-specific terminology, entity names, metadata, rich-text limits and publication failure policy rather than relying on blind character conversion. Add self-canonicals, reciprocal language/script hreflang, locale feeds/search and newsletter preference mapping if confirmed. Three output variants do not require three CMS article documents, but increase bytes and validation workload.
+
+
+### Confirmed three-variant launch — supersedes earlier bilingual and locale sections
+
+The founder approved English, Traditional Chinese and Simplified Chinese for every qualifying story. Store all three variants as localized fields in one Sanity article document, subject to validated rich-text/attribute/document-size limits. Use `/en/` (en), `/zh/` (zh-Hant), `/zh-cn/` (zh-Hans). Root-only first-entry selection: saved explicit preference, then CN→Simplified; TW/HK/MO→Traditional; other/unknown→English. Explicit locale URLs always win. Preserve private/no-store temporary root selection and independently cacheable locale pages with self-canonicals and reciprocal hreflang.
+
+All three publication variants must pass checks before shared publication. Synchronize corrections and verify regional terminology, entities, numbers, source links and disclosures; do not assume character conversion is sufficient. Extend search, feeds, metadata, navigation, language switching and the private publisher schema to all three. Signup choices become English, Traditional Chinese, Simplified Chinese or all three, defaulting to page locale and persisted once per subscriber (provider capability pending). This decision supersedes earlier two-language descriptions and CN→Traditional routing. The original mockup still demonstrates two variants; production design validation must cover Simplified Chinese too. Confirmed startup lookback remains 48 hours.
+
+### Contact email decision — Zoho Free
+
+Founder selected Zoho Mail Forever Free for business/contact email on tokenonair.com, subject to regional availability. Advertised free limits: one custom domain, up to five users, 5 GB per user; IMAP/POP/ActiveSync are excluded. Signup, domain ownership verification, mailbox creation, region-specific MX/SPF/DKIM and DMARC configuration, and authorized delivery verification remain pending. Recommended public address hello@tokenonair.com is not yet confirmed or created. beehiiv remains the newsletter provider; this decision does not enable digest sending. Sources: https://www.zoho.com/mail/zohomail-pricing.html and https://www.zoho.com/mail/help/adminconsole/email-hosting-setup.html .
