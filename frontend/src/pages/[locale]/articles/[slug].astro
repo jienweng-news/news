@@ -1,5 +1,8 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import StoryList from '../../../components/StoryList.astro';
+import {relatedStories} from '../../../lib/content/newsroom';
+import type {ArticleCard} from '../../../lib/content/types';
 import ArticleBody from '../../../components/ArticleBody.astro';
 import {createContentRepository} from '../../../lib/content/repository';
 import {runtimeConfig} from '../../../lib/runtime';
@@ -8,9 +11,11 @@ const {locale,slug}=Astro.params;if(!isLocale(locale))return new Response('Not f
 const config=runtimeConfig();let article=null;let status=200;
 try{article=await createContentRepository(config).getPublished(slug||'',locale);if(!article)status=404;}catch{status=503;}
 Astro.response.status=status;Astro.response.headers.set('Cache-Control',status===200&&config.contentMode!=='fixture'?'public, max-age=0, s-maxage=30':'no-store');
+let related:ArticleCard[]=[];
+if(article)try{related=relatedStories(await createContentRepository(config).listPublished(locale),article);}catch{/* Optional discovery must not make an available story fail. */}
 const alternatePaths=article?.localeSlugs?Object.fromEntries(Object.entries(article.localeSlugs).map(([l,s])=>[l,`/${l}/articles/${s}/`])):{};
 const jsonLd=article?JSON.stringify({'@context':'https://schema.org','@type':'NewsArticle',headline:article.title,description:article.summary,datePublished:article.publishedAt,dateModified:article.updatedAt,inLanguage:article.language,editor:{'@type':'Person',name:'jienweng'},publisher:{'@type':'Organization',name:'Token on Air',url:config.siteUrl},mainEntityOfPage:new URL(Astro.url.pathname,config.siteUrl).href,citation:article.sources,...(article.media?{image:[article.media.url]}:{})}).replace(/</g,'\\u003c'):'';
 ---
 <BaseLayout locale={locale} alternatePaths={alternatePaths} title={article?.title||t(locale,status===503?'unavailable':'notFound')} description={article?.summary} noindex={status!==200}>
- {article?<><script type="application/ld+json" set:html={jsonLd}/><ArticleBody article={article} locale={locale}/></>:<section class="empty-state"><h1>{t(locale,status===503?'unavailable':'notFound')}</h1><a href={localePath(locale)}>{t(locale,'back')}</a></section>}
+ {article?<><script type="application/ld+json" set:html={jsonLd}/><ArticleBody article={article} locale={locale}/>{related.length>0&&<section class="related-stories"><div class="section-heading"><h2>{t(locale,'related')}</h2></div><StoryList articles={related} locale={locale}/></section>}</>:<section class="empty-state"><h1>{t(locale,status===503?'unavailable':'notFound')}</h1><a href={localePath(locale)}>{t(locale,'back')}</a></section>}
 </BaseLayout>

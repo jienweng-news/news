@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import StoryList from './StoryList.astro';
+import {createContentRepository} from '../lib/content/repository';
+import {paginateNews} from '../lib/content/newsroom';
+import {runtimeConfig} from '../lib/runtime';
+import {t,localePath,type Locale} from '../lib/i18n';
+interface Props {locale:Locale;page:string}
+const {locale,page}=Astro.props;let result=null;let unavailable=false;
+try{result=paginateNews(await createContentRepository(runtimeConfig()).listPublished(locale),page);}catch{unavailable=true;}
+Astro.response.status=unavailable?503:result?200:404;
+Astro.response.headers.set('Cache-Control','no-store');
+const pagePath=(n:number)=>localePath(locale,n===1?'archive':`archive/${n}`);
+const title=unavailable?t(locale,'unavailable'):!result?t(locale,'notFound'):`${t(locale,'archive')}${result.page>1?` · ${t(locale,'page')} ${result.page}`:''}`;
+// Page membership can differ across editions; switch to each edition's first page.
+const alternatePaths=Object.fromEntries(['en','zh','zh-cn'].map(l=>[l,`/${l}/archive/`]));
+---
+<BaseLayout locale={locale} title={title} noindex={!result||unavailable} alternatePaths={result?.page===1?alternatePaths:{}}>
+  <div class="section-page-heading"><h1>{title}</h1><p>{t(locale,'technology')}</p></div>
+  {result&&<><StoryList articles={result.items} locale={locale} headingLevel="h2"/>{!result.items.length&&<p class="section-empty">{t(locale,'empty')}</p>}
+    <nav class="archive-pagination" aria-label={t(locale,'archive')}>
+      {result.page>1&&<a rel="prev" href={pagePath(result.page-1)}>{t(locale,'newer')}</a>}
+      <span>{t(locale,'page')} {result.page} / {result.totalPages}</span>
+      {result.page<result.totalPages&&<a rel="next" href={pagePath(result.page+1)}>{t(locale,'older')}</a>}
+    </nav></>}
+  {unavailable&&<p>{t(locale,'retry')}</p>}
+</BaseLayout>

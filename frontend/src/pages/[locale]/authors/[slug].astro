@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import StoryList from '../../../components/StoryList.astro';
+import {createContentRepository} from '../../../lib/content/repository';
+import {authorStories} from '../../../lib/content/newsroom';
+import {validSlug} from '../../../lib/content/normalize';
+import {runtimeConfig} from '../../../lib/runtime';
+import {isLocale,t} from '../../../lib/i18n';
+import type {ArticleCard} from '../../../lib/content/types';
+const {locale,slug}=Astro.params;if(!isLocale(locale)||!validSlug(slug||''))return new Response('Not found',{status:404});
+let stories:ArticleCard[]=[];let unavailable=false;
+try{stories=authorStories(await createContentRepository(runtimeConfig()).listPublished(locale),slug!);}catch{unavailable=true;}
+const author=stories[0]?.author;Astro.response.status=unavailable?503:author?200:404;Astro.response.headers.set('Cache-Control','no-store');
+const title=author?.name||t(locale,unavailable?'unavailable':'notFound');
+---
+<BaseLayout locale={locale} title={title} noindex={!author} alternatePaths={{[locale]:`/${locale}/authors/${slug}/`}}>
+ <div class="section-page-heading"><h1>{title}</h1>{author?.bio&&<p>{author.bio}</p>}</div>
+ {author&&<section><h2>{t(locale,'authorStories')}</h2><StoryList articles={stories} locale={locale} headingLevel="h3"/></section>}
+ {unavailable&&<p>{t(locale,'retry')}</p>}
+</BaseLayout>

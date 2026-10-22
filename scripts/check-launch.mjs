@@ -20,3 +20,16 @@ const language=await fetch(base+'/api/language',{method:'POST',headers:{Origin:b
 const unsafe=await fetch(base+'/api/language',{method:'POST',headers:{Origin:base,'Content-Type':'application/x-www-form-urlencoded'},body:'target=https%3A%2F%2Fevil.test',redirect:'manual'});assert.equal(unsafe.status,400);
 const signup=await fetch(base+'/api/subscribe',{method:'POST',headers:{Origin:base,Accept:'application/json','Content-Type':'application/x-www-form-urlencoded'},body:'email=reader%40example.com&language=en&consent=yes'});assert.equal(signup.status,503);assert.deepEqual(await signup.json(),{accepted:false});
 console.log('Multilingual launch HTTP smoke passed: root/private redirect, saved language, locale HTML/navigation/article/SEO and draft isolation.');
+for(const locale of ['en','zh','zh-cn']){
+ const archive=await fetch(`${base}/${locale}/archive/`);assert.equal(archive.status,200);assert.ok((await archive.text()).includes('evaluating-ai-tools'));
+ for(const page of ['0','01','2','abc'])assert.equal((await fetch(`${base}/${locale}/archive/${page}/`)).status,404);
+ assert.equal((await fetch(`${base}/${locale}/archive/1/`,{redirect:'manual'})).status,308);
+ const author=await fetch(`${base}/${locale}/authors/sample-editor/`);assert.equal(author.status,200);assert.ok((await author.text()).includes('evaluating-ai-tools'));
+ assert.equal((await fetch(`${base}/${locale}/authors/missing/`)).status,404);
+ for(const [section,include,exclude]of [['ai','evaluating-ai-tools','understanding-wallet-custody'],['crypto','understanding-wallet-custody','evaluating-ai-tools']]){
+  const response=await fetch(`${base}/${locale}/${section}/rss.xml`);assert.equal(response.status,200);const xml=await response.text();assert.ok(xml.includes(include));assert.ok(!xml.includes(exclude));assert.ok(xml.includes(`/${locale}/${section}/rss.xml`));
+ }
+ assert.equal((await fetch(`${base}/${locale}/invalid/rss.xml`)).status,404);
+ const article=await(await fetch(`${base}/${locale}/articles/evaluating-ai-tools/`)).text();assert.ok(article.includes(`/${locale}/authors/sample-editor/`));assert.ok(article.includes(`/${locale}/articles/understanding-wallet-custody/`));
+}
+console.log('News discovery HTTP smoke passed: archive pagination boundaries, author links/404, related stories and section RSS filtering.');

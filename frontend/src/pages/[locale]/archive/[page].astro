@@ -1,0 +1,7 @@
+---
+import ArchivePage from '../../../components/ArchivePage.astro';
+import {isLocale} from '../../../lib/i18n';
+const {locale,page}=Astro.params;if(!isLocale(locale))return new Response('Not found',{status:404});
+if(page==='1')return Astro.redirect(`/${locale}/archive/`,308);
+---
+<ArchivePage locale={locale} page={page||''}/>
