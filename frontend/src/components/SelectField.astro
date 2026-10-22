@@ -1,0 +1,26 @@
+---
+interface Option { value: string; label: string; lang?: string }
+interface Props { name: string; label: string; options: Option[]; value: string; disabled?: boolean }
+const { name, label, options, value, disabled = false } = Astro.props;
+---
+<label class="select-field">
+  <span>{label}</span>
+  <span class="select-control">
+    <select name={name} disabled={disabled}>
+      {options.map(option => <option value={option.value} selected={option.value === value} lang={option.lang}>{option.label}</option>)}
+    </select>
+    <svg class="select-chevron" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+  </span>
+</label>
+<style>
+  .select-field{display:flex;flex-direction:column;gap:9px;min-width:0;font-size:12px;font-weight:700}
+  .select-control{position:relative;display:block;min-width:0;color:var(--ink)}
+  .select-control select{appearance:none;-webkit-appearance:none;display:block;width:100%;min-height:48px;padding:12px 48px 12px 14px;border:1px solid var(--line);border-radius:0;background:var(--paper);color:var(--ink);font:14px var(--body);cursor:pointer;text-overflow:ellipsis}
+  .select-chevron{position:absolute;right:14px;top:50%;transform:translateY(-50%);pointer-events:none}
+  .select-control select:hover:not(:disabled){border-color:var(--red)}
+  .select-control select:focus-visible{outline:3px solid var(--red);outline-offset:4px}
+  .select-control select:disabled{background:#ded8cc;color:var(--muted);cursor:not-allowed;opacity:1}
+  .select-control:has(select:disabled){color:var(--muted)}
+  .select-control option{background:var(--paper);color:var(--ink);font-weight:400}
+  @media(forced-colors:active){.select-control select{appearance:auto}.select-chevron{display:none}}
+</style>
