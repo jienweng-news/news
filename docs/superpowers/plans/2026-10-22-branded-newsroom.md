@@ -24,19 +24,19 @@
 ### Task 1: Newsroom composition
 **Files:** frontend/src/lib/content/newsroom.ts; tests/newsroom.test.ts.
 **Interfaces:** consumes ArticleCard[]; produces composeNewsroom(articles): {lead, latest, sections:{ai,crypto}, analysis}; selectSection(articles, section) returns sorted cards. Only normalized public cards are passed, with defensive preview exclusion.
-- [ ] Write tests for descending publication dates, input immutability, topic isolation, equal section keys, empty content and preview exclusion; analysis selects analysis format.
-- [ ] Run `npm test -- tests/newsroom.test.ts`; expect RED from missing module.
-- [ ] Implement selectors and run whole test suite; expect GREEN. Commit task.
+- [x] Write tests for descending publication dates, input immutability, topic isolation, equal section keys, empty content and preview exclusion; analysis selects analysis format.
+- [x] Run `npm test -- tests/newsroom.test.ts`; expect RED from missing module.
+- [x] Implement selectors and run whole test suite; expect GREEN. Commit task.
 
 ### Task 2: Branded newsroom and section pages
 **Files:** layout, homepage, new SectionPage/StoryList components and ai/crypto routes, ArticleMeta, config, .env.example, global.css; self-hosted licensed display font; tests/config.test.ts; scripts/check-newsroom.mjs.
 **Interfaces:** consumes Task 1 model and existing repository. SectionPage receives Section; StoryList receives cards. Existing public and preview article routes remain intact.
-- [ ] Add config test expecting Token on Air default and HTTP smoke assertions for new section routes, editor credit, semantic navigation, fixture/noindex labels and working story links.
-- [ ] Run config test and smoke against existing local server; expect RED for old name and missing sections.
-- [ ] Implement approved identity, self-host licensed condensed type, reuse repository and 503 handling, add section links and editor attribution; no fake signup/language controls.
-- [ ] Run full tests/check/build and HTTP smoke; expect GREEN. Commit task.
+- [x] Add config test expecting Token on Air default and HTTP smoke assertions for new section routes, editor credit, semantic navigation, fixture/noindex labels and working story links.
+- [x] Run config test and smoke against existing local server; expect RED for old name and missing sections.
+- [x] Implement approved identity, self-host licensed condensed type, reuse repository and 503 handling, add section links and editor attribution; no fake signup/language controls.
+- [x] Run full tests/check/build and HTTP smoke; expect GREEN. Commit task.
 
 ### Task 3: Verification and handoff
 **Files:** docs/operations/branded-newsroom.md; frontend/DESIGN.md; master checklist and PRODUCT status.
-- [ ] Document completed behavior and remaining locale/automation/signup/GA4 work, including unavailable visual verification if host still blocks browser.
-- [ ] Run final test/check/build and public/private HTTP smoke, one fresh-context review, fix important findings with RED→GREEN; retain review evidence in ledger. Commit task.
+- [x] Document completed behavior and remaining locale/automation/signup/GA4 work, including unavailable visual verification if host still blocks browser.
+- [x] Run final test/check/build and public/private HTTP smoke, one fresh-context review, fix important findings with RED→GREEN; retain review evidence in ledger. Commit task.

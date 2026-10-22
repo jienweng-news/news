@@ -1,0 +1,7 @@
+---
+import type { Relationship } from '../lib/content/types';
+interface Props { relationship: Relationship }
+const { relationship } = Astro.props;
+const labels = { none: '', sponsored: 'Sponsored content', affiliate: 'Affiliate links', 'owned-project': 'Founder project' };
+---
+{relationship !== 'none' && <span class="relationship-label">{labels[relationship]}</span>}

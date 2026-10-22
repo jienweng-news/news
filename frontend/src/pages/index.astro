@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import StoryList from '../components/StoryList.astro';
+import RelationshipLabel from '../components/RelationshipLabel.astro';
 import { createContentRepository } from '../lib/content/repository';
 import { composeNewsroom } from '../lib/content/newsroom';
 import { runtimeConfig } from '../lib/runtime';
@@ -15,11 +16,11 @@ const { lead, latest, sections, analysis } = composeNewsroom(articles);
   {unavailable ? <section class="empty-state"><h2>Stories are temporarily unavailable.</h2><p>Please try again shortly.</p></section> : lead ? <div class="front-grid">
     <article class="lead-story">
       <a class="lead-link" href={`/articles/${lead.slug}/`}>
-        {lead.media ? <img class="lead-image" src={lead.media.url} alt={lead.media.alt} width="1200" height="675" fetchpriority="high" /> : <div class="lead-graphic" aria-hidden="true"><span>TOKEN</span><span>ON AIR<span class="graphic-period">.</span></span><i></i></div>}
+        {lead.media ? <figure class="lead-figure"><img class="lead-image" src={lead.media.url} alt={lead.media.alt} width="1200" height="675" fetchpriority="high" /><figcaption>{lead.media.credit} · {lead.media.license}</figcaption></figure> : <div class="lead-graphic" aria-hidden="true"><span>TOKEN</span><span>ON AIR<span class="graphic-period">.</span></span><i></i></div>}
         <h2>{lead.title}</h2>
       </a>
       <p class="deck">{lead.summary}</p>
-      <div class="story-footer"><span>{lead.section === 'ai' ? 'AI' : 'Crypto'} / {lead.format}</span><span>Edited by jienweng</span><a href={`/articles/${lead.slug}/`}>Read story <span aria-hidden="true">→</span></a></div>
+      <div class="story-footer"><RelationshipLabel relationship={lead.relationship} /><span>{lead.section === 'ai' ? 'AI' : 'Crypto'} / {lead.format}</span><span>Edited by jienweng</span><a href={`/articles/${lead.slug}/`}>Read story <span aria-hidden="true">→</span></a></div>
     </article>
     <aside class="latest-column" aria-label="Latest headlines"><h2>Latest headlines</h2>
       {latest.length ? <StoryList articles={latest} compact /> : <p>More stories will appear here as they are published.</p>}
