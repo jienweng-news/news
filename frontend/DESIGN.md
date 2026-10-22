@@ -48,3 +48,7 @@ Interaction: semantic links, main navigation current-state, skip link, visible3p
 Verification: build/type checks and HTTP smoke passed. Rendered visual comparison, narrow-viewport overflow and keyboard browser checks remain outstanding because T3 preview is blocked by host AppArmor. Do not treat responsive CSS as measured browser evidence.
 
 Approved logo: Cutout02, implemented with local outlined SVG wordmark (560×300), compact TOA (160×160) and T favicon (64×64). Use the wordmark at260px desktop/210px mobile and150px footer; keep its original aspect ratio. Logo glyphs are paths derived from the local OFL font, with no external resources.
+
+## Approved styling refinement — direction B
+
+Founder selected dramatic Persona direction B: full-width ink masthead, compact Cutout logo, restrained angled red edition title and ink topic tabs, upright story/body text, and a full-width dark newsletter panel with envelope geometry and red action. The AI/Crypto independent-perspective topline is removed. Newsletter uses two columns on desktop and one on mobile, preserving explicit labels, language choices, consent, disabled availability and provider guards. Existing content, permissions and analytics behavior are unchanged.
