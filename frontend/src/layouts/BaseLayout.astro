@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import {localeFromPath,localePath,languageTag,locales,localeLabel,t,type Locale} from '../lib/i18n';
+import {localeFromPath,localePath,languageSwitchTarget,languageTag,locales,localeLabel,t,type Locale} from '../lib/i18n';
 import { runtimeConfig } from '../lib/runtime';
 import Newsletter from '../components/Newsletter.astro';
 import Analytics from '../components/Analytics.astro';
@@ -28,7 +28,7 @@ const canonicalUrl = canonical || new URL(Astro.url.pathname, config.siteUrl).hr
     <div class="page-shell">
       <header class="site-header"><a class="brand-link" href={localePath(locale)} aria-label={`${config.siteName} homepage`}><img class="brand-logo" src="/brand/token-on-air-cutout.svg" alt="Token on Air" width="560" height="300" fetchpriority="high" /></a><p class="masthead-note">{t(locale,'tagline')}</p></header>
       <nav class="main-nav" aria-label="Main navigation">{[{href:localePath(locale),label:t(locale,'latest')},{href:localePath(locale,'ai'),label:t(locale,'ai')},{href:localePath(locale,'crypto'),label:t(locale,'crypto')},{href:localePath(locale,'search'),label:t(locale,'search')},{href:localePath(locale,'archive'),label:t(locale,'archive')}].map(item => <a href={item.href} aria-current={Astro.url.pathname === item.href ? 'page' : undefined}>{item.label}</a>)}<span class="nav-caption">{t(locale,'curious')}</span></nav>
-      <form class="language-switch" action="/api/language" method="POST" aria-label="Language">{locales.map(l=><button type="submit" name="target" value={routes[l]||localePath(l)} aria-current={l===locale?'true':undefined} lang={languageTag[l]}>{localeLabel[l]}</button>)}</form>
+      <form class="language-switch" action="/api/language" method="POST" aria-label="Language">{locales.map(l=><button type="submit" name="target" value={languageSwitchTarget(l,Astro.url.pathname,routes)} aria-current={l===locale?'true':undefined} lang={languageTag[l]}>{localeLabel[l]}</button>)}</form>
       <FixtureBanner locale={locale} visible={config.contentMode === 'fixture'} />
       <main id="main"><slot /></main>
       {!Astro.url.pathname.startsWith('/preview')&&<Newsletter locale={locale}/>}

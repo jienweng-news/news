@@ -25,10 +25,10 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 - [x] Owner confirms confirmation email enabled and Auto-confirm unchecked. Real lifecycle test remains pending.
 - [x] Credentials present in Vercel Production (existence verified; sensitive values are not exportable). Kit Settings → Developer → V4 Keys → Add a new key; save as KIT_API_KEY in Vercel Production, sensitive. Never paste it into chat.
 - [x] Turnstile site/secret variables present in Vercel Production (hostname/token acceptance still pending). Cloudflare Turnstile → Add widget, Managed, tokenonair.com and www.tokenonair.com, pre-clearance off; save Site key as PUBLIC_TURNSTILE_SITE_KEY and Secret key as TURNSTILE_SECRET_KEY (sensitive) in Vercel Production.
-- [ ] Create/verify Kit custom field key newsletter_language. Existing implementation accepts en, zh, zh-cn, all. No live field verification yet.
-- [ ] Kit Settings → Email → Verified Sending Domains: verify tokenonair.com with exact Kit-provided DNS records in Cloudflare; CNAMEs DNS only. Keep Zoho MX/SPF intact. Set sender hello@tokenonair.com and verify sender address.
+- [x] Kit V4 accepted the saved API key; form10082025 exists; created and verified custom field newsletter_language on2026-10-22 through an authenticated temporary Vercel check.
+- [x] Owner confirms Kit sending domain verified on2026-10-22; public DMARC and Kit DKIM selector resolve. Actual inbox delivery remains separate acceptance.
 - [ ] Complete mailing address/footer settings in Kit with the operator's actual details; no address invented.
-- [ ] Authorized test inbox: submit custom form, receive confirmation, confirm, verify selected language, unsubscribe, then ensure suppressed contact is not reactivated. Also reject invalid/replayed Turnstile tokens.
+- [ ] Authorized test: Kit accepted one signup for hello@tokenonair.com using the actual server signup implementation, with en persisted to newsletter_language. Inbox delivery/confirmation, unsubscribe/suppression and browser Turnstile acceptance remain pending. No broadcast sent.
 - [ ] Only after acceptance set KIT_SETUP_VERIFIED=1 and NEWSLETTER_ENABLED=1, redeploy and smoke-test live. Until then signup returns unavailable, never false success.
 - [ ] Digest scheduling/content template: intentionally deferred until publication is stable; no campaign sent.
 
@@ -36,7 +36,7 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 - [x] Public MX resolves to mx.zoho.com / mx2.zoho.com / mx3.zoho.com; SPF includes zohomail.com (2026-10-22).
 - [ ] Zoho DKIM: verify using the selector supplied by Zoho; selector not supplied here.
 - [x] DMARC now resolves to v=DMARC1; p=none on2026-10-22. Kit cka._domainkey selector also resolves. These records do not prove real sender alignment or Kit dashboard verification.
-- [ ] Kit sender authentication: pending owner setup above.
+- [x] Kit domain verified per owner; public DKIM/DMARC records present.
 
 ## Analytics
 - [x] G-WQMMLS9H2X configured, URL query/fragment removed from custom events, ad signals disabled, consent behavior unit tested.
@@ -60,7 +60,7 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 - Public DNS: Zoho MX/SPF and www CNAME verified; DMARC absent as above.
 - Node build, Astro check (56files, no errors/warnings/hints), automation/client checks, Studio build and built HTTP smoke pass.
 - Fresh public Sanity count:0 published article documents.
-- npm audit:16 inherited transitive advisories (7high,9moderate,0critical), concentrated in Sanity Studio/CLI dependencies. Suggested fix is a Sanity major downgrade, not applied blindly. Dependency disposition remains a launch gate.
+- Latest npm audit after targeted uuid11.1.1 override:14 inherited advisories (10high,4moderate,0critical); UUID advisory removed. Remaining roots include unpatched braces/sprintf-js in Studio/CLI paths. npm ls and TypeID roundtrip pass; Studio rebuild and full tests pass. Counts/severity propagation changed after re-audit; no major CMS downgrade applied. Dependency disposition remains a gate.
 - Final fresh review (GPT-6-astra): one Important analytics withdrawal/storage-write defect fixed with failing-then-passing regression; no Critical/Minor findings. Final suite114/114; analytics7/7.
 - Vercel production deployment: dpl_CdsV1Fc9PMNrSXRYsxzXGotjZWWf, https://token-on-gtg6bcd90-lai-jien-wengs-projects.vercel.app; public aliases https://tokenonair.com and https://www.tokenonair.com.
 - Fresh live checks passed on both hosts: HTTPS root redirect, all three homepages, terms/disclaimer/privacy/contact pages, public contact mailto, Malay privacy section, consent markup/latest script, RSS, sitemap, health, and disabled signup503 with accepted:false. No subscriber created or mail sent.
@@ -74,3 +74,9 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 - Reviewer exclusions remain gates: real browser keyboard/zoom/cookies; GA event delivery/settings/retention; Kit confirmation/suppression/sender; legal sufficiency/operator identity; autonomous Dots publishing. CLI/HTTP verifies deployment endpoints but does not establish these external behaviors.
 - Failed browser-storage writes retain denial in the current page without a reload into an old grant. Persistence across later navigation is not guaranteed if the browser refuses storage writes.
 - No deferred review minors. Impeccable regex scan found0 anti-patterns and37 design-token advisories; parsed visual checks did not run. Existing sidecar drift was not repaired as an unrelated change.
+
+
+## News discovery follow-on
+- [x] Implemented archive12/page, separate AI/Crypto RSS, actual author pages and related stories for all three editions. See news-feature-audit.md for the feature inventory and prioritized backlog.
+- [x] Temporary Kit setup deployment dpl_FSkpicXqAHqbLSKX5Tvg5zrBebzV used saved credentials without export, created the language field and accepted the single authorized confirmation test. Expiring bearer guard; public domains were not promoted. Deployment removal confirmed by Vercel; local auth/config artifacts deleted.
+- [ ] Record final follow-on deployment and HTTP verification.

@@ -26,3 +26,10 @@ it('section feeds filter items and identify their own feed URL',()=>{
  const xml=buildFeed([story('ai-story'),story('crypto-story','crypto')],'zh','https://tokenonair.com','ai');
  expect(xml).toContain('https://tokenonair.com/zh/ai/rss.xml');expect(xml).toContain('/zh/articles/ai-story/');expect(xml).not.toContain('crypto-story');
 });
+
+it('keeps archive context when switching editions without claiming matching paginated content',async()=>{
+ const {languageSwitchTarget}=await import('../frontend/src/lib/i18n');
+ expect(languageSwitchTarget('zh','/en/archive/2/',{})).toBe('/zh/archive/');
+ expect(languageSwitchTarget('zh-cn','/en/articles/story/',{'zh-cn':'/zh-cn/articles/translated/'})).toBe('/zh-cn/articles/translated/');
+ expect(languageSwitchTarget('zh','/en/authors/unknown/',{})).toBe('/zh/');
+});

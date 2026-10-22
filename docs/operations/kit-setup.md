@@ -32,3 +32,6 @@ Sources: https://developers.kit.com/api-reference/subscribers/create-a-subscribe
 - Kit Settings → Email → Verified Sending Domains → tokenonair.com. Add exact provider records in Cloudflare DNS, set CNAMEs DNS-only and Validate. Do not remove Zoho mail records.
 
 Sources checked2026-10-22: https://help.kit.com/en/articles/9902901-kit-api-overview ; https://developers.cloudflare.com/turnstile/get-started/widget-management/dashboard/ ; https://help.kit.com/en/articles/2502558-verify-your-domain-to-optimize-your-deliverability .
+
+
+2026-10-22 acceptance update: owner confirms Kit domain verified. An authenticated temporary Vercel deployment accessed the stored API key server-side, verified form10082025, created newsletter_language and invoked the actual subscribe implementation once for owner-authorized hello@tokenonair.com. Provider accepted the request and persisted en. Inbox receipt/confirmation and unsubscribe/suppression remain unverified; public signup flags remain0. Temporary deployment and local bearer artifacts were removed after the check. This was one test signup, not a broadcast.
