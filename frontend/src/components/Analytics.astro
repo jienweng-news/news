@@ -1,10 +1,24 @@
 ---
 import {runtimeConfig} from '../lib/runtime';
 import {analyticsEnabled} from '../lib/analytics';
-import {t,type Locale} from '../lib/i18n';
+import {t,localePath,type Locale} from '../lib/i18n';
 interface Props{locale:Locale}
 const {locale}=Astro.props;const config=runtimeConfig();const id=process.env.GA4_MEASUREMENT_ID;
 const enabled=analyticsEnabled(config.appEnv,config.contentMode,id)&&!Astro.url.pathname.startsWith('/preview');
+const copy={en:{close:'Close',save:'Save preferences',essential:'Essential preferences stay on. Optional analytics is your choice.',on:'Analytics enabled',off:'Analytics disabled'},zh:{close:'關閉',save:'儲存偏好',essential:'必要偏好設定維持啟用。您可自行選擇是否允許分析。',on:'分析已啟用',off:'分析已停用'},'zh-cn':{close:'关闭',save:'保存偏好',essential:'必要偏好设置保持启用。您可自行选择是否允许分析。',on:'分析已启用',off:'分析已停用'}}[locale];
 ---
-{enabled&&<aside class="analytics-choice" data-analytics-id={id} data-locale={locale} aria-label={t(locale,'analytics')}><p>{t(locale,'analyticsNote')}</p><div><button type="button" data-analytics-allow>{t(locale,'allow')}</button><button type="button" data-analytics-decline>{t(locale,'decline')}</button><button type="button" data-analytics-reset hidden>{t(locale,'preferences')}</button></div></aside>}
+{enabled&&<div class="privacy-controls" data-analytics-id={id} data-locale={locale} data-enabled-label={copy.on} data-disabled-label={copy.off}>
+  <button class="privacy-trigger" type="button" data-analytics-reset aria-haspopup="dialog">{t(locale,'preferences')}</button>
+  <aside class="consent-card" data-analytics-card hidden aria-labelledby="consent-heading">
+    <h2 id="consent-heading">{t(locale,'preferences')}</h2><p>{t(locale,'analyticsNote')} <a href={localePath(locale,'privacy')}>{t(locale,'privacy')}</a></p>
+    <div class="consent-actions"><button type="button" data-analytics-decline>{t(locale,'decline')}</button><button type="button" data-analytics-allow>{t(locale,'allow')}</button></div>
+  </aside>
+  <dialog class="privacy-dialog" data-analytics-dialog aria-labelledby="privacy-heading" aria-describedby="privacy-description">
+    <div class="privacy-dialog-header"><h2 id="privacy-heading">{t(locale,'preferences')}</h2><button type="button" data-analytics-close autofocus>{copy.close}</button></div>
+    <p id="privacy-description">{copy.essential}</p><p>{t(locale,'analyticsNote')}</p>
+    <label class="privacy-toggle"><input type="checkbox" data-analytics-toggle/>{t(locale,'analytics')}</label>
+    <p class="privacy-status" data-analytics-status aria-live="polite"></p>
+    <div class="consent-actions"><a href={localePath(locale,'privacy')}>{t(locale,'privacy')}</a><button type="button" data-analytics-save>{copy.save}</button></div>
+  </dialog>
+</div>}
 {enabled&&<script is:inline type="module" src="/scripts/analytics.js"></script>}
