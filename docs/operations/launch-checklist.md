@@ -17,7 +17,8 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 - [x] Production configuration persisted in Vercel project token-on-air, team lai-jien-wengs-projects; Sanity4k0o7q9m/production, GA4 G-WQMMLS9H2X, Kit form10082025.
 - [x] Final deployment dpl_CdsV1Fc9PMNrSXRYsxzXGotjZWWf,2026-10-22: both custom domains pass fresh HTTP checks below.
 - [ ] Connect/verify repository-driven Vercel deployment; current release method is local prebuilt CLI deployment. No Git automation acceptance claimed.
-- [ ] Configure an external uptime monitor for /api/health and provider usage alerts. No monitoring service account supplied.
+- [x] Added .github/workflows/health.yml: public HTTP checks every6hours at minute23 plus manual dispatch, no provider secrets. It becomes scheduled only after merge to the default branch; activation has not occurred.
+- [ ] Configure provider usage alerts and confirm GitHub scheduled runs after merge.
 - [ ] Perform recorded rollback and private backup/restore drill. No production rollback or CMS restore has been attempted.
 
 ## Kit newsletter — owner setup required
@@ -28,7 +29,7 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 - [x] Kit V4 accepted the saved API key; form10082025 exists; created and verified custom field newsletter_language on2026-10-22 through an authenticated temporary Vercel check.
 - [x] Owner confirms Kit sending domain verified on2026-10-22; public DMARC and Kit DKIM selector resolve. Actual inbox delivery remains separate acceptance.
 - [ ] Complete mailing address/footer settings in Kit with the operator's actual details; no address invented.
-- [ ] Authorized test: Kit accepted one signup for hello@tokenonair.com using the actual server signup implementation, with en persisted to newsletter_language. Inbox delivery/confirmation, unsubscribe/suppression and browser Turnstile acceptance remain pending. No broadcast sent.
+- [ ] Authorized test: Kit accepted one signup for hello@tokenonair.com using the actual server signup implementation, with en persisted to newsletter_language. Owner confirmed inbox receipt and clicked confirmation on2026-10-22. Unsubscribe/suppression and browser Turnstile acceptance remain pending. No broadcast sent.
 - [ ] Only after acceptance set KIT_SETUP_VERIFIED=1 and NEWSLETTER_ENABLED=1, redeploy and smoke-test live. Until then signup returns unavailable, never false success.
 - [ ] Digest scheduling/content template: intentionally deferred until publication is stable; no campaign sent.
 
@@ -79,4 +80,6 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 ## News discovery follow-on
 - [x] Implemented archive12/page, separate AI/Crypto RSS, actual author pages and related stories for all three editions. See news-feature-audit.md for the feature inventory and prioritized backlog.
 - [x] Temporary Kit setup deployment dpl_FSkpicXqAHqbLSKX5Tvg5zrBebzV used saved credentials without export, created the language field and accepted the single authorized confirmation test. Expiring bearer guard; public domains were not promoted. Deployment removal confirmed by Vercel; local auth/config artifacts deleted.
-- [ ] Record final follow-on deployment and HTTP verification.
+- [x] Follow-on deployment dpl_9wktTR1nPgBxCcWUjLYHf7FdTvcX at https://token-on-j91ztu62h-lai-jien-wengs-projects.vercel.app. Both custom hosts pass scripts/check-live-discovery.mjs: new navigation/archive/feed/sitemap routes, invalid archive404, canonical first-page redirect, missing-author404 and health.
+- [x]120 tests pass; Astro check61files zero errors/warnings/hints; worker/client checks, Studio build, Node/Vercel builds and local HTTP smoke pass.
+- [x] Fresh review found no Critical/Important issue and one minor archive locale-context issue; fixed via RED/GREEN under resolve-all request. Post-deploy checks then caught Vercel streaming status issue on archive404; moved status/data loading into route frontmatter and verified live RED→GREEN. No deferred review minors.

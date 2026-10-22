@@ -35,3 +35,5 @@ Sources checked2026-10-22: https://help.kit.com/en/articles/9902901-kit-api-over
 
 
 2026-10-22 acceptance update: owner confirms Kit domain verified. An authenticated temporary Vercel deployment accessed the stored API key server-side, verified form10082025, created newsletter_language and invoked the actual subscribe implementation once for owner-authorized hello@tokenonair.com. Provider accepted the request and persisted en. Inbox receipt/confirmation and unsubscribe/suppression remain unverified; public signup flags remain0. Temporary deployment and local bearer artifacts were removed after the check. This was one test signup, not a broadcast.
+
+Owner confirmed receipt and completion of the confirmation link on2026-10-22. Actual inbox delivery and confirmation are now owner-verified. Browser Turnstile and unsubscribe/suppression acceptance remain pending; no second test email was sent.
