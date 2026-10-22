@@ -1,3 +1,4 @@
+import {locales,localeKey} from '../frontend/src/lib/i18n';
 import {JobQueue} from './queue';
 import {validateCandidate,publicationDocument,type PublishConfig} from './publisher';
 function enabled(config:PublishConfig){if(!config.enabled||config.killSwitch||!config.editorId)throw new Error('Publisher disabled');}
@@ -9,6 +10,7 @@ export async function correctJob(queue:JobQueue,id:string,input:unknown,config:P
  enabled(config);const job=queue.get(id);if(!job||job.state!=='published'||job.document_id!==`story.${id}`)throw new Error('Published job required');
  const {editions,hash}=validateCandidate(input,config.validationSecret);if(!queue.lockPublisher())throw new Error('Publisher busy');
  try{const existing=await read(job.document_id);const en=editions[0];if(!existing||existing.publicationState==='withdrawn'||new Date(existing.publishedAt).toISOString()!==en.publishedAt||Date.parse(en.updatedAt)<=Date.parse(existing.updatedAt)||en.corrections.length<=(existing.corrections?.length||0))throw new Error('Preserve publication time and add dated corrections');
+  if(locales.some((l,i)=>existing.translations?.[localeKey[l]]?.slug?.current!==editions[i].slug))throw new Error('Preserve published edition slugs');
   const doc=publicationDocument(editions,id,config.editorId!,hash);await replace(doc,existing._rev);queue.published(id,job.document_id,hash);queue.audit(id,'corrected',hash);
  }finally{queue.unlockPublisher();}
 }

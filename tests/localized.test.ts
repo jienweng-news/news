@@ -19,3 +19,8 @@ it('keeps legacy content English-only instead of masquerading as translated',()=
   expect(normalizeLocalizedArticle(rawArticle(),'en').language).toBe('en');
   expect(()=>normalizeLocalizedArticle(rawArticle(),'zh')).toThrow();
 });
+it('requires each body and disclosure explicitly and keeps shared metadata immutable',()=>{
+ const missing=multilingual();delete (missing.translations.zh as any).body;expect(()=>normalizeLocalizedArticle(missing,'en')).toThrow();
+ const paid:any=multilingual();paid.relationship='sponsored';paid.disclosure='English root disclosure';paid.translations.en.disclosure='English';paid.translations.zhCn.disclosure='简体';expect(()=>normalizeLocalizedArticle(paid,'zh')).toThrow();
+ const shared:any=multilingual();shared.translations.zh.section='crypto';expect(normalizeLocalizedArticle(shared,'zh').section).toBe('ai');
+});

@@ -25,35 +25,37 @@
 ### Task 1: Multilingual content contract
 **Files:** i18n.ts, content localized.ts/types/repository/sanity/fixtures, Studio article schema, tests/localized.test.ts.
 **Interfaces:** Locale='en'|'zh'|'zh-cn'; normalizeLocalizedArticle(raw,locale,mode)→Article; repository optional locale args preserve legacy callers; localeSlugs links alternates. translations keys en/zh/zhCn hold title/slug/summary/body/disclosure; shared correction notes keyed the same way.
-- [ ] Write failing tests for complete three-version document, missing Chinese/no fallback, atomic invalid version hold, unsafe body rejection and locale-specific slugs.
-- [ ] Implement contract/schema and labelled translated fixtures; run all tests/check and commit.
+- [x] Write failing tests for complete three-version document, missing Chinese/no fallback, atomic invalid version hold, unsafe body rejection and locale-specific slugs.
+- [x] Implement contract/schema and labelled translated fixtures; run all tests/check and commit.
 
 ### Task 2: Locale routes and SEO
 **Files:** locale pages/components, BaseLayout, middleware, i18n helpers; tests/i18n.test.ts; HTTP launch smoke.
 **Interfaces:** localePath, localeFromPath, chooseEntryLocale; root307; locale pages receive Locale; legacy routes temporary English redirects; explicit switch endpoint validates local targets and sets preference cookie.
-- [ ] Test saved/geo fallback, unsafe preference/redirect input, legacy redirects; expect RED.
-- [ ] Implement localized navigation, article UI, switches, canonical/hreflang/NewsArticle JSON-LD and legacy redirects. Keep preview English/private. Verify all routes/headers and commit.
+- [x] Test saved/geo fallback, unsafe preference/redirect input, legacy redirects; expect RED.
+- [x] Implement localized navigation, article UI, switches, canonical/hreflang/NewsArticle JSON-LD and legacy redirects. Keep preview English/private. Verify all routes/headers and commit.
 
 ### Task 3: Reader discovery
 **Files:** search/feed/sitemap pure helpers + locale endpoints/pages; tests/discovery.test.ts.
 **Interfaces:** buildFeed(cards,locale,siteUrl), buildSitemap(cards per locale), searchArticles(cards,q), published-only source repository.
-- [ ] Test XML/script escaping, locale links, empty search, query bounds and no preview cards; expect RED.
-- [ ] Implement server-rendered search, locale RSS and sitemap; endpoint errors503; add feed links and robots. Run tests/build/HTTP and commit.
+- [x] Test XML/script escaping, locale links, empty search, query bounds and no preview cards; expect RED.
+- [x] Implement server-rendered search, locale RSS and sitemap; endpoint errors503; add feed links and robots. Run tests/build/HTTP and commit.
 
 ### Task 4: Signup and analytics
 **Files:** newsletter service/API/form, analytics consent client/component, config/env; tests/integrations.test.ts.
 **Interfaces:** validateSignup and subscribe with injected fetch; provider sends welcome=false/reactivate=false and persists language custom field. Disabled/unverified provider returns503. GA4 production-only valid G-ID and explicit opt-in, clean page path no query/email.
-- [ ] Test malformed inputs, disabled provider, provider failure/no false success, no reactivation and exact locale preference payload; expect RED.
-- [ ] Implement accessible signup/error states, GA4 consent choices/revocation and allowlisted commercial/signup events. No live request; test with doubles, build/check and commit.
+- [x] Test malformed inputs, disabled provider, provider failure/no false success, no reactivation and exact locale preference payload; expect RED.
+- [x] Implement accessible signup/error states, GA4 consent choices/revocation and allowlisted commercial/signup events. No live request; test with doubles, build/check and commit.
 
 ### Task 5: Private discovery and controlled publishing
 **Files:** automation/* (sources, feed parser, network policy, queue, validation, publisher, CLI); tests/automation.test.ts.
 **Interfaces:** disabled source registry, bounded safe feed parsing; durable queue unique source+item key, lease/retry/hold/published lifecycle; export Dots briefing, import validated candidate; explicit operator approval of evidence/rights gates; publish disabled by default, stable document ID and revision/idempotency, correction/withdrawal operations.
-- [ ] Test malformed/XXE XML, unsafe redirects/hosts/private addresses, 48h lookback, dedup/restart/replay, invalid/partial language evidence, kill-switch and publication idempotency; expect RED.
-- [ ] Implement worker and CLI with no public mutation endpoint, separate SQLite volume and scoped token; no live generation/publishing. Run tests/check/build and commit.
+- [x] Test malformed/XXE XML, unsafe redirects/hosts/private addresses, 48h lookback, dedup/restart/replay, invalid/partial language evidence, kill-switch and publication idempotency; expect RED.
+- [x] Implement worker and CLI with no public mutation endpoint, separate SQLite volume and scoped token; no live generation/publishing. Run tests/check/build and commit.
 
 ### Task 6: Release checks and external handoff
 **Files:** CI, health endpoint, release/preflight/export runbooks, policy pages with only known facts, service evidence ledger, master checklist.
-- [ ] Add config/preflight tests for missing live IDs, fixture production rejection, disabled integrations and secret redaction; expect RED where new behavior needed.
-- [ ] Implement CI, diagnostics, quota/backup/restore/rollback instructions, staged acceptance commands and explicit unresolved live-account gates; verify local tests/check/build/public+private HTTP.
-- [ ] One fresh-context whole-change review; fix important findings RED→GREEN, record minors/rulings; commit/push existing draft PR. Do not declare production launched.
+- [x] Add config/preflight tests for missing live IDs, fixture production rejection, disabled integrations and secret redaction; expect RED where new behavior needed.
+- [x] Implement CI, diagnostics, quota/backup/restore/rollback instructions, staged acceptance commands and explicit unresolved live-account gates; verify local tests/check/build/public+private HTTP.
+- [x] One fresh-context whole-change review; fix important findings RED→GREEN, record minors/rulings; commit/push existing draft PR. Do not declare production launched.
+
+Local delivery and review are complete; external activation gates are explicitly documented in ../../operations/launch-readiness.md and ../../operations/2026-10-22-launch-review.md. Checked implementation steps do not claim production launch or live service verification.

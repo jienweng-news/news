@@ -21,3 +21,9 @@ The approved foundation targets Astro 7.4.2, Vercel adapter 11.0.16, Sanity inte
 No hosting, Sanity project, analytics subscription, email service or partner account is created by running the local site. Fixture mode is rejected for remote deployments. Remote preview remains disabled until a durable rate limiter and live Sanity access are configured.
 
 See the [approved design](docs/superpowers/specs/2026-10-22-publication-launch-design.md), [foundation plan](docs/superpowers/plans/2026-10-22-editorial-foundation.md) and [business checklist](docs/plans/ai-crypto-publication-checklist.md).
+
+## Multilingual launch implementation
+
+Local editions: `/en/`, `/zh/` (Traditional), `/zh-cn/` (Simplified), with section/article pages, search, RSS, sitemap and language switching. `npm run verify:local` exercises the built reader site and private previews without live credentials. `npm run check:automation` checks the separate worker, `npm run check:client` checks browser scripts, `npm run automation -- status` shows its paused private queue, and `npm run preflight` lists redacted production gates.
+
+See [launch setup and acceptance](docs/operations/launch-readiness.md), [private worker](docs/operations/automation.md) and [review record](docs/operations/2026-10-22-launch-review.md). Newsletter/GA4 require verified configuration; the independent semantic verifier, Dots connection and live operations remain external integration work. Nothing is deployed or publishing automatically by default.

@@ -10,7 +10,7 @@ export function normalizeLocalizedArticle(raw:unknown,locale:Locale='en',mode:'p
     const copy=object(copies[localeKey[variant]]); const title=text(copy.title),summary=text(copy.summary);
     if(title.length>200||summary.length>500)throw new InvalidArticleError();
     const corrections=Array.isArray(a.corrections)?a.corrections.map(c=>{const row=object(c);return {...row,note:object(row.notes)[localeKey[variant]]};}):a.corrections;
-    articles[variant]=normalizeArticle({...a,...copy,title,summary,slug:typeof copy.slug==='string'?copy.slug:object(copy.slug).current,language:languageTag[variant],corrections},mode);
+    articles[variant]=normalizeArticle({...a,title,summary,body:copy.body,disclosure:copy.disclosure,slug:typeof copy.slug==='string'?copy.slug:object(copy.slug).current,language:languageTag[variant],corrections},mode);
   }
   const localeSlugs=Object.fromEntries(locales.map(l=>[l,articles[l].slug]));
   return {...articles[locale],localeSlugs};

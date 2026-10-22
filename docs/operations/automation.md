@@ -23,6 +23,7 @@ npm run automation -- correct JOB_ID /private/work/correction.json
 npm run automation -- withdraw JOB_ID
 npm run automation -- hold JOB_ID
 npm run automation -- retry JOB_ID
+npm run automation -- release JOB_ID
 npm run automation -- backup /private/backups/jobs.sqlite
 npm run automation -- prune
 ```
@@ -44,7 +45,7 @@ A candidate JSON object contains:
 
 The writer cannot self-approve those booleans: unsigned, tampered and stale reports fail. A signature authenticates the verifier report; it does **not** prove factual truth by itself. Before activation, implement/connect and independently test a verifier that retrieves permitted primary evidence, verifies quotations/entities/dates/numbers, checks meaningful new developments versus duplicates, checks text overlap and translation terminology, classifies commercial relationships and excludes unsupported high-risk claims. This semantic verifier and its Dots/tool connection remain external integration work; do not sign unconditional pass reports or claim the local structural checks replace it. Deterministic numeric checks are additional safeguards, not translation validation.
 
-Publisher chooses `story.<url fingerprint>` and the configured editor reference. It reconstructs a whitelist of public fields, never accepts arbitrary mutations or IDs, checks slug collisions, serializes publication through the durable queue lock and uses createIfNotExists. A retry after an uncertain write checks the existing content hash before deciding success. A changed payload requires the correction path. Corrections preserve first publication time, require a newer update and dated note, and patch the prior CMS revision. Withdrawals set publicationState=withdrawn; public queries exclude it. Public cache TTL is at most30seconds on currently cached routes; verify withdrawal disappearance after TTL and use the hosting purge control for urgent incidents. No immediate CDN purge is claimed.
+Publisher chooses `story.<url fingerprint>` and the configured editor reference. It reconstructs a whitelist of public fields, never accepts arbitrary mutations or IDs, checks slug collisions, serializes publication through the durable queue lock and uses createIfNotExists. A retry after an uncertain write checks the existing content hash before deciding success. A changed payload requires the correction path. Failed validation and uncertain writes enter held state; after inspecting CMS/job evidence and correcting the candidate, an operator can explicitly `release JOB_ID`, then re-export/revalidate. Release resets attempts and is audited; published/withdrawn terminal records cannot be released. Editorial holds are never revived automatically. Exhausted crashed leases also become held. Corrections preserve every published locale slug (renames require a future redirect workflow) and first publication time, require a newer update and dated note, and patch the prior CMS revision. Withdrawals set publicationState=withdrawn; public queries exclude it. Public cache TTL is at most30seconds on currently cached routes; verify withdrawal disappearance after TTL and use the hosting purge control for urgent incidents. No immediate CDN purge is claimed.
 
 ## Retention and recovery
 

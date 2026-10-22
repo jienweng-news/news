@@ -1,6 +1,7 @@
 import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
 import {dirname,resolve} from 'node:path';
 import {createClient} from '@sanity/client';
+import {slugCollisionQuery} from '../frontend/src/lib/content/slugs';
 import {JobQueue} from './queue';
 import {loadSources,activeSource} from './sources';
 import {pollSources} from './poll';
@@ -27,8 +28,8 @@ try{
   if(!process.env.SANITY_WRITE_TOKEN||!process.env.SANITY_PROJECT_ID||!process.env.SANITY_DATASET)throw new Error('Publisher credentials not configured');
   const candidate=JSON.parse(readFileSync(output,'utf8'));const client=createClient({projectId:process.env.SANITY_PROJECT_ID,dataset:process.env.SANITY_DATASET,apiVersion:'2026-10-22',token:process.env.SANITY_WRITE_TOKEN,useCdn:false,timeout:8000,maxRetries:0});
   const id=await publishJob(queue,argument,candidate,{enabled:process.env.AUTOMATION_ENABLED==='1',killSwitch:process.env.AUTOMATION_KILL_SWITCH!=='0',editorId:process.env.SANITY_EDITOR_ID,validationSecret:process.env.VALIDATION_SECRET},async doc=>{
-   const existing=await client.getDocument(doc._id as string);if(existing){if(existing.automation?.candidateHash!==(doc.automation as any).candidateHash)throw new Error('Existing article differs');return {id:existing._id,hash:existing.automation.candidateHash};}
-   for(const key of ['en','zh','zhCn']){const slug=(doc.translations as any)[key].slug.current;const count=await client.fetch('count(*[_type=="article" && (translations[$key].slug.current==$slug || (language=="en" && slug.current==$slug))])',{key,slug});if(count)throw new Error('Slug collision');}
+   const existing=await client.getDocument(doc._id as string);if(existing){if(existing.publicationState==='withdrawn')throw new Error('Article withdrawn');if(existing.automation?.candidateHash!==(doc.automation as any).candidateHash)throw new Error('Existing article differs');return {id:existing._id,hash:existing.automation.candidateHash};}
+   for(const key of ['en','zh','zhCn']){const slug=(doc.translations as any)[key].slug.current;const count=await client.fetch(slugCollisionQuery,{localeKey:key,slug,publishedId:doc._id,draftId:`drafts.${doc._id}`});if(count)throw new Error('Slug collision');}
    const saved=await client.createIfNotExists(doc as any);return {id:saved._id,hash:saved.automation.candidateHash};
   });console.log(JSON.stringify({published:id}));
  }
@@ -41,8 +42,9 @@ try{
   console.log('Lifecycle action completed');
  }
  else if(command==='prune'){const now=Date.now();queue.db.prepare('DELETE FROM audit WHERE time<?').run(now-180*86400000);queue.db.prepare("DELETE FROM jobs WHERE state IN ('queued','held') AND created_at<?").run(now-30*86400000);queue.db.prepare("UPDATE jobs SET payload='{}' WHERE state IN ('published','withdrawn') AND created_at<?").run(now-30*86400000);console.log('Metadata retention applied; idempotency tombstones retained');}
+ else if(command==='release'){if(!argument)throw new Error('Job ID required');queue.releaseHeld(argument);console.log('Held job released after operator inspection');}
  else if(command==='retry'){if(!argument)throw new Error('Job ID required');queue.retry(argument);console.log('Retry scheduled');}
  else if(command==='hold'){if(!argument)throw new Error('Job ID required');queue.hold(argument,'Operator hold');console.log('Job held');}
  else if(command==='backup'){if(!argument)throw new Error('Private backup destination required');queue.db.prepare('VACUUM INTO ?').run(resolve(argument));console.log('SQLite snapshot written');}
- else throw new Error('Commands: status, inbox, poll, export FILE, validate FILE, publish JOB_ID FILE, retry JOB_ID, hold JOB_ID, backup FILE, withdraw JOB_ID, correct JOB_ID FILE, prune');
+ else throw new Error('Commands: status, inbox, poll, export FILE, validate FILE, publish JOB_ID FILE, retry JOB_ID, release JOB_ID, hold JOB_ID, backup FILE, withdraw JOB_ID, correct JOB_ID FILE, prune');
 }catch{console.error('Operation refused or failed. Check private configuration, job state and runbook. No credentials or candidate content logged.');process.exitCode=1;}finally{queue.close();}

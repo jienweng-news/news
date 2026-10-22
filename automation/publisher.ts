@@ -27,7 +27,7 @@ export interface PublishConfig{enabled:boolean;killSwitch:boolean;validationSecr
 export async function publishJob(queue:JobQueue,id:string,candidate:unknown,config:PublishConfig,write:(doc:Record<string,unknown>)=>Promise<{id:string;hash:string}>){
  if(!config.enabled||config.killSwitch||!config.editorId||!/^[a-zA-Z0-9_-]+$/.test(config.editorId))throw new Error('Publisher disabled');
  const job=queue.get(id);if(!job)throw new Error('Unknown job');
- const {editions,hash}=validateCandidate(candidate,config.validationSecret);if(job.state==='published'){if(job.candidate_hash!==hash)throw new Error('Published payload differs; use correction workflow');return job.document_id;}
+ let validated:ReturnType<typeof validateCandidate>;try{validated=validateCandidate(candidate,config.validationSecret);}catch{if(job.state==='processing')queue.hold(id,'Candidate validation failed');throw new Error('Candidate validation failed');}const {editions,hash}=validated;if(job.state==='published'){if(job.candidate_hash!==hash)throw new Error('Published payload differs; use correction workflow');return job.document_id;}
  if(job.state!=='processing'||job.lease_until<Date.now())throw new Error('Active job lease required');
  const en=editions[0];const item=JSON.parse(job.payload);if(!en.sources.includes(item.url))throw new Error('Discovery source must be attributed');
  const documentId=`story.${id}`;

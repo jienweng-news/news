@@ -18,11 +18,15 @@ describe('Studio publishing requirements', () => {
   it('ignores draft/published sibling IDs when checking unique slugs', async () => {
     const fetch = vi.fn().mockResolvedValue(0); const context = { document: { _id: 'drafts.article1' }, getClient: () => ({ fetch }) };
     expect(await isUniqueArticleSlug('evaluating-ai-tools', context)).toBe(true);
-    expect(fetch.mock.calls[0][1]).toEqual({ slug: 'evaluating-ai-tools', publishedId: 'article1', draftId: 'drafts.article1' });
+    expect(fetch.mock.calls[0][1]).toEqual({ slug: 'evaluating-ai-tools', localeKey:'en', publishedId: 'article1', draftId: 'drafts.article1' });
     fetch.mockResolvedValue(1); expect(await isUniqueArticleSlug('evaluating-ai-tools', context)).toBe(false);
   });
   it('contains no private contract or subscriber fields', () => {
     const names = schemaTypes.flatMap(s => s.fields.map(f => f.name));
     expect(names).not.toContain('subscriberEmail'); expect(names).not.toContain('contract'); expect(names).not.toContain('commissionRate');
   });
+});
+it('checks legacy and translated English slugs through a common locale-aware validator',async()=>{
+ const {isUniqueLocalizedSlug}=await import('../studio/schemaTypes/article');const fetch=vi.fn().mockResolvedValue(1);const context={document:{_id:'drafts.article1'},getClient:()=>({fetch})};
+ expect(await isUniqueLocalizedSlug('story',context as any,'en')).toBe(false);expect(fetch.mock.calls[0][0]).toContain('translations[$localeKey].slug.current');expect(fetch.mock.calls[0][0]).toContain('!defined(translations)');expect(fetch.mock.calls[0][1]).toMatchObject({localeKey:'en',slug:'story',publishedId:'article1',draftId:'drafts.article1'});
 });

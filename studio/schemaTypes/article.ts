@@ -1,3 +1,4 @@
+import {slugCollisionQuery} from '../../frontend/src/lib/content/slugs';
 import { normalizeLocalizedArticle } from '../../frontend/src/lib/content/localized';
 import { defineField, defineType, type SlugIsUniqueValidator } from 'sanity';
 import { normalizeArticle, object, text } from '../../frontend/src/lib/content/normalize';
@@ -11,14 +12,13 @@ export function validateArticleDocument(value: unknown): true | string {
     return true;
   } catch { return 'Complete required content, valid dates, evidence, disclosure and media rights before publishing.'; }
 }
-export const isUniqueArticleSlug: SlugIsUniqueValidator = async (slug, context) => {
-  const id = context.document?._id?.replace(/^drafts\./, '') || '';
-  const count = await context.getClient({ apiVersion: '2026-10-22' }).fetch<number>(
-    'count(*[_type == "article" && slug.current == $slug && !(_id in [$publishedId, $draftId]) && !(_id in path("versions.**"))])',
-    { slug, publishedId: id, draftId: `drafts.${id}` },
-  );
-  return count === 0;
-};
+export async function isUniqueLocalizedSlug(slug:string,context:Parameters<SlugIsUniqueValidator>[1],localeKey:string):Promise<boolean>{
+  if(!['en','zh','zhCn'].includes(localeKey))return false;
+  const id=context.document?._id?.replace(/^drafts\./,'')||'';
+  const count=await context.getClient({apiVersion:'2026-10-22'}).fetch<number>(slugCollisionQuery,{slug,localeKey,publishedId:id,draftId:`drafts.${id}`});
+  return count===0;
+}
+export const isUniqueArticleSlug:SlugIsUniqueValidator=(slug,context)=>isUniqueLocalizedSlug(slug,context,'en');
 const bodyField = defineField({ name: 'body', type: 'array', of: [{ type: 'block', styles: [{ title: 'Paragraph', value: 'normal' },{ title: 'Heading', value: 'h2' },{ title: 'Subheading', value: 'h3' },{ title: 'Quote', value: 'blockquote' }], marks: { decorators: [{ title: 'Bold', value: 'strong' },{ title: 'Italic', value: 'em' },{ title: 'Code', value: 'code' }], annotations: [{ name: 'link', type: 'object', fields: [{ name: 'href', type: 'url', validation: r => r.required().uri({ scheme: ['http','https'] }) }] }] } }], validation: r => r.min(1) });
 export default defineType({
   name: 'article', title: 'Articles', type: 'document',
@@ -27,7 +27,7 @@ export default defineType({
     defineField({ name: 'title', type: 'string', validation: r => r.max(200) }),
     defineField({ name: 'summary', type: 'text', rows: 3, validation: r => r.max(500) }),
     defineField({ name: 'slug', type: 'slug', options: { source: 'title', isUnique: isUniqueArticleSlug } }),
-    defineField({ name: 'translations', title: 'Three-language editions', type: 'object', fields: ['en','zh','zhCn'].map(key => ({name:key,type:'object',fields:[{name:'title',type:'string'},{name:'summary',type:'text'},{name:'slug',type:'slug',options:{source:`translations.${key}.title`}},bodyField,{name:'disclosure',type:'text'}]})) }),
+    defineField({ name: 'translations', title: 'Three-language editions', type: 'object', fields: ['en','zh','zhCn'].map(key => ({name:key,type:'object',fields:[{name:'title',type:'string'},{name:'summary',type:'text'},{name:'slug',type:'slug',options:{source:`translations.${key}.title`,isUnique:(slug:string,context:Parameters<SlugIsUniqueValidator>[1])=>isUniqueLocalizedSlug(slug,context,key)}},bodyField,{name:'disclosure',type:'text'}]})) }),
     defineField({name:'publicationState',type:'string',initialValue:'published',options:{list:['published','withdrawn']}}),
     defineField({name:'automation',type:'object',readOnly:true,hidden:true,fields:[{name:'jobId',type:'string'},{name:'candidateHash',type:'string'}]}),
     defineField({ name: 'section', type: 'string', options: { list: ['ai', 'crypto'] }, validation: r => r.required() }),
