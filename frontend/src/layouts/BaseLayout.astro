@@ -19,12 +19,12 @@ const canonicalUrl = canonical || new URL(Astro.url.pathname, config.siteUrl).hr
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="page-shell">
-      <div class="topline"><span>AI &amp; crypto, in context</span><span>Reporting / Guides / Analysis</span></div>
-      <header class="site-header"><a class="wordmark" href="/" aria-label={`${config.siteName} homepage`}>{config.siteName}<span aria-hidden="true">.</span></a><p class="masthead-note">A closer look at<br />what comes next.</p></header>
-      <nav class="main-nav" aria-label="Main navigation"><a href="/">The latest</a><a href="/#ai">Artificial intelligence</a><a href="/#crypto">Crypto</a><span class="nav-caption">Ideas. Evidence. Perspective.</span></nav>
+      <div class="topline"><span>AI / Crypto / Culture of technology</span><span>Independent perspective</span></div>
+      <header class="site-header"><a class="wordmark" href="/" aria-label={`${config.siteName} homepage`}>{config.siteName}<span aria-hidden="true">.</span></a><p class="masthead-note">Understand<br />what’s next.</p></header>
+      <nav class="main-nav" aria-label="Main navigation">{[{href:'/',label:'The latest'},{href:'/ai/',label:'Artificial intelligence'},{href:'/crypto/',label:'Crypto'}].map(item => <a href={item.href} aria-current={Astro.url.pathname === item.href ? 'page' : undefined}>{item.label}</a>)}<span class="nav-caption">Stay curious.</span></nav>
       <FixtureBanner visible={config.contentMode === 'fixture'} />
       <main id="main"><slot /></main>
-      <footer class="site-footer"><a class="wordmark small" href="/">{config.siteName}<span aria-hidden="true">.</span></a><p>Technology moves quickly.<br />Understanding takes a closer look.</p>{config.appEnv === 'local' && <a class="footer-link" href="/preview/">Editorial preview ↗</a>}<span class="footer-label">AI &amp; Crypto</span></footer>
+      <footer class="site-footer"><a class="wordmark small" href="/">{config.siteName}<span aria-hidden="true">.</span></a><p>Understand what’s next.<br />Editor: jienweng</p>{config.appEnv === 'local' && <a class="footer-link" href="/preview/">Editorial preview</a>}<span class="footer-label">AI / Crypto</span></footer>
     </div>
   </body>
 </html>

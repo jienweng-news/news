@@ -3,7 +3,7 @@ import { readConfig } from '../frontend/src/lib/config';
 const live = { CONTENT_MODE: 'sanity', SANITY_PROJECT_ID: 'testproject', SANITY_DATASET: 'production', SITE_URL: 'https://news.example' };
 describe('deployment configuration', () => {
   it('defaults to labelled local fixtures with preview disabled', () => {
-    expect(readConfig({})).toMatchObject({ appEnv: 'local', contentMode: 'fixture', siteName: 'News', previewEnabled: false });
+    expect(readConfig({})).toMatchObject({ appEnv: 'local', contentMode: 'fixture', siteName: 'Token on Air', previewEnabled: false });
   });
   it.each([{ APP_ENV: 'production' }, { VERCEL_ENV: 'production', APP_ENV: 'local' }, { VERCEL_ENV: 'preview' }])('rejects fixtures on deployed environments: %j', (env) => {
     expect(() => readConfig(env)).toThrow(/fixture/i);

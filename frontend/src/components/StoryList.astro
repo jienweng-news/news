@@ -1,0 +1,13 @@
+---
+import type { ArticleCard } from '../lib/content/types';
+interface Props { articles: ArticleCard[]; compact?: boolean }
+const { articles, compact = false } = Astro.props;
+const date = (value: string) => new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(value));
+---
+<div class:list={['story-list', { compact }]}>
+  {articles.map(article => <article class="story-item">
+    <h3><a href={`/articles/${article.slug}/`}>{article.title}</a></h3>
+    {!compact && <p>{article.summary}</p>}
+    <div class="story-details"><span>{article.section === 'ai' ? 'AI' : 'Crypto'}</span><span>{article.format}</span><time datetime={article.publishedAt}>{date(article.publishedAt)}</time></div>
+  </article>)}
+</div>
