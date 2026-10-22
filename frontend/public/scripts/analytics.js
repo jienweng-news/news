@@ -10,9 +10,9 @@
   const toggle=panel.querySelector('[data-analytics-toggle]');
   const status=panel.querySelector('[data-analytics-status]');
   const buttons=()=>{card.hidden=true;status.textContent=allowed?panel.dataset.enabledLabel:panel.dataset.disabledLabel;};
-  const remember=value=>{try{localStorage.setItem('toa_analytics',value);}catch{}};
+  const remember=value=>{try{localStorage.setItem('toa_analytics',value);return localStorage.getItem('toa_analytics')===value;}catch{return false;}};
   const deny=()=>{
-   const wasLoaded=loaded;allowed=false;remember('denied');buttons();
+   const wasLoaded=loaded;allowed=false;const saved=remember('denied');buttons();
    if(wasLoaded){scope[`ga-disable-${id}`]=true;scope.gtag('consent','update',{analytics_storage:'denied'});}
    const domains=location.hostname.split('.');
    for(const row of document.cookie.split(';')){
@@ -21,7 +21,7 @@
     for(let i=0;i<domains.length-1;i++)document.cookie=`${name}=; Max-Age=0; path=/; SameSite=Lax; domain=${domains.slice(i).join('.')}`;
    }
    // Unload the already loaded Google library after withdrawal.
-   if(wasLoaded)location.reload();
+   if(wasLoaded&&saved)location.reload();
   };
   const load=()=>{scope[`ga-disable-${id}`]=false;allowed=true;buttons();if(loaded){scope.gtag('consent','update',{analytics_storage:'granted'});return;}loaded=true;scope.gtag('consent','default',{analytics_storage:'granted',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});scope.gtag('set',context());scope.gtag('js',new Date());scope.gtag('config',id,{...context(),send_page_view:false,allow_google_signals:false,allow_ad_personalization_signals:false});const script=document.createElement('script');script.async=true;script.src=`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;document.head.append(script);scope.gtag('event','page_view',{page_location:location.origin+cleanAnalyticsPath(location.href),page_referrer:document.referrer?new URL(document.referrer).origin:'',page_title:'Token on Air',language:panel.dataset.locale});};
   card.hidden=false;

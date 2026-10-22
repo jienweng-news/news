@@ -1,13 +1,13 @@
 import {expect,it} from 'vitest';
 import {readFileSync} from 'node:fs';import vm from 'node:vm';
 const source=readFileSync('frontend/public/scripts/analytics.js','utf8');
-function harness(saved?:string,present=true,blockedStorage=false){
- const events=new Map<string,Function>();const actions=new Map<string,Function>();const scripts:any[]=[];const storage=new Map(saved?[['toa_analytics',saved]]:[]);
+function harness(saved?:string,present=true,blockedStorage=false,blockedWrites=false){
+ let reloads=0;const events=new Map<string,Function>();const actions=new Map<string,Function>();const scripts:any[]=[];const storage=new Map(saved?[['toa_analytics',saved]]:[]);
  const nodes=Object.fromEntries(['allow','decline','reset','close','save','toggle','card','status','dialog'].map(key=>[key,{hidden:false,checked:false,textContent:'',open:false,focus:()=>{},showModal(){this.open=true;},close(){this.open=false;},addEventListener:(_type:string,fn:Function)=>actions.set(key,fn)}]));
  const panel={dataset:{analyticsId:'G-TEST123',locale:'en',enabledLabel:'Enabled',disabledLabel:'Disabled'},querySelectorAll:()=>[nodes.allow,nodes.decline],querySelector:(selector:string)=>nodes[selector.replace('[data-analytics-','').replace(']','')]};
  const doc={referrer:'https://external.test/?email=private@example.com',cookie:'_ga=abc; _ga_TEST=xyz',querySelector:()=>present?panel:null,createElement:()=>({}),head:{append:(s:any)=>scripts.push(s)},addEventListener:(name:string,fn:Function)=>events.set(name,fn)};
- const win:any={};vm.runInNewContext(source,{window:win,document:doc,location:{origin:'https://tokenonair.com',href:'https://tokenonair.com/en/search/?q=reader@example.com',pathname:'/en/search/',hostname:'www.tokenonair.com',reload:()=>{}},URL,Date,localStorage:{getItem:(k:string)=>{if(blockedStorage)throw Error('blocked');return storage.get(k);},setItem:(k:string,v:string)=>{if(blockedStorage)throw Error('blocked');storage.set(k,v);},removeItem:(k:string)=>storage.delete(k)}});
- return{events,actions,scripts,storage,win,nodes,doc};
+ const win:any={};vm.runInNewContext(source,{window:win,document:doc,location:{origin:'https://tokenonair.com',href:'https://tokenonair.com/en/search/?q=reader@example.com',pathname:'/en/search/',hostname:'www.tokenonair.com',reload:()=>{reloads++;}},URL,Date,localStorage:{getItem:(k:string)=>{if(blockedStorage)throw Error('blocked');return storage.get(k);},setItem:(k:string,v:string)=>{if(blockedStorage||blockedWrites)throw Error('blocked');storage.set(k,v);},removeItem:(k:string)=>storage.delete(k)}});
+ return{events,actions,scripts,storage,win,nodes,doc,get reloads(){return reloads;}};
 }
 it('makes no Google request before consent or when no production panel exists',()=>{
  expect(harness().scripts).toEqual([]);expect(harness('denied').scripts).toEqual([]);expect(harness('granted',false).scripts).toEqual([]);
@@ -34,4 +34,11 @@ it('revokes analytics from preferences and stops subsequent signup events',()=>{
 it('keeps a session choice usable when browser storage is blocked',()=>{
  const h=harness(undefined,true,true);h.actions.get('decline')!();expect(h.nodes.card.hidden).toBe(true);expect(h.scripts).toHaveLength(0);
  h.actions.get('reset')!();h.nodes.toggle.checked=true;h.actions.get('save')!();expect(h.scripts).toHaveLength(1);
+});
+
+it('does not reload into an old grant when withdrawal cannot be saved',()=>{
+ const h=harness('granted',true,false,true);h.actions.get('reset')!();h.nodes.toggle.checked=false;h.actions.get('save')!();
+ expect(h.storage.get('toa_analytics')).toBe('granted');expect(h.reloads).toBe(0);expect(h.win['ga-disable-G-TEST123']).toBe(true);
+ const before=h.win.dataLayer.length;h.events.get('toa-signup-accepted')!();expect(h.win.dataLayer).toHaveLength(before);
+ h.actions.get('reset')!();expect(h.nodes.toggle.checked).toBe(false);
 });
