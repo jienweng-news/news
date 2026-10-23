@@ -8,11 +8,13 @@ import {Miniflare,convertV4MiniflareOptions} from 'miniflare';
 const dir=mkdtempSync(join(tmpdir(),'toa-d1-'));
 const token='local-writer-'.padEnd(40,'w'),admin='local-admin-'.padEnd(40,'a'),secret='local-verifier-'.padEnd(40,'s');
 const id='b'.repeat(64),url='https://openai.com/index/local-smoke',sourceDate=new Date(Date.now()-3600000).toISOString();
-let saved,mutations=0,requests=0;
+let saved,mutations=0,requests=0,feedRequests=0;
 const bindings={ADMIN_TOKEN:admin,WRITER_TOKEN:token,VALIDATION_SECRET:secret,SANITY_WRITE_TOKEN:'local-test-only',SANITY_PROJECT_ID:'4k0o7q9m',SANITY_DATASET:'production',SANITY_EDITOR_ID:'editor-jienweng',AUTOMATION_ENABLED:'0',AUTOMATION_KILL_SWITCH:'1'};
 const options={modules:true,scriptPath:resolve('.private/cloudflare/bundle/index.js'),compatibilityDate:'2026-10-01',compatibilityFlags:['nodejs_compat'],d1Databases:{DB:'local-news'},d1Persist:dir,bindings,
  outboundService:async request=>{
-  requests++;const target=new URL(request.url);assert.equal(target.hostname,'4k0o7q9m.api.sanity.io','No unexpected external request');
+  requests++;const target=new URL(request.url);
+  if(target.hostname==='openai.com'){feedRequests++;return new Response('<rss><channel>'+Array.from({length:50},(_,i)=>`<item><title>Runtime feed ${i}</title><link>https://openai.com/index/runtime-${i}</link><pubDate>${new Date().toUTCString()}</pubDate></item>`).join('')+'</channel></rss>');}
+  assert.equal(target.hostname,'4k0o7q9m.api.sanity.io','No unexpected external request');
   if(target.pathname.includes('/query/'))return Response.json({result:target.searchParams.get('query').startsWith('count(')?0:saved||null});
   const body=await request.json();mutations++;const mutation=body.mutations[0];
   if(mutation.createIfNotExists)saved=saved||{...mutation.createIfNotExists,_rev:'r'+mutations};
@@ -51,7 +53,10 @@ try{
  const first=saved.publishedAt;article.publishedAt=first;article.updatedAt=new Date(Date.parse(first)+1).toISOString();article.corrections=[{date:article.updatedAt,notes:{en:'Correction',zh:'更正',zhCn:'更正'}}];candidate=signed(article);
  r=await post('/v1/jobs/'+id+'/correct',{candidate},admin);assert.equal(r.status,200,await r.text());assert.equal(saved.publishedAt,first);assert.equal(saved.provenance.sourcePublishedAt,sourceDate);
  r=await post('/v1/jobs/'+id+'/withdraw',{},admin);assert.equal(r.status,200);assert.equal(saved.publicationState,'withdrawn');
+ const enabledWorker=await mf.getWorker();await enabledWorker.scheduled({cron:'* * * * *'});
+ assert.equal(feedRequests,1);assert.equal((await db.prepare("SELECT count(*) AS n FROM jobs WHERE state='queued'").first()).n,50,'Atomic bounded50-item RSS import');
+ await db.prepare("UPDATE sources SET next_poll=0 WHERE id='openai'").run();await enabledWorker.scheduled({cron:'* * * * *'});assert.equal((await db.prepare('SELECT count(*) AS n FROM jobs').first()).n,51,'Feed replay deduplication');
  assert.equal((await post('/v1/jobs/'+id+'/publish',{candidate})).status,409);
  const status=await mf.dispatchFetch('https://worker.test/v1/status',{headers:{Authorization:'Bearer '+admin}});assert.equal(status.status,200);assert.ok(!(await status.text()).includes(secret));
- console.log('Cloudflare runtime smoke passed: real workerd+D1 migrations, paused cron, auth, restart persistence, concurrent claims, signed publish/replay, dates, correction and withdrawal. All Sanity traffic intercepted; no external content written.');
+ console.log('Cloudflare runtime smoke passed: real workerd+D1 migrations, paused cron, auth, restart persistence, concurrent claims, 50-item scheduled RSS/deduplication, signed publish/replay, dates, correction and withdrawal. All Sanity traffic intercepted; no external content written.');
 }finally{await mf.dispose();rmSync(dir,{recursive:true,force:true});}

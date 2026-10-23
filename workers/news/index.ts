@@ -14,7 +14,7 @@ export async function runScheduled(env:Env,get=fetchFeed){
   const headers:Record<string,string>={};if(source.etag)headers['If-None-Match']=source.etag;if(source.last_modified)headers['If-Modified-Since']=source.last_modified;
   const r=await get(source,headers);if(![200,304].includes(r.status))throw new Refused(502,'Feed unavailable');
   const items=r.status===304?[]:parseFeed(r.body,now);if(items.length>50)throw new Refused(413,'Feed item budget exceeded');
-  for(const item of items)await store.enqueue(source.id,item,now);
+  await store.enqueueMany(source.id,items,now);
   await env.DB.prepare('UPDATE sources SET next_poll=?,last_success=?,last_error=NULL,etag=?,last_modified=? WHERE id=? AND lease_token=?')
    .bind(now+Math.max(5,source.proposed_poll_minutes)*60000,now,r.headers.get('etag')||source.etag,r.headers.get('last-modified')||source.last_modified,source.id,source.lease_token).run();
   return {source:source.id,discovered:items.length};
@@ -43,6 +43,8 @@ async function publish(body:any,env:Env,store:D1Store,id:string){
   if(!Number.isFinite(sourceTime)||sourceTime>Date.now()+300000||!Number.isFinite(job.created_at)||job.created_at>Date.now()+300000||!validated.editions[0].sources.includes(item.url))throw new Refused(422,'Invalid source provenance');
   const document={...publicationDocument(validated.editions,id,env.SANITY_EDITOR_ID!,validated.hash),publishedAt:now,updatedAt:now,provenance:{sourceUrl:item.url,sourcePublishedAt:new Date(sourceTime).toISOString(),discoveredAt:new Date(job.created_at).toISOString(),importedAt:now}};
   try{
+   try{await store.reserveSlugs(id,locales.map((l,i)=>[localeKey[l],validated.editions[i].slug]));}
+   catch{throw new Refused(409,'Edition slug reservation refused');}
    await api.create(document);if(!await store.published(id,body.leaseToken,validated.hash))throw new Error('Lease changed');await store.audit(id,'published');return {published:document._id};
   }catch(error){await store.hold(id,body.leaseToken,'Publish failed; inspect CMS before retry');throw error;}
  }finally{await store.unlock(owner);}

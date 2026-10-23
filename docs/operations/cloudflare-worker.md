@@ -8,6 +8,7 @@ The website stays on Vercel; this separate Worker replaces the need for a paid R
 - Cron polls one reviewed due feed each minute; per-source minimum interval5minutes. With25 continuously due sources a sweep takes at least25minutes, not5minutes per source. Daily pruning runs00:07UTC. Paused cron performs no database writes or external requests.
 - Conservative free-runtime budget: feed response at most64KiB,50fresh items, three redirects and10seconds network timeout. Oversized feeds fail explicitly and back off15minutes. Large original sources may need smaller official feeds or another bounded ingestion strategy; they are not silently truncated.
 - Only destinations in the committed source registry may be fetched. Same registered-host redirect checks apply. Unlike the private Node fetcher, this runtime does not pin DNS addresses; no arbitrary URL-fetch endpoint is exposed.
+- Feed inserts use one atomic JSON-table insert, keeping50-item batches below D1 Free's per-invocation query limit. Durable locale/slug reservations belong to one job even after uncertain writes or withdrawal; do not remove reservations solely because a CMS call timed out.
 - Initial imports use real site publication time plus separate sourcePublishedAt/discoveredAt/importedAt provenance. Corrections preserve source provenance/site date/slugs and use CMS revisions. Unknown remote outcomes are replayed against CMS identity/hash, never blind duplication.
 - Bearer-only API, no cookies/CORS, reject browser Origin on mutations. Limit JSON bodies64KiB and CMS responses256KiB. No secrets, evidence or raw provider errors in public health/logs.
 - All migrations seed disabled/unreviewed sources; both global flags start paused. No verifier or live CMS acceptance is implied by deployment.
@@ -45,7 +46,7 @@ verify:worker builds with Wrangler and executes the bundled Worker in real worke
 
        npx wrangler d1 create token-on-air-news
 
-3. Replace the all-zero database_id in workers/news/wrangler.jsonc with the actual returned ID. The all-zero value is deliberately non-deployable, never a claimed live resource. Apply migrations only to that new dedicated database:
+3. For a new account, replace account_id/database_id in workers/news/wrangler.jsonc with the actual returned IDs. The current configuration points to the owner-authorized live resources recorded below. Apply migrations only to the dedicated database:
 
        npx wrangler d1 migrations apply DB --remote --config workers/news/wrangler.jsonc
        npx wrangler deploy --config workers/news/wrangler.jsonc
@@ -82,3 +83,17 @@ D1 idempotency tombstones remain; queued/held metadata30days, audit180days. Keep
 ## Verification record — 2026-10-23
 
 Initial134unit tests and Worker/Node typechecks pass. Actual bundled workerd+D1 smoke passes, including restart persistence and signed CMS lifecycle with intercepted outbound requests. Runtime smoke caught Workers rejecting redirect:error; corrected to manual redirects with refusal. Account login attempted at owner's request; embedded Cloudflare device verification returned403, and authorization expired without completion. No live D1/Worker/account plan change or CMS write is claimed. Deployment ID remains the explicit all-zero placeholder until actual account provisioning.
+
+Final review found two issues:50 individual enqueue calls exceeded the free invocation query budget, and an unknown remote outcome could release serialization before a delayed commit. Both have RED/GREEN regressions; atomic bulk insertion and durable per-job slug reservations fix them. Reservations intentionally survive failed jobs/withdrawals; inspect CMS state before any manual cleanup.
+
+
+## Live paused deployment — 2026-10-23
+
+- Account:0a331a6d9344739d7031cce3d413fd96; selected automatically because OAuth lists exactly one account.
+- D1:token-on-air-news, c8711b3a-a05f-4df4-b6dc-078ffefd4ae0, APAC; migrations0001/0002/0003 applied successfully. Existing unrelated my-hub database was not modified.
+- Worker:https://token-on-air-news.reallyhat.workers.dev ; original version05be53bc-d5f7-405f-aec1-e2ac9e510fd4, active secret-update version d84660e8-7e6e-4731-a079-715ade8a58b5.
+- Device authorization subsequently succeeded. No paid subscription, upgrade or billing write performed. OAuth deliberately lacks billing-read permission, so existing account subscription labels could not be independently queried; confirm the actual Free plan in the owner dashboard before enabling workloads. No free-throughput/CPU acceptance is claimed from paused checks.
+- Separate high-entropy admin/writer secrets installed. Local service credentials retained only in ignored .private/cloudflare/service-credentials.json, mode600 under directory700; never in Git/chat/frontend. Sanity write and independent verifier secrets are not installed.
+- Fresh live checks via curl:health200/no-store, unauthenticated status401, writer-to-admin status401, admin status200 with enabled:false/zerojobs/25disabledsources, authenticated claim503 while paused. Plain Python urllib was blocked by Cloudflare1010; curl succeeded. No secret values printed.
+-136unit tests, Worker/Node typechecks, Astro62files without diagnostics, Node build/local HTTP smoke and real workerd+D1 smoke pass. Runtime smoke includes50-item scheduled RSS ingestion/deduplication; local CMS entirely intercepted. Fresh review's P1/P2 findings both fixed with RED/GREEN regressions.
+- Still required:owner sets SANITY_WRITE_TOKEN privately in Worker settings, verified jienweng editor reference, independent verifier connection, actual Dots reachability/credential handoff, reviewed sources, production CPU measurements, original content and lifecycle/backfill acceptance. Automation remains disabled and kill switch enabled.

@@ -85,3 +85,25 @@ it('recovers uncertain correction and withdrawal commits without changing first 
   expect((await store.get(item.fingerprint))?.state).toBe('withdrawn');
  }finally{get.mockRestore();}
 });
+it('handles a 50-item feed within the Free plan query budget',async()=>{
+ const {env,db,sqlite}=await setup();let queries=0;
+ const original=db.prepare;db.prepare=(sql:string)=>{if(++queries>50)throw Error('Free query cap');return original(sql);};
+ const date=new Date().toUTCString();const body='<rss><channel>'+Array.from({length:50},(_,i)=>`<item><title>News ${i}</title><link>https://openai.com/index/batch-${i}</link><pubDate>${date}</pubDate></item>`).join('')+'</channel></rss>';
+ await expect(runScheduled(env,vi.fn().mockResolvedValue({status:200,headers:new Headers(),body}))).resolves.toMatchObject({discovered:50});
+ expect(queries).toBeLessThan(10);expect(sqlite.prepare('SELECT count(*) AS n FROM jobs').get()?.n).toBe(51);
+});
+it('reserves slugs across jobs even when a remote write commits after a timeout',async()=>{
+ const {env,store,item}=await setup();const first=await(await worker.fetch(request('/v1/jobs/claim'),env)).json() as any;let writes=0;const pending:any[]=[];
+ const get=vi.spyOn(globalThis,'fetch').mockImplementation(async(url,init)=>{
+  if(String(url).includes('/data/query/'))return Response.json({result:String(url).includes('count(')||String(url).includes('count%28')?0:null});
+  writes++;pending.push(JSON.parse(init!.body as string).mutations[0].createIfNotExists);throw Error('Timeout before remote commit');
+ });
+ try{
+  const candidate=signedCandidate(item.url);
+  expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/publish',{leaseToken:first.leaseToken,candidate}),env)).status).toBe(502);
+  const secondItem={...item,url:'https://openai.com/index/second',fingerprint:'c'.repeat(64)};await store.enqueue('openai',secondItem);
+  const second=await(await worker.fetch(request('/v1/jobs/claim'),env)).json() as any;
+  expect((await worker.fetch(request('/v1/jobs/'+secondItem.fingerprint+'/publish',{leaseToken:second.leaseToken,candidate:signedCandidate(secondItem.url)}),env)).status).toBe(409);
+  expect(writes).toBe(1);expect(pending).toHaveLength(1);
+ }finally{get.mockRestore();}
+});

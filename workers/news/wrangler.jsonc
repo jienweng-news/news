@@ -3,7 +3,9 @@
   "name": "token-on-air-news",
   "main": "index.ts",
   "compatibility_date": "2026-10-01",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "workers_dev": true,
   "preview_urls": false,
   "vars": {
@@ -12,12 +14,22 @@
     "SANITY_PROJECT_ID": "4k0o7q9m",
     "SANITY_DATASET": "production"
   },
-  "triggers": {"crons": ["* * * * *", "7 0 * * *"]},
-  "d1_databases": [{
-    "binding": "DB",
-    "database_name": "token-on-air-news",
-    "database_id": "00000000-0000-0000-0000-000000000000",
-    "migrations_dir": "migrations"
-  }],
-  "observability": {"enabled": false}
+  "triggers": {
+    "crons": [
+      "* * * * *",
+      "7 0 * * *"
+    ]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "token-on-air-news",
+      "database_id": "c8711b3a-a05f-4df4-b6dc-078ffefd4ae0",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "observability": {
+    "enabled": false
+  },
+  "account_id": "0a331a6d9344739d7031cce3d413fd96"
 }

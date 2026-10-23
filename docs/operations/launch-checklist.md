@@ -91,3 +91,11 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 - [x]123 tests, worker typecheck, Astro62files without diagnostics, Node/Studio/Vercel builds and local HTTP smoke passed. Fresh reviewer found valid-date-format regression; fixed with RED/GREEN coverage. No unresolved review findings.
 - [x] Production deployed as dpl_CwgXuPHNzm2SreAJkFxkKavQwbZq, https://token-on-p8rtug5l9-lai-jien-wengs-projects.vercel.app. Initial mobile390px browser checks passed all three homepages with no horizontal overflow or Google requests after prior decline.
 - [ ] Actual backfill publication remains pending secure Sanity writer configuration, source/evidence review and verified original multilingual candidate content. No content writes or newsletter sends performed in this change.
+
+## Cloudflare free worker — 2026-10-23
+- [x] Implemented paused Workers+D1 adapter: reviewed-source cron discovery, durable owner-fenced queue, authenticated handoff/publication and admin correction/withdrawal. Website stays on Vercel; Railway proposal superseded.
+- [x] Real bundled workerd+D1 tests cover migrations, restart persistence, simultaneous claims, signed publishing/replay, dates, correction/withdrawal and bounded50-item scheduled RSS ingestion/deduplication. All CMS traffic intercepted; no external news written.
+- [x] Fresh review findings fixed with failing-then-passing tests: atomic feed insert stays within free-query budget; persistent slug reservations cover delayed remote commit races.
+- [x] Cloudflare device login succeeded; single owner account selected. Dedicated APAC D1 created and all3migrations applied; Worker deployed paused at https://token-on-air-news.reallyhat.workers.dev. Separate admin/writer secrets installed; live authentication/paused checks passed. No paid upgrade performed.
+- [ ] Existing account Free subscription label confirmation in owner dashboard (billing-read scope unavailable), production CPU and workload quota acceptance before activation.
+- [ ] Production CPU telemetry/free-quota acceptance, source enablement, secure secrets/editor setup, Dots/tool connection and independent verifier. Large feeds exceeding64KiB or50freshitems currently back off; no claim of ingesting all original sources.

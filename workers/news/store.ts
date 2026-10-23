@@ -7,6 +7,17 @@ export class D1Store {
  async enqueue(source:string,item:FeedItem,now=Date.now()){
   await this.db.prepare('INSERT OR IGNORE INTO jobs(id,source,payload,created_at) VALUES(?,?,?,?)').bind(item.fingerprint,source,JSON.stringify(item),now).run();
  }
+ async enqueueMany(source:string,items:FeedItem[],now=Date.now()){
+  if(!items.length)return;
+  // One atomic insert, not one D1 subrequest per feed item.
+  await this.db.prepare(`INSERT OR IGNORE INTO jobs(id,source,payload,created_at)
+   SELECT json_extract(value,'$.fingerprint'),?,json(value),? FROM json_each(?)`).bind(source,now,JSON.stringify(items)).run();
+ }
+ async reserveSlugs(job:string,slugs:Array<[string,string]>){
+  // A NOT NULL conflict aborts the entire transactional batch if any slug belongs to another job.
+  await this.db.batch(slugs.map(([locale,slug])=>this.db.prepare(`INSERT INTO slug_reservations(locale,slug,job) VALUES(?,?,?)
+   ON CONFLICT(locale,slug) DO UPDATE SET job=CASE WHEN slug_reservations.job=excluded.job THEN excluded.job ELSE NULL END`).bind(locale,slug,job)));
+ }
  get(id:string){return this.db.prepare('SELECT * FROM jobs WHERE id=?').bind(id).first<Job>();}
  async claim(now=Date.now()){
   await this.db.prepare("UPDATE jobs SET state='held',lease_until=0,last_error='Retry limit' WHERE state='processing' AND lease_until<=? AND attempts>=5").bind(now).run();
