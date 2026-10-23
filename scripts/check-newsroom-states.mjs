@@ -44,8 +44,13 @@ if (process.argv.includes('--server')) {
         }
         if (mode === 'content' && path !== '/crypto/') {
           if (!html.includes('Sponsored content')) failures.push(`${path}: missing visible sponsorship label`);
-          if (path === '/' && (!html.includes('Test photographer') || !html.includes('Test license attribution'))) failures.push('Homepage: missing image credit/license');
+          if (path === '/' && (html.includes('Test photographer') || html.includes('Test license attribution'))) failures.push('Homepage: image attribution should appear only on article details');
         }
+      }
+      if (mode === 'content') {
+        const response = await fetch(base + '/articles/test-story'); const html = await response.text();
+        assert.equal(response.status, 200, 'article detail status');
+        if (!html.includes('Test photographer') || !html.includes('Test license attribution')) failures.push('Article detail: missing image credit/license');
       }
     } finally {
       child.kill(); await new Promise(resolve => child.once('exit', resolve));
