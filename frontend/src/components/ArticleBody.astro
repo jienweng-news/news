@@ -3,10 +3,12 @@ import {presentArticleBody,sourceLabel} from '../lib/article-presentation';
 import { PortableText } from 'astro-portabletext';
 import {t,localePath,type Locale} from '../lib/i18n';
 import type { Article } from '../lib/content/types';
+import {storyImage} from '../lib/news-images';
 import ArticleMeta from './ArticleMeta.astro';
 import Disclosure from './Disclosure.astro';
 interface Props { article: Article;locale?:Locale }
 const { article,locale='en' } = Astro.props;
+const image=storyImage(article,locale);
 const {body,credits}=presentArticleBody(article.body);
 const creditHeading={en:'Attribution & licence',zh:'署名與授權','zh-cn':'署名与授权'}[locale];
 ---
@@ -15,7 +17,7 @@ const creditHeading={en:'Attribution & licence',zh:'署名與授權','zh-cn':'�
   {article.previewOnly && <aside class="preview-notice" data-preview-notice><strong>Private editorial preview</strong> — unpublished changes may appear here.</aside>}
   <header class="article-header"><div class="eyebrow"><span class:list={['section-label', article.section]}>{t(locale,article.section)}</span><span>{t(locale,article.format)}</span></div><h1>{article.title}</h1><p class="article-deck">{article.summary}</p><ArticleMeta article={article} locale={locale} /></header>
   <Disclosure article={article} locale={locale} />
-  {article.media && <figure><img src={article.media.url} alt={article.media.alt} width="1200" height="675" fetchpriority="high" /><figcaption>{article.media.credit} · {article.media.license}</figcaption></figure>}
+  <figure class="article-hero"><img src={image.url} alt={image.alt} width="1200" height="630" fetchpriority="high" /><figcaption>{image.credit} · {image.license}</figcaption></figure>
   <div class="prose" data-article-body><PortableText value={body} /></div>
   {credits.length>0 && <aside class="article-credits" aria-label={creditHeading}><h2>{creditHeading}</h2><PortableText value={credits}/></aside>}
   {article.sources.length > 0 && <section class="source-list" aria-label="Sources"><h2>{t(locale,'sources')}</h2><ul>{article.sources.map(source => <li><a href={source} rel="noopener noreferrer"><span>{sourceLabel(source)}</span><small>{new URL(source).hostname}</small></a></li>)}</ul></section>}

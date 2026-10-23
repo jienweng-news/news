@@ -1,20 +1,25 @@
 ---
+import {authorImage} from '../../../lib/news-images';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import StoryList from '../../../components/StoryList.astro';
 import {createContentRepository} from '../../../lib/content/repository';
 import {authorStories} from '../../../lib/content/newsroom';
 import {validSlug} from '../../../lib/content/normalize';
 import {runtimeConfig} from '../../../lib/runtime';
-import {isLocale,t} from '../../../lib/i18n';
+import {isLocale,t,locales} from '../../../lib/i18n';
 import type {ArticleCard} from '../../../lib/content/types';
 const {locale,slug}=Astro.params;if(!isLocale(locale)||!validSlug(slug||''))return new Response('Not found',{status:404});
 let stories:ArticleCard[]=[];let unavailable=false;
 try{stories=authorStories(await createContentRepository(runtimeConfig()).listPublished(locale),slug!);}catch{unavailable=true;}
 const author=stories[0]?.author;Astro.response.status=unavailable?503:author?200:404;Astro.response.headers.set('Cache-Control','no-store');
+const config=runtimeConfig();
+const authorLocales=locales.filter(l=>stories.some(story=>Boolean(story.localeSlugs?.[l]))||l===locale);
+const profile=author?JSON.stringify({'@context':'https://schema.org','@type':'ProfilePage',mainEntity:{'@type':'Person',name:author.name,url:new URL(`/${locale}/authors/${author.slug}/`,config.siteUrl).href,image:new URL(authorImage(author).url,config.siteUrl).href,...(author.bio?{description:author.bio}:{})}}).replace(/</g,'\\u003c'):'';
 const title=author?.name||t(locale,unavailable?'unavailable':'notFound');
 ---
-<BaseLayout locale={locale} title={title} noindex={!author} alternatePaths={{[locale]:`/${locale}/authors/${slug}/`}}>
- <div class="section-page-heading"><h1>{title}</h1>{author?.bio&&<p>{author.bio}</p>}</div>
- {author&&<section><h2>{t(locale,'authorStories')}</h2><StoryList articles={stories} locale={locale} headingLevel="h3"/></section>}
+<BaseLayout ogType="profile" ogImage={author?.image} locale={locale} title={title} noindex={!author} alternatePaths={author?Object.fromEntries(authorLocales.map(l=>[l,`/${l}/authors/${slug}/`])):{[locale]:`/${locale}/authors/${slug}/`}}>
+ {author&&<script type="application/ld+json" set:html={profile}/>}
+ <header class="author-profile">{author&&<img class="author-portrait" src={authorImage(author).url} alt={authorImage(author).alt} width="240" height="240" fetchpriority="high"/>}<div><h1>{title}</h1>{author?.bio&&<p>{author.bio}</p>}{author&&<p class="author-story-count">{t(locale,'authorStories')} · {stories.length}</p>}</div></header>
+ {author&&<section class="author-stories"><h2>{t(locale,'authorStories')}</h2><StoryList articles={stories} locale={locale} headingLevel="h3"/></section>}
  {unavailable&&<p>{t(locale,'retry')}</p>}
 </BaseLayout>

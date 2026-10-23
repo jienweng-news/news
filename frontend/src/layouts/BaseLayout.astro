@@ -5,10 +5,11 @@ import { runtimeConfig } from '../lib/runtime';
 import Newsletter from '../components/Newsletter.astro';
 import Analytics from '../components/Analytics.astro';
 import FixtureBanner from '../components/FixtureBanner.astro';
-interface Props { title: string; description?: string; noindex?: boolean; canonical?: string;locale?:Locale;alternatePaths?:Partial<Record<Locale,string>>; }
-const { title, description = 'Reporting, practical guides and analysis across AI and crypto.', noindex = false, canonical,locale=localeFromPath(Astro.url.pathname),alternatePaths } = Astro.props;
+interface Props { ogImage?:{url:string;alt:string};ogType?:'website'|'article'|'profile'; title: string; description?: string; noindex?: boolean; canonical?: string;locale?:Locale;alternatePaths?:Partial<Record<Locale,string>>; }
+const { ogImage,ogType='website',title, description = 'Reporting, practical guides and analysis across AI and crypto.', noindex = false, canonical,locale=localeFromPath(Astro.url.pathname),alternatePaths } = Astro.props;
 const config = runtimeConfig();
 const routes=alternatePaths||Object.fromEntries(locales.map(l=>[l,localePath(l,Astro.url.pathname.replace(/^\/(en|zh|zh-cn)(\/|$)/,''))]));
+const image={url:new URL(ogImage?.url||'/brand/social-default.png',config.siteUrl).href,alt:ogImage?.alt||config.siteName};
 const canonicalUrl = canonical || new URL(Astro.url.pathname, config.siteUrl).href;
 ---
 <!doctype html>
@@ -16,11 +17,12 @@ const canonicalUrl = canonical || new URL(Astro.url.pathname, config.siteUrl).hr
   <head>
     <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} · {config.siteName}</title><meta name="description" content={description} />
-    <meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:type" content="website" /><meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:type" content={ogType} /><meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={image.url}/><meta property="og:image:alt" content={image.alt}/><meta property="og:site_name" content={config.siteName}/><meta name="twitter:image" content={image.url}/><meta name="twitter:image:alt" content={image.alt}/>
     {Object.entries(routes).map(([l,path])=>path&&<link rel="alternate" hreflang={languageTag[l as Locale]} href={new URL(path,config.siteUrl).href}/>)}
     {routes.en&&<link rel="alternate" hreflang="x-default" href={new URL(routes.en,config.siteUrl).href}/>}
     <link rel="alternate" type="application/rss+xml" title={`${config.siteName} ${localeLabel[locale]}`} href={`/${locale}/rss.xml`}/>
-    <meta name="twitter:card" content="summary" /><link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="twitter:card" content="summary_large_image" /><link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     {noindex || config.contentMode === 'fixture' ? <meta name="robots" content="noindex, nofollow" /> : <link rel="canonical" href={canonicalUrl} />}
   </head>
   <body>

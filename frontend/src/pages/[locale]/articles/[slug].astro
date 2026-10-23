@@ -1,4 +1,5 @@
 ---
+import {shareImage} from '../../../lib/news-images';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import StoryList from '../../../components/StoryList.astro';
 import {relatedStories} from '../../../lib/content/newsroom';
@@ -14,8 +15,9 @@ Astro.response.status=status;Astro.response.headers.set('Cache-Control',status==
 let related:ArticleCard[]=[];
 if(article)try{related=relatedStories(await createContentRepository(config).listPublished(locale),article);}catch{/* Optional discovery must not make an available story fail. */}
 const alternatePaths=article?.localeSlugs?Object.fromEntries(Object.entries(article.localeSlugs).map(([l,s])=>[l,`/${l}/articles/${s}/`])):{};
-const jsonLd=article?JSON.stringify({'@context':'https://schema.org','@type':'NewsArticle',headline:article.title,description:article.summary,datePublished:article.publishedAt,dateModified:article.updatedAt,inLanguage:article.language,editor:{'@type':'Person',name:'jienweng'},publisher:{'@type':'Organization',name:'Token on Air',url:config.siteUrl},mainEntityOfPage:new URL(Astro.url.pathname,config.siteUrl).href,citation:article.sources,...(article.media?{image:[article.media.url]}:{})}).replace(/</g,'\\u003c'):'';
+const socialImage=article?shareImage(article,locale,config.siteUrl):undefined;
+const jsonLd=article?JSON.stringify({'@context':'https://schema.org','@type':'NewsArticle',headline:article.title,description:article.summary,datePublished:article.publishedAt,dateModified:article.updatedAt,inLanguage:article.language,author:{'@type':'Person',name:article.author.name,url:new URL(`/${locale}/authors/${article.author.slug}/`,config.siteUrl).href},editor:{'@type':'Person',name:'jienweng'},publisher:{'@type':'Organization',name:'Token on Air',url:config.siteUrl},mainEntityOfPage:new URL(Astro.url.pathname,config.siteUrl).href,citation:article.sources,image:[socialImage!.url]}).replace(/</g,'\\u003c'):'';
 ---
-<BaseLayout locale={locale} alternatePaths={alternatePaths} title={article?.title||t(locale,status===503?'unavailable':'notFound')} description={article?.summary} noindex={status!==200}>
+<BaseLayout ogType="article" ogImage={socialImage} locale={locale} alternatePaths={alternatePaths} title={article?.title||t(locale,status===503?'unavailable':'notFound')} description={article?.summary} noindex={status!==200}>
  {article?<><script type="application/ld+json" set:html={jsonLd}/><ArticleBody article={article} locale={locale}/>{related.length>0&&<section class="related-stories"><div class="section-heading"><h2>{t(locale,'related')}</h2></div><StoryList articles={related} locale={locale}/></section>}</>:<section class="empty-state"><h1>{t(locale,status===503?'unavailable':'notFound')}</h1><a href={localePath(locale)}>{t(locale,'back')}</a></section>}
 </BaseLayout>
