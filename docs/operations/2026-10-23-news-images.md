@@ -33,3 +33,17 @@ Owner requested every article graphic be attached to the Sanity article. Impleme
 - Future missing graphics are attached on the existing cron every fifth minute, one published job per tick. Failures back off for one hour so other posts can proceed. Manual photo replacements remain protected even if the headline later changes; only an asset matching its generated asset ID can be refreshed.
 - Fresh review identified starvation and manual replacement ownership issues; both fixed with regression tests. Verification: 199 tests across 29 files; Worker TypeScript and real workerd/D1 smoke passed; Studio production build and whitespace check passed. Focused 19-test Worker suite rerun after the final test fixture refinement passed.
 - Private acceptance artifacts are in `.private/public-repo-audit/sanity-image-backfill.json` and `sanity-images-verified.json`; no credentials recorded. Hosted Studio schema deployment remains separate; the existing `mainImage` field already displays these attached assets.
+
+## Source-first variety and backfill — 2026-10-23
+
+Owner selected source photos/charts first when reuse is permitted, with varied original illustrations otherwise. Production Vercel deployment `dpl_AY4BFk3nk2povEVeR7f5zGnsurzY` from Git `3a594901dc391941b7b1698ee33fbeb10523db0e` is READY and serves tokenonair.com. Worker version `a3f190c1-7804-4c8f-8e03-cd4517549611` preserves automation enabled/kill switch off and Worker RSS polling off.
+
+Backfilled all three published Sanity mainImage fields:
+
+- Forest mapping: original forest/plantation collage, 1200×630 PNG, asset `image-741e722dfd0dc485183d65132834988b1eac3a2b-1200x630-png`.
+- Ultrasound research: original conceptual probe/acoustic-field illustration (not a patient scan), 1200×630 PNG, asset `image-92d98eaad93fe530e136bcb3b127b7e0675674d7-1200x630-png`.
+- Ethereum: original unedited 2100×900 JPEG accompanying the source blog post, asset `image-a89f4f53dbcc50cea86d470fc25d3c8ab749bf78-2100x900-jpg`. Asset content hash matches the SHA1 of the original source bytes. Sanity CDN recompresses JPEG delivery, so delivered bytes are not claimed identical. Source and CC BY4.0 links appear in captions. Terms explicitly cover blog.ethereum.org non-code content unless marked otherwise; no contrary asset marking found.
+
+Google blog images were located but not copied because reuse permission is not established; third-party satellite imagery has separate named owners. Future source images require a reviewed manifest entry. Unmatched future stories have three deterministic fallback compositions; the two generated bitmap illustrations are specific to these two current articles and not an unlimited automatic image-generation service.
+
+Verification:205 tests/31files; frontend Astro check0diagnostics/build pass; Worker TypeScript and real workerd/D1 smoke pass; Studio build pass; Impeccable detector no findings. Fresh final review found nested caption/story anchors, fixed with failing→passing AST regression and full suite rerun. All nine localized pages verified visible and OG/Twitter Sanity images; all three real asset documents verified. Dates, title/slug and source/automation provenance match pre-image baseline. Production desktop author gallery and mobile article images decode with no horizontal overflow. Assets and built-in generation prompts recorded in `docs/design/2026-10-23-editorial-image-prompts.md`. Private backfill/acceptance files: `.private/public-repo-audit/source-first-image-backfill.json` and `source-first-images-verified.json`.
