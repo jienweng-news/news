@@ -103,3 +103,5 @@ Updated 2026-10-23. Latest newsletter/analytics/source/monitoring evidence: [202
 - [ ] Production CPU telemetry/free-quota acceptance, source enablement, secure secrets/editor setup, Dots/tool connection and independent verifier. Large feeds exceeding64KiB or50freshitems currently back off; no claim of ingesting all original sources.
 
 - [x] Sanity connection acceptance:stable Cloudflare version ede401a4-edf5-48e4-86d7-171ba864ea5e, encrypted token retained, editor reference configured. Setup routes removed and verified404; live Worker remains paused with zerojobs/25disabledsources.
+
+2026-10-23 activation update: owner explicitly requested public signup enabled. Both Production activation flags now1, deployed and verified enabled in all three editions; invalid-token and cross-origin rejection pass. Earlier full-acceptance checkbox remains pending: genuine cloud-preview challenge returns600010, normal-browser signup/confirmation and live suppression acceptance are not established. See `2026-10-23-newsletter-activation.md`. No additional email sent.
