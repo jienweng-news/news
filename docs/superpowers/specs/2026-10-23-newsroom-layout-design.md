@@ -1,0 +1,5 @@
+# Newsroom layout refinement
+
+Owner chose a magazine-style newsroom with the existing Persona-inspired red/black identity. Strengthen hierarchy and scanning: prominent lead headline/image, two supporting image stories, compact latest-news rail, and AI/Crypto rows below. Reduce masthead/edition whitespace. Show actual publication timestamps rather than invented live/breaking claims. Three published stories are sufficient to display truthfully; no fixture content on production. Existing Sanity image references and linked credits remain intact.
+
+Approaches discussed: magazine newsroom preserving identity (selected), quieter newspaper look (not selected). Implementation choice: three desktop columns, lead/support two-column intermediate layout with rail below, single-column mobile. Topic/archive lists use compact image/text rows; author gallery and article prose remain as approved. Native scrolling mobile navigation retains accessible links and active states. All new text works in English, Traditional and Simplified Chinese. Preserve signup/privacy behavior and story dates.

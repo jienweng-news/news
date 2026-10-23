@@ -10,7 +10,7 @@ export function selectSection(articles: ArticleCard[], section: Section): Articl
 export function composeNewsroom(articles: ArticleCard[]) {
   const sorted = publishedNewestFirst(articles);
   return {
-    lead: sorted[0], latest: sorted.slice(1, 7),
+    lead: sorted[0], supporting: sorted.slice(1,3), latest: sorted.slice(1, 7),
     sections: { ai: selectSection(sorted, 'ai'), crypto: selectSection(sorted, 'crypto') },
     analysis: sorted.filter(article => article.format === 'analysis').slice(0, 3),
   };
