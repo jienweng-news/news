@@ -86,6 +86,7 @@
 .byline,.byline a{display:inline-flex;align-items:center;gap:8px}.byline img{width:32px;height:32px;object-fit:cover;border-radius:50%}
 .article-meta{align-items:center}
 .article-hero img{width:100%;height:auto;aspect-ratio:1200/630;object-fit:cover}
+.article-hero img.source-chart,.story-thumbnail img.source-chart,.newsroom .lead-image.source-chart,.newsroom .supporting-story img.source-chart{object-fit:contain;background:var(--paper)}
 .story-thumbnail{display:block;max-width:440px;margin-bottom:18px}
 .story-thumbnail img{width:100%;height:auto;aspect-ratio:1200/630;object-fit:cover}
 @media(max-width:640px){.author-profile{align-items:flex-start;gap:22px;margin:32px 0;flex-direction:column}.author-portrait{width:128px;height:128px}.author-profile h1{font-size:52px}.story-thumbnail{max-width:none}}

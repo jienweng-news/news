@@ -21,13 +21,13 @@ const topStories={en:'Top stories',zh:'焦點報導','zh-cn':'焦点报道'}[loc
     <article class="lead-story">
       <NewsMeta article={lead} locale={locale}/>
       <h2><a class="lead-link" href={localePath(locale,`articles/${lead.slug}`)}>{lead.title}</a></h2>
-      <figure class="lead-figure"><a href={localePath(locale,`articles/${lead.slug}`)} tabindex="-1" aria-hidden="true"><img class="lead-image" src={storyImage(lead,locale).url} alt="" width="1200" height="630" fetchpriority="high" /></a>{imageCaption(lead)&&<ImageCredit image={storyImage(lead,locale)}/>}</figure>
+      <figure class="lead-figure"><a href={localePath(locale,`articles/${lead.slug}`)} tabindex="-1" aria-hidden="true"><img class:list={['lead-image',{'source-chart':storyImage(lead,locale).credit==='PANews'}]} src={storyImage(lead,locale).url} alt="" width="1200" height="630" fetchpriority="high" /></a>{imageCaption(lead)&&<ImageCredit image={storyImage(lead,locale)}/>}</figure>
       <p class="deck">{lead.summary}</p>
       <div class="story-footer"><RelationshipLabel locale={locale} relationship={lead.relationship} /><span>{t(locale,'editor')} jienweng</span><a href={localePath(locale,`articles/${lead.slug}`)}>{t(locale,'read')} <span aria-hidden="true">→</span></a></div>
     </article>
     {supporting.length>0&&<section class="supporting-stories" aria-label={topStories}>
       {supporting.map(article=><article class="supporting-story">
-        <figure><a href={localePath(locale,`articles/${article.slug}`)} tabindex="-1" aria-hidden="true"><img src={storyImage(article,locale).url} alt="" width="1200" height="630" loading="lazy" decoding="async"/></a>{imageCaption(article)&&<ImageCredit image={storyImage(article,locale)}/>}</figure>
+        <figure><a href={localePath(locale,`articles/${article.slug}`)} tabindex="-1" aria-hidden="true"><img class:list={{'source-chart':storyImage(article,locale).credit==='PANews'}} src={storyImage(article,locale).url} alt="" width="1200" height="630" loading="lazy" decoding="async"/></a>{imageCaption(article)&&<ImageCredit image={storyImage(article,locale)}/>}</figure>
         <NewsMeta article={article} locale={locale}/>
         <h2><a href={localePath(locale,`articles/${article.slug}`)}>{article.title}</a></h2>
       </article>)}
