@@ -22,7 +22,11 @@
     "check:automation": "tsc -p tsconfig.automation.json",
     "preflight": "tsx scripts/preflight.ts",
     "verify:local": "node scripts/verify-local.mjs",
-    "check:client": "node --check frontend/public/scripts/analytics.js && node --check frontend/public/scripts/newsletter.js"
+    "check:client": "node --check frontend/public/scripts/analytics.js && node --check frontend/public/scripts/newsletter.js",
+    "check:worker": "tsc -p workers/news/tsconfig.json",
+    "build:worker": "wrangler deploy --config workers/news/wrangler.jsonc --dry-run --outdir ../../.private/cloudflare/bundle",
+    "verify:worker": "npm run build:worker && node scripts/check-cloudflare.mjs",
+    "dev:worker": "wrangler dev --config workers/news/wrangler.jsonc"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20261023.1",

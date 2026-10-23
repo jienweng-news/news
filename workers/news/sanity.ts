@@ -8,7 +8,7 @@ export function sanityApi(env:Env){
   return call(url.href);
  }
  async function call(url:string,body?:unknown){
-  const r=await fetch(url,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+env.SANITY_WRITE_TOKEN,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{}),redirect:'error',signal});
+  const r=await fetch(url,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+env.SANITY_WRITE_TOKEN,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{}),redirect:'manual',signal});
   if(!r.ok)throw new Refused(502,'CMS request failed');return JSON.parse(await limitedText(r,262144));
  }
  const read=async(id:string)=>(await query('*[_id == $id][0]',{id})).result;

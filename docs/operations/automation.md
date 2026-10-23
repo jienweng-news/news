@@ -6,7 +6,7 @@ Implemented local components: bounded RSS/Atom parsing, reviewed-source registry
 
 ## Deployment boundary
 
-The Astro reader site runs on Vercel. This Node22 worker requires a private durable disk for SQLite, separate secrets and a scheduler. Do not place the database in a Vercel function filesystem. A managed durable queue/database adapter is an alternative that still needs selection and verification; the worker has not been provisioned. Node22's SQLite API is experimental; run the tested Node version and keep backup/restore checks.
+The Astro reader site runs on Vercel. This Node22 worker requires a private durable disk for SQLite, separate secrets and a scheduler. Do not place the database in a Vercel function filesystem. A Workers+D1 adapter is now implemented for a zero additional hosting cost path; see cloudflare-worker.md for actual local/deployment evidence and remaining gates. The Node deployment described here remains optional. Node22's SQLite API is experimental; run the tested Node version and keep backup/restore checks.
 
 Use a private OS user/volume, directory permissions700, files600, and an environment file outside the repository. CLI uses umask077. Never supply SANITY_WRITE_TOKEN or VALIDATION_SECRET to Dots or the public frontend deployment. Sanity Free has no custom draft-only role; the publish token retains residual broad dataset permissions. Limit it to the selected project/dataset using available account roles, verify those permissions live, isolate/rotate it, and keep subscriber/contract records out of Sanity.
 
