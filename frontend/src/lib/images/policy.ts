@@ -1,4 +1,4 @@
-export interface ImagePlan{url:string;alt:string;credit:string;license:string;sourceUrl?:string;licenseUrl?:string;provider?:'pexels';kind:'source'|'illustration'}
+export interface ImagePlan{url:string;alt:string;credit:string;license:string;sourceUrl?:string;licenseUrl?:string;provider?:'pexels'|'commons';kind:'source'|'illustration'}
 // Media reuse is reviewed per asset. RSS/OG availability alone is not permission.
 export const imageVersion='source-first-v6';
 const ethereumSource='https://blog.ethereum.org/en/2026/10/22/glamsterdam-hoodi-delay';

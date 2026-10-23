@@ -176,7 +176,7 @@ it('refuses unexpected uploaded assets without patching or holding a published j
  const {env,store,item}=await setup();const lease=await store.claim();await store.published(item.fingerprint,lease!.lease_token,'expected');
  const doc={_id:'story-'+item.fingerprint,_type:'article',_rev:'r',publicationState:'published',automation:{candidateHash:'expected'},translations:{en:{title:'Title',slug:{current:'published'}}}};
  const get=vi.spyOn(globalThis,'fetch').mockImplementation(async url=>Response.json(String(url).includes('/data/query/')?{result:doc}:{document:{_id:'file-unknown-pdf'}}));
- try{expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/attach-image',{},admin),env)).status).toBe(502);expect(get).toHaveBeenCalledTimes(2);expect((await store.get(item.fingerprint))?.state).toBe('published');}finally{get.mockRestore();}
+ try{expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/attach-image',{},admin),env)).status).toBe(502);expect(get).toHaveBeenCalledTimes(4);expect(get.mock.calls.some(([url])=>String(url).includes('/mutate/'))).toBe(false);expect((await store.get(item.fingerprint))?.state).toBe('published');}finally{get.mockRestore();}
 });
 
 it('backs off a failed image so a later published article can proceed on the next tick',async()=>{

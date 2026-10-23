@@ -13,7 +13,7 @@ export function sanityApi(env:Env){
   if(!r.ok)throw new Refused(502,'CMS request failed');return JSON.parse(await limitedText(r,262144));
  }
  const read=async(id:string)=>(await query('*[_id == $id][0]',{id})).result;
- const usedImageSources=async():Promise<string[]>=>{const rows=(await query('*[_type == "article" && publicationState == "published" && defined(mainImage.sourceUrl)].mainImage.sourceUrl',{})).result;return Array.isArray(rows)?rows.filter((url:unknown):url is string=>typeof url==='string'&&url.startsWith('https://www.pexels.com/photo/')):[];};
+ const usedImageSources=async():Promise<string[]>=>{const rows=(await query('*[_type == "article" && publicationState == "published" && defined(mainImage.sourceUrl)].mainImage.sourceUrl',{})).result;return Array.isArray(rows)?rows.filter((url:unknown):url is string=>typeof url==='string'&&(url.startsWith('https://www.pexels.com/photo/')||url.startsWith('https://commons.wikimedia.org/wiki/File:'))):[];};
  const mutate=async(mutations:unknown[])=>call(base+'/mutate/production?returnDocuments=true',{mutations});
  async function create(doc:Record<string,any>){
   const existing=await read(doc._id);
