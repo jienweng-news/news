@@ -1,5 +1,7 @@
 # News activation — 2026-10-23
 
+Later newsletter/analytics/source-policy/monitoring updates: [2026-10-23-launch-follow-up.md](2026-10-23-launch-follow-up.md). The observations below record initial activation.
+
 Current live news service: https://tokenonair.com/en/ . This record supersedes historical paused/empty-state notes for the news workflow. Newsletter signup remains separately gated; no new email or broadcast was sent.
 
 ## Verified operating state

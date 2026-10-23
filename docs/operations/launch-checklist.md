@@ -1,6 +1,6 @@
 # Token on Air launch checklist
 
-Updated 2026-10-23. News automation live status: [news-activation-execution-record.md](news-activation-execution-record.md); this supersedes older empty/paused entries below. This distinguishes a deployed reader site from an operational publication. Do not mark external acceptance complete merely because code/tests pass.
+Updated 2026-10-23. Latest newsletter/analytics/source/monitoring evidence: [2026-10-23-launch-follow-up.md](2026-10-23-launch-follow-up.md). News automation live status: [news-activation-execution-record.md](news-activation-execution-record.md); this supersedes older empty/paused entries below. This distinguishes a deployed reader site from an operational publication. Do not mark external acceptance complete merely because code/tests pass.
 
 ## Reader website
 - [x] Astro/Sanity reader site, approved Persona visual direction, full-width masthead/newsletter/footer.
@@ -28,7 +28,7 @@ Updated 2026-10-23. News automation live status: [news-activation-execution-reco
 - [x] Turnstile site/secret variables present in Vercel Production (hostname/token acceptance still pending). Cloudflare Turnstile → Add widget, Managed, tokenonair.com and www.tokenonair.com, pre-clearance off; save Site key as PUBLIC_TURNSTILE_SITE_KEY and Secret key as TURNSTILE_SECRET_KEY (sensitive) in Vercel Production.
 - [x] Kit V4 accepted the saved API key; form10082025 exists; created and verified custom field newsletter_language on2026-10-22 through an authenticated temporary Vercel check.
 - [x] Owner confirms Kit sending domain verified on2026-10-22; public DMARC and Kit DKIM selector resolve. Actual inbox delivery remains separate acceptance.
-- [ ] Complete mailing address/footer settings in Kit with the operator's actual details; no address invented.
+- [x] Owner confirms real postal mailing address/footer configured privately in Kit on2026-10-23; no address recorded here.
 - [ ] Authorized test: Kit accepted one signup for hello@tokenonair.com using the actual server signup implementation, with en persisted to newsletter_language. Owner confirmed inbox receipt and clicked confirmation on2026-10-22. Unsubscribe/suppression and browser Turnstile acceptance remain pending. No broadcast sent.
 - [ ] Only after acceptance set KIT_SETUP_VERIFIED=1 and NEWSLETTER_ENABLED=1, redeploy and smoke-test live. Until then signup returns unavailable, never false success.
 - [ ] Digest scheduling/content template: intentionally deferred until publication is stable; no campaign sent.
@@ -98,7 +98,8 @@ Updated 2026-10-23. News automation live status: [news-activation-execution-reco
 - [x] Real bundled workerd+D1 tests cover migrations, restart persistence, simultaneous claims, signed publishing/replay, dates, correction/withdrawal and bounded50-item scheduled RSS ingestion/deduplication. All CMS traffic intercepted; no external news written.
 - [x] Fresh review findings fixed with failing-then-passing tests: atomic feed insert stays within free-query budget; persistent slug reservations cover delayed remote commit races.
 - [x] Cloudflare device login succeeded; single owner account selected. Dedicated APAC D1 created and all3migrations applied; Worker deployed paused at https://token-on-air-news.reallyhat.workers.dev. Separate admin/writer secrets installed; live authentication/paused checks passed. No paid upgrade performed.
-- [ ] Existing account Free subscription label confirmation in owner dashboard (billing-read scope unavailable), production CPU and workload quota acceptance before activation.
+- [x] Owner confirms Workers Free in the dashboard on2026-10-23.
+- [ ] Production CPU and workload quota telemetry acceptance remains unverified.
 - [ ] Production CPU telemetry/free-quota acceptance, source enablement, secure secrets/editor setup, Dots/tool connection and independent verifier. Large feeds exceeding64KiB or50freshitems currently back off; no claim of ingesting all original sources.
 
 - [x] Sanity connection acceptance:stable Cloudflare version ede401a4-edf5-48e4-86d7-171ba864ea5e, encrypted token retained, editor reference configured. Setup routes removed and verified404; live Worker remains paused with zerojobs/25disabledsources.

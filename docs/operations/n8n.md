@@ -58,7 +58,8 @@ Verified 2026-10-23:
 - [x] Unit/integration tests and automation type check pass; restart persistence checked.
 - [x] Owner completed account setup; public settings now show setup=false (SMTP password recovery still unconfigured).
 - [x] Source audit and scoped launch decisions recorded in source-review.md: five primary article inputs,17additional private lead-only monitors,3held sources. Remote activation is performed only after final checks; RSS access is not a blanket reuse license.
-- [ ] Verify actual Cloudflare plan and production CPU in dashboard; host XML parsing now avoids the Worker large-feed parsing limit. No upgrade was made.
+- [x] Owner confirmed Workers Free in the dashboard on2026-10-23; no upgrade made.
+- [ ] Verify production CPU/quota telemetry; host XML parsing avoids the Worker large-feed parsing limit.
 - [x] Real-source Ethereum postponement and DeepMind forest-mapping dry-runs validated all three editions, signed verification, attribution and dates without publishing.
 - [x] Encrypted online SQLite backup and isolated restore passed; private Drive copy verified. Local daily systemd timer and daily T3/Drive upload configured; see n8n-backups.md.
 - [x] Coordinator `NEWSROOM_ENABLED=1`, Worker `AUTOMATION_ENABLED=1`, `AUTOMATION_KILL_SWITCH=0`; ONLY the queue workflow is published after real-source checks. Never publish the synthetic smoke workflow on a timer. No per-story owner approval is required once the verified automatic path is activated.
