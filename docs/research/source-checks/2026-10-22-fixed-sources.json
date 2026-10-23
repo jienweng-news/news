@@ -410,7 +410,7 @@
       "notes": "Discovery only pending terms review; syndication is not licensed.",
       "selected_for_fixed_list": true,
       "automation_enabled": false,
-      "rights_status": "terms_review_pending",
+      "rights_status": "automated_collection_restricted",
       "allowed_reuse": "none_granted",
       "checked_at_utc": "2026-10-22T08:19:55.363757+00:00",
       "http_status": 200,
@@ -422,12 +422,12 @@
       "feed_format": "rss",
       "item_count_observed": 25,
       "feed_verified": true,
-      "monitoring_enabled": true,
+      "monitoring_enabled": false,
       "review": {
-        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
-        "scope": "private RSS metadata leads only; no automated article derivation",
-        "terms_url": null,
-        "decision": "private-metadata-only"
+        "checked_at_utc": "2026-10-23T09:55:00Z",
+        "scope": "Automated access requires written permission; no ongoing automated monitoring or article derivation.",
+        "terms_url": "https://www.coindesk.com/terms",
+        "decision": "held-automated-collection-restriction"
       }
     },
     {
@@ -440,7 +440,7 @@
       "notes": "No paywall bypass; use accessible primary evidence.",
       "selected_for_fixed_list": true,
       "automation_enabled": false,
-      "rights_status": "terms_review_pending",
+      "rights_status": "automated_collection_restricted",
       "allowed_reuse": "none_granted",
       "checked_at_utc": "2026-10-22T08:19:55.398415+00:00",
       "http_status": 200,
@@ -452,12 +452,12 @@
       "feed_format": "rss",
       "item_count_observed": 18,
       "feed_verified": true,
-      "monitoring_enabled": true,
+      "monitoring_enabled": false,
       "review": {
-        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
-        "scope": "private RSS metadata leads only; no automated article derivation",
-        "terms_url": null,
-        "decision": "private-metadata-only"
+        "checked_at_utc": "2026-10-23T09:52:00Z",
+        "scope": "No ongoing automated collection or article derivation pending explicit permission; existing public source links are not a license.",
+        "terms_url": "https://www.theblock.co/terms-service",
+        "decision": "held-automated-collection-restriction"
       }
     },
     {
@@ -470,7 +470,7 @@
       "notes": "Filter news from sponsored content; discovery is not reuse permission.",
       "selected_for_fixed_list": true,
       "automation_enabled": false,
-      "rights_status": "terms_review_pending",
+      "rights_status": "automated_collection_restricted",
       "allowed_reuse": "none_granted",
       "checked_at_utc": "2026-10-22T08:19:55.402475+00:00",
       "http_status": 200,
@@ -482,12 +482,12 @@
       "feed_format": "rss",
       "item_count_observed": 39,
       "feed_verified": true,
-      "monitoring_enabled": true,
+      "monitoring_enabled": false,
       "review": {
-        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
-        "scope": "private RSS metadata leads only; no automated article derivation",
-        "terms_url": null,
-        "decision": "private-metadata-only"
+        "checked_at_utc": "2026-10-23T09:58:00Z",
+        "scope": "Written permission required for automated collection/caching; hold ongoing collection and article derivation.",
+        "terms_url": "https://decrypt.co/terms-of-service",
+        "decision": "held-automated-collection-restriction"
       }
     },
     {
@@ -530,7 +530,7 @@
       "notes": "Atom feed; allow only verified redirect to blockworks.com.",
       "selected_for_fixed_list": true,
       "automation_enabled": false,
-      "rights_status": "terms_review_pending",
+      "rights_status": "automated_collection_restricted",
       "allowed_reuse": "none_granted",
       "checked_at_utc": "2026-10-22T08:19:55.443882+00:00",
       "http_status": 200,
@@ -542,12 +542,12 @@
       "feed_format": "atom",
       "item_count_observed": 50,
       "feed_verified": true,
-      "monitoring_enabled": true,
+      "monitoring_enabled": false,
       "review": {
-        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
-        "scope": "private RSS metadata leads only; no automated article derivation",
-        "terms_url": null,
-        "decision": "private-metadata-only"
+        "checked_at_utc": "2026-10-23T09:52:00Z",
+        "scope": "No ongoing automated collection or article derivation pending explicit permission; existing public source links are not a license.",
+        "terms_url": "https://blockworks.com/terms",
+        "decision": "held-automated-collection-restriction"
       }
     },
     {

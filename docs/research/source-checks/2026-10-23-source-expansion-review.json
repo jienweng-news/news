@@ -1,0 +1,142 @@
+{
+  "checked_at_utc": "2026-10-23T09:58:00Z",
+  "scope": "Second-pass eligibility review of the17previous private monitors. No new publication source enabled. Facts and permissions are separate; this is an operational policy decision, not legal certification.",
+  "sources": [
+    {
+      "id": "openai",
+      "reference": "https://openai.com/policies/terms-of-use/",
+      "finding": "Services terms are not a blanket license for company blog republication; commercial article derivation remains unapproved.",
+      "next_action": "Obtain blog/RSS reuse clarification; use primary announcements only after scoped review.",
+      "monitoring_enabled": true,
+      "automation_enabled": false
+    },
+    {
+      "id": "huggingface",
+      "reference": "https://huggingface.co/terms-of-service",
+      "finding": "User repository licenses and Hugging Face proprietary blog rights differ; no general blog republication grant established.",
+      "next_action": "Review each relevant repository/paper license and blog attribution scope.",
+      "monitoring_enabled": true,
+      "automation_enabled": false
+    },
+    {
+      "id": "microsoft-research",
+      "reference": "https://www.microsoft.com/en-us/legal/intellectualproperty/copyright/permissions",
+      "finding": "Copyright permissions are conditional and do not grant a blanket commercial article translation license.",
+      "next_action": "Use an explicit permitted category/license or obtain permission.",
+      "monitoring_enabled": true,
+      "automation_enabled": false
+    },
+    {
+      "id": "nvidia",
+      "reference": "https://www.nvidia.com/en-eu/about-nvidia/terms-of-service/",
+      "finding": "Materials license is restricted; automated access has a purposely-made-available exception. RSS metadata monitoring is retained under that exception; article derivation unapproved.",
+      "next_action": "Clarify commercial original-reporting/evidence access scope; no image reuse.",
+      "monitoring_enabled": true,
+      "automation_enabled": false
+    },
+    {
+      "id": "chainalysis",
+      "reference": "https://www.chainalysis.com/legal/",
+      "finding": "Legal index and product AUP do not establish a license for public blog/report derivation. Product-service permissions cannot be treated as a blog license.",
+      "next_action": "Ask for blog/RSS-specific reuse scope; check any individual report license.",
+      "monitoring_enabled": true,
+      "automation_enabled": false
+    },
+    {
+      "id": "techcrunch-ai",
+      "reference": "https://techcrunch.com/rss-terms-of-use/",
+      "finding": "RSS permits attributed feed display; modifications and advertising restricted.",
+      "next_action": "Keep private leads only.",
+      "monitoring_enabled": true,
+      "automation_enabled": false
+    },
+    {
+      "id": "the-decoder",
+      "reference": "https://the-decoder.com/tos/",
+      "finding": "Linked terms discuss contracted services; footer reserves rights. No news republication grant established; collector also currently backs off.",
+      "next_action": "Resolve news-specific reuse rights and fetch policy.",
+      "monitoring_enabled": true,
+      "automation_enabled": false
+    },
+    {
+      "id": "coindesk",
+      "reference": "https://www.coindesk.com/terms",
+      "finding": "Automated access requires written permission.",
+      "next_action": "Hold ongoing monitoring and article generation pending permission.",
+      "monitoring_enabled": false,
+      "automation_enabled": false
+    },
+    {
+      "id": "the-block",
+      "reference": "https://www.theblock.co/terms-service",
+      "finding": "Terms prohibit systematic automated collection. Limited attributed excerpt permission does not override that restriction.",
+      "next_action": "Hold ongoing monitoring and article generation pending permission.",
+      "monitoring_enabled": false,
+      "automation_enabled": false
+    },
+    {
+      "id": "decrypt",
+      "reference": "https://decrypt.co/terms-of-service",
+      "finding": "Terms require prior written consent for automated collection and restrict content caching.",
+      "next_action": "Hold ongoing monitoring and article generation pending permission.",
+      "monitoring_enabled": false,
+      "automation_enabled": false
+    },
+    {
+      "id": "unchained",
+      "reference": "https://unchainedcrypto.com/terms/",
+      "finding": "Correct publisher is Laura Shin Media/unchainedcrypto.com, not unchained.com. Linked terms address privacy and do not grant article reuse rights.",
+      "next_action": "Seek permission or scoped editorial-use review for the actual publisher.",
+      "monitoring_enabled": true,
+      "automation_enabled": false
+    },
+    {
+      "id": "blockworks",
+      "reference": "https://blockworks.com/terms",
+      "finding": "Terms prohibit systematic automated collection and restrict commercial reuse.",
+      "next_action": "Hold ongoing monitoring and article generation pending permission.",
+      "monitoring_enabled": false,
+      "automation_enabled": false
+    },
+    {
+      "id": "ithome",
+      "reference": "https://www.ithome.com.tw/aboutus/",
+      "finding": "Publisher explicitly directs headline/summary/body/photo/chart reuse enquiries to its contact; no authorization obtained.",
+      "next_action": "Request reuse scope before publication; private feed leads only.",
+      "monitoring_enabled": true,
+      "automation_enabled": false
+    },
+    {
+      "id": "inside",
+      "reference": "https://www.inside.com.tw/",
+      "finding": "Homepage reviewed; attempted privacy endpoint unavailable. No commercial article reuse grant established.",
+      "next_action": "Locate applicable reuse terms or seek permission; unknown remains unknown.",
+      "monitoring_enabled": true,
+      "automation_enabled": false
+    },
+    {
+      "id": "techorange",
+      "reference": "https://techorange.com/about-us/",
+      "finding": "Current website redirects from buzzorange.com to techorange.com; company/about page does not establish reuse permission.",
+      "next_action": "Review correct current-domain terms and feed scope before article derivation.",
+      "monitoring_enabled": true,
+      "automation_enabled": false
+    },
+    {
+      "id": "grenade",
+      "reference": "https://grenade.tw/privacy-policy/",
+      "finding": "Privacy policy is not a content license; footer reserves rights. Collector currently in fetch/policy backoff.",
+      "next_action": "Clarify commercial reuse and resolve ordinary feed access; do not bypass restrictions.",
+      "monitoring_enabled": true,
+      "automation_enabled": false
+    },
+    {
+      "id": "arxiv-ai",
+      "reference": "https://info.arxiv.org/help/license/index.html",
+      "finding": "All metadata is CC0; paper licenses vary by version. Metadata rights do not establish rights to every full paper.",
+      "next_action": "Strongest expansion candidate: implement per-paper license/version checks and preprint labeling before automatic article generation.",
+      "monitoring_enabled": true,
+      "automation_enabled": false
+    }
+  ]
+}
