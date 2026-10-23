@@ -37,3 +37,10 @@ About release checks:225tests/35files pass; frontend72files0errors/warnings/hint
 Owner requests advertising enquiries by email or contact form, with services listed. Use the already owner-supplied/Zoho-verified hello@tokenonair.com email route, without introducing an unconnected form. Dedicated localized Advertise page lists website advertising, labelled sponsored stories, labelled project announcements and explicitly future newsletter sponsorship (digest has not started). A visible email address and primary mailto action prefill a localized subject and service/language/date/budget details; contact and editorial policy links remain. No invented prices, audience metrics, partners, guaranteed placements or send actions. Existing page baseline failed the direct email check. New en/zh/zh-cn routes HTTP200 with4service terms, correctly encoded recipient/subject/body and localized policy/contact links. Desktop1440 rendered and narrow320 measured without overflow; scoped layout detector clean. Frontend73files0diagnostics/build pass.
 
 Advertise final fresh review clean: no material regressions, semantic/accessibility defects or misleading claims. Existing en About/policy/contact/privacy/terms/disclaimer routes6/6 HTTP200. No email was sent; mailto recipient and encoded enquiry fields were verified as links. Ready for existing authorized production deployment.
+
+
+## Privacy language removal
+
+Owner explicitly requests removal of the Bahasa Malaysia privacy notice. Remove its component, import and jump link from all locale privacy pages; preserve the English/Traditional Chinese/Simplified Chinese privacy content and consent controls. Date the changed privacy page2026-10-23 and update the launch checklist. Local HTTP baseline reproduced the rendered Malay section before removal.
+
+Privacy removal verification: en/zh/zh-cn local routes200 with no Malay heading, anchor, language attribute or text; edition/analytics preference, contact and existing disclosures retained. Frontend72files0diagnostics and build pass. No privacy-control behavior changed.

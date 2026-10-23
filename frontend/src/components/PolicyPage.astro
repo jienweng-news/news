@@ -1,5 +1,4 @@
 ---
-import PrivacyMalay from './PrivacyMalay.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import {t,type Locale} from '../lib/i18n';
 interface Props{locale:Locale;page:'policy'|'privacy'|'contact'|'terms'|'disclaimer'}
@@ -19,6 +18,7 @@ const privacyExtra={
 };
 const paragraphs=page==='terms'||page==='disclaimer'?extra[locale][page]:({en,zh:trad,'zh-cn':simp})[locale][page];
 if(page==='privacy')paragraphs.push(...privacyExtra[locale]);
+const pageUpdatedAt=page==='privacy'?'2026-10-23':'2026-10-22';
 const email=process.env.MAIL_VERIFIED==='1'&&/^[^\s@<>]+@tokenonair\.com$/.test(process.env.PUBLIC_CONTACT_EMAIL||'')?process.env.PUBLIC_CONTACT_EMAIL:undefined;
 ---
-<BaseLayout locale={locale} title={t(locale,page)}><article class="article-page"><header class="article-header"><h1>{t(locale,page)}</h1></header><div class="prose"><p><time datetime="2026-10-22">2026-10-22</time></p>{page==='privacy'&&<p><a href='#bahasa-malaysia' lang='ms'>Bahasa Malaysia</a></p>}{paragraphs.map(p=><p>{p}</p>)}{page==='privacy'&&<PrivacyMalay/>}{['contact','terms','disclaimer'].includes(page)&&(email?<p><a href={`mailto:${email}`}>{email}</a></p>:<p>{locale==='en'?'Verified contact details will appear before launch.':locale==='zh'?'已驗證的聯絡方式將於上線前公布。':'已验证的联系方式将在上线前公布。'}</p>)}</div></article></BaseLayout>
+<BaseLayout locale={locale} title={t(locale,page)}><article class="article-page"><header class="article-header"><h1>{t(locale,page)}</h1></header><div class="prose"><p><time datetime={pageUpdatedAt}>{pageUpdatedAt}</time></p>{paragraphs.map(p=><p>{p}</p>)}{['contact','terms','disclaimer'].includes(page)&&(email?<p><a href={`mailto:${email}`}>{email}</a></p>:<p>{locale==='en'?'Verified contact details will appear before launch.':locale==='zh'?'已驗證的聯絡方式將於上線前公布。':'已验证的联系方式将在上线前公布。'}</p>)}</div></article></BaseLayout>

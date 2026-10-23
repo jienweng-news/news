@@ -7,7 +7,7 @@ Updated 2026-10-23. Latest newsletter/analytics/source/monitoring evidence: [202
 - [x] English, Traditional Chinese and Simplified Chinese routes, edition selection, search, RSS, sitemap and canonical links.
 - [x] Custom newsletter form and accessible native language dropdown; no Kit embed dependency.
 - [x] Consent code: floating first-visit card, equal allow/decline controls, native preferences dialog and footer reopening. Basic GA4 remains unloaded before opt-in; withdrawal stops events and clears applicable GA cookies.
-- [x] About, editorial policy, contact, advertising, privacy, terms and disclaimer pages. Privacy includes Bahasa Malaysia text; this does not add a Malay news edition.
+- [x] About, editorial policy, contact, advertising, privacy, terms and disclaimer pages. Privacy is available in English, Traditional Chinese and Simplified Chinese.
 - [x] Public contact hello@tokenonair.com: owner confirms Zoho send/receive works, 2026-10-22. MAIL_VERIFIED=1 in Vercel Production.
 - [ ] Final policy/operator review: confirm legal operating identity and actual provider retention settings. Pages describe supplied facts, not a claim of legal certification.
 - [ ] Real desktop/mobile keyboard/zoom/overflow and consent browser QA. T3 browser setup approved and completed. Initial live desktop/mobile390px overflow and consent decline/reopen checks passed; full keyboard/zoom and opt-in/revocation acceptance remain pending.
