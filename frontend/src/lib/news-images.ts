@@ -1,9 +1,10 @@
 import type {ArticleCard} from './content/types';
 import type {Locale} from './i18n';
+import {rejectedImageSources} from './images/policy';
 export function storyImage(article:ArticleCard,locale:Locale){
  void locale;
  const media=article.media;
- if(!media||media.credit==='Token on Air'&&media.license.startsWith('Original editorial illustration'))return undefined;
+ if(!media||media.credit==='Token on Air'&&media.license.startsWith('Original editorial illustration')||media.sourceUrl&&rejectedImageSources.some(source=>source===media.sourceUrl))return undefined;
  return media;
 }
 export function storyThumbnail(article:ArticleCard,locale:Locale){

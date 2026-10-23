@@ -2,6 +2,7 @@ import {expect,it} from 'vitest';
 import {normalizeArticle} from '../frontend/src/lib/content/normalize';
 import {rawArticle} from './fixtures/articles';
 import {storyImage,storyThumbnail,shareImage,authorImage,imageCaption,showImageCredit} from '../frontend/src/lib/news-images';
+import {rejectedImageSources} from '../frontend/src/lib/images/policy';
 it('normalizes a supplied author portrait and rejects unsafe URLs',()=>{
  const a=normalizeArticle(rawArticle({author:{name:'jienweng',slug:'jienweng',image:{url:'https://cdn.sanity.io/portrait.jpg',alt:'jienweng'}}}));
  expect(a.author.image?.alt).toBe('jienweng');
@@ -21,6 +22,11 @@ it('does not render old generated editorial artwork as a story photo',()=>{
  expect(storyThumbnail(persisted,'zh')).toBeUndefined();
  const licensed=normalizeArticle(rawArticle({media:{url:'https://cdn.sanity.io/photo.jpg',alt:'Forest',credit:'Photographer',license:'CC BY 4.0'}}));
  expect(storyThumbnail(licensed,'en').url).toBe('https://cdn.sanity.io/photo.jpg');
+});
+it('hides historically mismatched stock photos until an on-topic replacement is ready',()=>{
+ const a=normalizeArticle(rawArticle({media:{url:'https://cdn.sanity.io/images/4k0o7q9m/production/bad.jpg',alt:'NASDAQ stock market displays at Times Square',credit:'Photo by bfishadow on Flickr on Wikimedia Commons',license:'CC BY 2.0',sourceUrl:'https://commons.wikimedia.org/wiki/File:NASDAQ_stock_market_display.jpg'}}));
+ expect(rejectedImageSources).toContain(a.media?.sourceUrl);
+ expect(storyImage(a,'en')).toBeUndefined();
 });
 it('uses a branded avatar until a real portrait is supplied',()=>{
  expect(authorImage({name:'jienweng',slug:'jienweng'}).url).toBe('/brand/editor-avatar.png');

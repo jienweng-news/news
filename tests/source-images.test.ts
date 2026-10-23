@@ -55,6 +55,8 @@ it('turns technology headlines into descriptive stock-photo searches rather than
  expect(pexelsSearchQuery('Google releases global forest typology map','The AI map distinguishes forest types worldwide.')).toBe('forest canopy');
  expect(pexelsSearchQuery('Google reports AI ultrasound study','Pregnancy dating accuracy from fetal ultrasound images.')).toBe('pregnancy ultrasound');
  expect(pexelsSearchQuery('Bitcoin ETF outflows continue','Investors pulled funds from spot Bitcoin products.')).toBe('bitcoin');
+ expect(pexelsSearchQuery('Spot gold slips below $4,000 an ounce','Gold fell as traders took profits.')).toBe('gold bullion bar');
+ expect(pexelsSearchQuery('Cysic plans token burn after bridge security incident','Cross-chain bridge exploit and token burn')).toBe('blockchain bridge security');
 });
 it('selects a relevant, unused Pexels landscape image and retains its required attribution',async()=>{
  const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({photos:[
@@ -78,6 +80,12 @@ it('builds a subject-focused Wikimedia Commons search',()=>{
  expect(commonsSearchQuery('CZ tells founders to execute','Founders should demonstrate results.')).toBe('Changpeng Zhao');
  expect(commonsSearchQuery('Apple edges ahead of Nvidia in market value','Stock market cap rises.')).toBe('stock market trading screen');
  expect(commonsSearchQuery('Trader Killa sees a Bitcoin rebound','BTC market setup')).toBe('bitcoin');
+ expect(commonsSearchQuery('Spot gold slips below $4,000 an ounce','Gold fell as traders took profits.')).toBe('gold bullion bar');
+});
+it('rejects a stock-exchange image as a substitute for gold coverage',async()=>{
+ const photo={title:'File:NASDAQ stock market display.jpg',imageinfo:[{thumburl:'https://upload.wikimedia.org/wikipedia/commons/a/ab/nasdaq.jpg',width:1800,height:1200,descriptionurl:'https://commons.wikimedia.org/wiki/File:NASDAQ_stock_market_display.jpg',extmetadata:{LicenseShortName:{value:'CC BY 4.0'},LicenseUrl:{value:'https://creativecommons.org/licenses/by/4.0/'},Artist:{value:'A. Photographer'},ImageDescription:{value:'Stock market display at NASDAQ.'}}}]};
+ const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({query:{pages:[photo]}}));
+ try{expect(await resolvePublishedImage(undefined,'gold-price','rev','Spot gold slips below $4,000 an ounce','Gold bullion prices fell')).toBeUndefined();}finally{get.mockRestore();}
 });
 it('uses an unused Commons photo only when the metadata allows commercial reuse and attribution',async()=>{
  const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({query:{pages:[
@@ -104,16 +112,26 @@ it('finds a distinct Bitcoin photo for market coverage after rejecting its previ
  try{const plan=await resolvePublishedImage(undefined,'bitcoin-sideways','rev','Yi Lihua says Bitcoin’s sideways trading tests patience','Bitcoin range-bound trading after a pullback',undefined,['https://commons.wikimedia.org/wiki/File:Crypto_Winter-_The_Crypto_Winter_of_2022.jpg']);expect(plan).toMatchObject({provider:'commons',sourceUrl:'https://commons.wikimedia.org/wiki/File:Bitcoin_Medallion_in_Wallet.jpg',credit:'Photo by CryptoWallet.com Images on Wikimedia Commons'});expect(get.mock.calls[0][0]).toContain('gsrsearch=filetype%3Abitmap+bitcoin');}finally{get.mockRestore();}
 });
 it('searches real crypto infrastructure photos for security-incident reporting',()=>{
- expect(commonsSearchQuery('Cysic plans to burn tokens after a bridge security incident','Protocol exploit and token burn')).toBe('cryptocurrency mining machine');
+ expect(commonsSearchQuery('Cysic plans to burn tokens after a bridge security incident','Protocol exploit and token burn')).toBe('blockchain bridge security');
+});
+it('rejects a mining-rig photo as unrelated to a cross-chain bridge incident',async()=>{
+ const photo={title:'File:Rack for FPGA BiXBiT.jpg',imageinfo:[{thumburl:'https://upload.wikimedia.org/wikipedia/commons/a/ab/miners.jpg',width:1800,height:1200,descriptionurl:'https://commons.wikimedia.org/wiki/File:Rack_for_FPGA_BiXBiT.jpg',extmetadata:{LicenseShortName:{value:'CC BY 4.0'},LicenseUrl:{value:'https://creativecommons.org/licenses/by/4.0/'},Artist:{value:'A. Photographer'},ImageDescription:{value:'Mining equipment in a server rack.'}}}]};
+ const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({query:{pages:[photo]}}));
+ try{expect(await resolvePublishedImage(undefined,'cysic-bridge-security','rev','Cysic plans token burn after bridge security incident','Cross-chain bridge exploit and token burn')).toBeUndefined();}finally{get.mockRestore();}
 });
 it('discovers a real Ethereum photograph instead of reusing the source illustration',async()=>{
  const photo={title:'File:Close-up of a physical Ethereum coin (51002904687).jpg',imageinfo:[{thumburl:'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/ethereum.jpg/1280px-ethereum.jpg?utm_source=commons',width:6048,height:4024,descriptionurl:'https://commons.wikimedia.org/wiki/File:Close-up_of_a_physical_Ethereum_coin_(51002904687).jpg',extmetadata:{LicenseShortName:{value:'CC BY 2.0'},LicenseUrl:{value:'https://creativecommons.org/licenses/by/2.0'},Artist:{value:'Ivan Radic'},ImageDescription:{value:'Close-up photograph of a physical Ethereum coin.'}}}]};
  const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({query:{pages:[photo]}}));
  try{const plan=await resolvePublishedImage('https://blog.ethereum.org/en/2026/10/22/glamsterdam-hoodi-delay','ethereum-upgrade','rev','Ethereum postpones Hoodi Glamsterdam upgrade','Ethereum upgrade postponement');expect(plan).toMatchObject({provider:'commons',sourceUrl:'https://commons.wikimedia.org/wiki/File:Close-up_of_a_physical_Ethereum_coin_(51002904687).jpg',credit:'Photo by Ivan Radic on Wikimedia Commons',license:'CC BY 2.0'});expect(String(get.mock.calls[0][0])).toContain('ethereum+coin+close+up');}finally{get.mockRestore();}
 });
-it('skips the rejected historical Crypto Winter artwork and selects a relevant photo',async()=>{
+it('skips the rejected historical artwork and refuses a generic coin photo for bridge-incident coverage',async()=>{
  const bad={title:'File:Crypto Winter - Frozen Cryptocurrencies.jpg',imageinfo:[{thumburl:'https://thumb.wikimedia.org/wikipedia/commons/a/ab/winter.jpg',width:1600,height:900,descriptionurl:'https://commons.wikimedia.org/wiki/File:Crypto_Winter_-_Frozen_Cryptocurrencies.jpg',extmetadata:{LicenseShortName:{value:'CC BY 4.0'},LicenseUrl:{value:'https://creativecommons.org/licenses/by/4.0/'},Artist:{value:'A. Photographer'},ImageDescription:{value:'Cryptocurrency in a winter market, decorative graphic'}}}]};
  const photo={title:'File:Cryptocurrency coin in hand.jpg',imageinfo:[{thumburl:'https://thumb.wikimedia.org/wikipedia/commons/a/ab/crypto.jpg?utm_source=commons',width:1600,height:900,descriptionurl:'https://commons.wikimedia.org/wiki/File:Cryptocurrency_coin_in_hand.jpg',extmetadata:{LicenseShortName:{value:'CC BY 4.0'},LicenseUrl:{value:'https://creativecommons.org/licenses/by/4.0/'},Artist:{value:'B. Photographer'},ImageDescription:{value:'A photograph of a person holding a cryptocurrency token.'}}}]};
  const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({query:{pages:[bad,photo]}}));
- try{const plan=await resolvePublishedImage(undefined,'cysic-bridge-security','rev','Cysic plans token burn after bridge security incident','Cysic plans to burn tokens after a bridge incident',undefined,['https://commons.wikimedia.org/wiki/File:Crypto_Winter_-_Frozen_Cryptocurrencies.jpg']);expect(plan?.sourceUrl).toBe('https://commons.wikimedia.org/wiki/File:Cryptocurrency_coin_in_hand.jpg');expect(plan?.url).toBe('https://thumb.wikimedia.org/wikipedia/commons/a/ab/crypto.jpg');}finally{get.mockRestore();}
+ try{expect(await resolvePublishedImage(undefined,'cysic-bridge-security','rev','Cysic plans token burn after bridge security incident','Cysic plans to burn tokens after a bridge incident',undefined,['https://commons.wikimedia.org/wiki/File:Crypto_Winter_-_Frozen_Cryptocurrencies.jpg'])).toBeUndefined();}finally{get.mockRestore();}
+});
+it('rejects cryptocurrency-law photos for Bitcoin market stories',async()=>{
+ const photo={title:'File:Cryptocurrency Regulation & Laws.jpg',imageinfo:[{thumburl:'https://upload.wikimedia.org/wikipedia/commons/a/ab/laws.jpg',width:1800,height:1200,descriptionurl:'https://commons.wikimedia.org/wiki/File:Cryptocurrency_Regulation_%26_Laws.jpg',extmetadata:{LicenseShortName:{value:'CC BY 2.0'},LicenseUrl:{value:'https://creativecommons.org/licenses/by/2.0/'},Artist:{value:'A. Photographer'},ImageDescription:{value:'Cryptocurrency medallions and a judge gavel for an article on cryptocurrency laws.'}}}]};
+ const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({query:{pages:[photo]}}));
+ try{expect(await resolvePublishedImage(undefined,'bitcoin-range','rev','Trader Killa sees Bitcoin range forming around $80,000','Bitcoin price action and range trading')).toBeUndefined();}finally{get.mockRestore();}
 });

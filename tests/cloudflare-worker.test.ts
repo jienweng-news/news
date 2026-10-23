@@ -213,7 +213,7 @@ it('selects only reviewed source imagery and versions managed upgrades without o
  }));
  try{
   const path='/v1/jobs/'+item.fingerprint+'/attach-image';expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);
-  expect(doc.mainImage).toMatchObject({credit:'Photo by Ivan Radic on Wikimedia Commons',license:'CC BY 2.0',sourceUrl:'https://commons.wikimedia.org/wiki/File:Close-up_of_a_physical_Ethereum_coin_(51002904687).jpg',licenseUrl:'https://creativecommons.org/licenses/by/2.0',generatedVersion:'source-first-v7-real-images'});
+  expect(doc.mainImage).toMatchObject({credit:'Photo by Ivan Radic on Wikimedia Commons',license:'CC BY 2.0',sourceUrl:'https://commons.wikimedia.org/wiki/File:Close-up_of_a_physical_Ethereum_coin_(51002904687).jpg',licenseUrl:'https://creativecommons.org/licenses/by/2.0',generatedVersion:'source-first-v8-topic-relevance'});
   expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);expect(uploads).toBe(1);
  }finally{vi.unstubAllGlobals();}
 });

@@ -23,6 +23,8 @@ export function parsePanewsFeedImage(xml:string,articleUrl:string):string|undefi
 const panewsArticleHost=(url:URL)=>(url.hostname==='www.panewslab.com'&&/^\/(?:en|zh)\/articles\/[a-f0-9-]{20,64}$/.test(url.pathname))||(['panews.io','www.panews.io'].includes(url.hostname)&&/^\/(?:articles|(?:en|zh)\/articles)\/[a-f0-9-]{20,64}$/.test(url.pathname));
 export function pexelsSearchQuery(title:string,summary=''){
  const text=`${title} ${summary}`.toLowerCase();
+ if(/gold|bullion|precious metal/.test(text))return 'gold bullion bar';
+ if(/bridge|hack|exploit|security incident|unauthorized mint|attack|breach/.test(text)&&/crypto|cryptocurr|blockchain|token|on-chain|cross-chain/.test(text))return 'blockchain bridge security';
  if(/forest|satellite|earth observation|land cover|climate|ecosystem|wildfire|habitat|biodiversity/.test(text))return 'forest canopy';
  if(/ultrasound|pregnan|fetal|maternal|medical|healthcare|clinical|patient|diagnos|hospital|biomedical/.test(text))return 'pregnancy ultrasound';
  if(/semiconductor|memory chip|\bhbm\b|wafer|chip|foundry|gpu|processor/.test(text))return 'semiconductor chip';
@@ -37,6 +39,8 @@ export function pexelsSearchQuery(title:string,summary=''){
 }
 export function commonsSearchQuery(title:string,summary=''){
  const text=`${title} ${summary}`.toLowerCase();
+ if(/gold|bullion|precious metal/.test(text))return 'gold bullion bar';
+ if(/bridge|hack|exploit|security incident|unauthorized mint|attack|breach/.test(text)&&/crypto|cryptocurr|blockchain|token|on-chain|cross-chain/.test(text))return 'blockchain bridge security';
  if(/forest|satellite|earth observation|land cover|climate|ecosystem|wildfire|habitat|biodiversity/.test(text))return 'forest canopy';
  if(/ultrasound|pregnan|fetal|maternal/.test(text))return 'ultrasound scan fetal';
  if(/medical|healthcare|clinical|patient|diagnos|hospital|biomedical/.test(text))return 'medical ultrasound examination';
@@ -58,6 +62,10 @@ const metadataText=(value:string|undefined)=>value?.replace(/<script\b[^>]*>[\s\
 const commonsLicense=(value:string)=>/^(?:CC BY [1-4](?:\.0)?|CC0(?: 1\.0)?)$/i.test(value.trim());
 function commonsRelevant(topic:string,asset:string){
  if(/prompt:|image for blogs|graphic|illustration|infographic|digital art|computer-generated|concept art|rendered|clipart|vector image|ai-generated/.test(asset))return false;
+ if(/bridge|hack|exploit|security incident|unauthorized mint|attack|breach/.test(topic)&&/crypto|cryptocurr|blockchain|token|on-chain|cross-chain/.test(topic))return /blockchain|crypto|cryptocurr|digital asset/.test(asset)&&/bridge|security|exploit|hack|attack|incident/.test(asset)&&!/mining|miner|gpu farm/.test(asset);
+ if(/gold|bullion|precious metal/.test(topic))return /gold|bullion|precious metal/.test(asset)&&!/stock market|stock exchange|nasdaq/.test(asset);
+ if(/\bbitcoin\b|\bbtc\b/.test(topic))return /bitcoin|\bbtc\b|bitcoin coin|digital currency/.test(asset)&&!/regulation|regulatory|laws?|gavel/.test(asset);
+ if(/\bethereum\b|\beth\b/.test(topic))return /ethereum|\beth\b|ether coin/.test(asset);
  const patterns:[RegExp,RegExp][]=[
   [/forest|satellite|earth observation|land cover|climate|ecosystem|wildfire|habitat|biodiversity/,/forest|woodland|tree|canopy|rainforest/],
   [/ultrasound|pregnan|fetal|maternal|medical|healthcare|clinical|patient|diagnos|hospital|biomedical/,/ultrasound|sonogram|fetal|pregnan|obstetric|medical/],
