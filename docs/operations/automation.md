@@ -2,7 +2,7 @@
 
 Implemented local components: bounded RSS/Atom parsing, reviewed-source registry gate, pinned public-IPv4 HTTPS fetching with checked redirects, conditional polling/backoff, 48-hour lookback, durable SQLite queue, five-attempt retry limit, leases, private Dots work-package export, signed-candidate validation, idempotent Sanity create, revision-checked corrections, withdrawal and operator kill switch. No public CMS mutation endpoint exists.
 
-**Current state: disabled, paused, zero enabled sources. No live CMS write or Dots connection has been verified.**
+**Current state: disabled, paused, zero enabled sources. Cloudflare Worker token read/write capability and jienweng editor record are verified; no live article publication, Dots connection or independent semantic verifier has been accepted.**
 
 ## Deployment boundary
 

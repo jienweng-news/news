@@ -47,7 +47,8 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 ## Newsroom and 24/7 publishing
 - [x] Sanity public dataset reads work; honest empty states when no articles exist.
 - [x] Private queue, source registry, duplicate detection, publish/correct/withdraw commands and independent signed-validation gate implemented and locally tested.
-- [ ] Sanity editor record for jienweng, deployed/private Studio access and scoped worker write credential.
+- [x] Sanity Worker secret present; real write capability verified through editor setup. Author editor-jienweng created with owner-supplied name/slug and no invented bio; Worker editor reference configured. No article created.
+- [ ] Deployed/private Studio access and independent verifier/Dots publication acceptance.
 - [ ] First original, source-attributed multilingual stories with licensed media. No inventory fabricated to fill the design.
 - [ ] Live publication → correction → withdrawal checked in pages/search/RSS/sitemap after cache TTL.
 - [ ] Dots connection: owner has only the ChatGPT app interface; no server API/webhook was supplied. This is not a verified 24/7 backend. Choose a supported callable integration or an explicit manual handoff before connecting it.
@@ -99,3 +100,5 @@ Updated 2026-10-22. This distinguishes a deployed reader site from an operationa
 - [x] Cloudflare device login succeeded; single owner account selected. Dedicated APAC D1 created and all3migrations applied; Worker deployed paused at https://token-on-air-news.reallyhat.workers.dev. Separate admin/writer secrets installed; live authentication/paused checks passed. No paid upgrade performed.
 - [ ] Existing account Free subscription label confirmation in owner dashboard (billing-read scope unavailable), production CPU and workload quota acceptance before activation.
 - [ ] Production CPU telemetry/free-quota acceptance, source enablement, secure secrets/editor setup, Dots/tool connection and independent verifier. Large feeds exceeding64KiB or50freshitems currently back off; no claim of ingesting all original sources.
+
+- [x] Sanity connection acceptance:stable Cloudflare version ede401a4-edf5-48e4-86d7-171ba864ea5e, encrypted token retained, editor reference configured. Setup routes removed and verified404; live Worker remains paused with zerojobs/25disabledsources.
