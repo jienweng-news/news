@@ -1,6 +1,6 @@
 # Token on Air launch checklist
 
-Updated 2026-10-22. This distinguishes a deployed reader site from an operational publication. Do not mark external acceptance complete merely because code/tests pass.
+Updated 2026-10-23. News automation live status: [news-activation-execution-record.md](news-activation-execution-record.md); this supersedes older empty/paused entries below. This distinguishes a deployed reader site from an operational publication. Do not mark external acceptance complete merely because code/tests pass.
 
 ## Reader website
 - [x] Astro/Sanity reader site, approved Persona visual direction, full-width masthead/newsletter/footer.

@@ -1,6 +1,6 @@
 # Launch readiness and service acceptance
 
-Current execution status and owner actions: [launch-checklist.md](launch-checklist.md). This checklist supersedes older setup-status wording below.
+Historical setup notes follow. For the latest news automation status see [news-activation-execution-record.md](news-activation-execution-record.md). Current execution status and owner actions: [launch-checklist.md](launch-checklist.md). This checklist supersedes older setup-status wording below.
 
 Local implementation is not production activation. Run `npm run preflight` for redacted missing-config checks; `-- --require-ready` exits nonzero unless all operator attestations are set. Attestations document evidence; setting a flag is not evidence itself.
 
