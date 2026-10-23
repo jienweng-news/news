@@ -13,3 +13,7 @@ it('keeps linked image attribution outside story links',async()=>{
   visit(ast);
  }
 });
+it('removes the footer editor credit while retaining its privacy controls and policy navigation',async()=>{
+ const text=await readFile('frontend/src/layouts/BaseLayout.astro','utf8');const footer=text.slice(text.indexOf('<footer'),text.indexOf('</footer>'));
+ expect(footer).not.toContain('jienweng');expect(footer).toContain('footer-statement');expect(footer).toContain('<Analytics');expect(footer).toContain('footer-policies');
+});
