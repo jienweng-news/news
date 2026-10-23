@@ -44,3 +44,7 @@ Advertise final fresh review clean: no material regressions, semantic/accessibil
 Owner explicitly requests removal of the Bahasa Malaysia privacy notice. Remove its component, import and jump link from all locale privacy pages; preserve the English/Traditional Chinese/Simplified Chinese privacy content and consent controls. Date the changed privacy page2026-10-23 and update the launch checklist. Local HTTP baseline reproduced the rendered Malay section before removal.
 
 Privacy removal verification: en/zh/zh-cn local routes200 with no Malay heading, anchor, language attribute or text; edition/analytics preference, contact and existing disclosures retained. Frontend72files0diagnostics and build pass. No privacy-control behavior changed.
+
+## PANews image correction
+
+Owner rejected the generic PANews Flash News image and public “PANews · Used with permission” caption. Inspection of Sanity and each of the six matching PANews article pages found the RSS image was a shared generic banner; five article bodies contain no image, and one contains two. Select only an allowlisted image embedded in that exact story body; use the story-specific Token on Air illustration if the post itself has no image. Hide PANews image credit and permission wording publicly. Preserve manual Sanity image choices. Tests cover body-image selection, out-of-body/unsafe image rejection, source-page redirects, illustration fallback, and private-only PANews image metadata.

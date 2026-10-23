@@ -1,7 +1,7 @@
 import {expect,it} from 'vitest';
 import {normalizeArticle} from '../frontend/src/lib/content/normalize';
 import {rawArticle} from './fixtures/articles';
-import {storyImage,shareImage,authorImage,imageCaption} from '../frontend/src/lib/news-images';
+import {storyImage,shareImage,authorImage,imageCaption,showImageCredit} from '../frontend/src/lib/news-images';
 it('normalizes a supplied author portrait and rejects unsafe URLs',()=>{
  const a=normalizeArticle(rawArticle({author:{name:'jienweng',slug:'jienweng',image:{url:'https://cdn.sanity.io/portrait.jpg',alt:'jienweng'}}}));
  expect(a.author.image?.alt).toBe('jienweng');
@@ -19,6 +19,7 @@ it('uses a branded avatar until a real portrait is supplied',()=>{
 });
 
 it('preserves author and licence attribution at every licensed image placement',()=>{const a=normalizeArticle(rawArticle({media:{url:'https://cdn.sanity.io/photo.jpg',alt:'Map',credit:'Original photographer',license:'CC BY 4.0'}}));expect(imageCaption(a)).toBe('Original photographer · CC BY 4.0');expect(imageCaption({...a,media:undefined})).toBeUndefined()});
+it('keeps PANews permission and credit details out of public image captions',()=>{const a=normalizeArticle(rawArticle({media:{url:'https://cdn.sanity.io/photo.jpg',alt:'Map',credit:'PANews',license:'Used with permission',sourceUrl:'https://www.panewslab.com/en/articles/abc'}}));expect(showImageCredit(a.media!)).toBe(false);expect(imageCaption(a)).toBeUndefined();});
 it('retains safe source and license links for image attribution',()=>{
  const a=normalizeArticle(rawArticle({media:{url:'https://cdn.sanity.io/photo.jpg',alt:'Image',credit:'Foundation',license:'CC BY 4.0',sourceUrl:'https://blog.ethereum.org/',licenseUrl:'https://creativecommons.org/licenses/by/4.0/'}}));
  expect(a.media).toMatchObject({sourceUrl:'https://blog.ethereum.org/',licenseUrl:'https://creativecommons.org/licenses/by/4.0/'});

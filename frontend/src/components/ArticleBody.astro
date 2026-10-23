@@ -1,6 +1,7 @@
 ---
 import ImageCredit from './ImageCredit.astro';
 import {presentArticleBody,sourceLabel,publicArticleSources} from '../lib/article-presentation';
+import {showImageCredit} from '../lib/news-images';
 import { PortableText } from 'astro-portabletext';
 import {t,localePath,type Locale} from '../lib/i18n';
 import type { Article } from '../lib/content/types';
@@ -19,7 +20,7 @@ const creditHeading={en:'Attribution & licence',zh:'署名與授權','zh-cn':'�
   {article.previewOnly && <aside class="preview-notice" data-preview-notice><strong>Private editorial preview</strong> — unpublished changes may appear here.</aside>}
   <header class="article-header"><div class="eyebrow"><span class:list={['section-label', article.section]}>{t(locale,article.section)}</span><span>{t(locale,article.format)}</span></div><h1>{article.title}</h1><p class="article-deck">{article.summary}</p><ArticleMeta article={article} locale={locale} /></header>
   <Disclosure article={article} locale={locale} />
-  <figure class="article-hero"><img src={image.url} alt={image.alt} width="1200" height="630" fetchpriority="high" /><ImageCredit image={image}/></figure>
+  <figure class="article-hero"><img src={image.url} alt={image.alt} width="1200" height="630" fetchpriority="high" />{showImageCredit(image)&&<ImageCredit image={image}/>}</figure>
   <div class="prose" data-article-body><PortableText value={body} /></div>
   {credits.length>0 && <aside class="article-credits" aria-label={creditHeading}><h2>{creditHeading}</h2><PortableText value={credits}/></aside>}
   {publicSources.length > 0 && <section class="source-list" aria-label="Sources"><h2>{t(locale,'sources')}</h2><ul>{publicSources.map(source => <li><a href={source} rel="noopener noreferrer"><span>{sourceLabel(source)}</span><small>{new URL(source).hostname}</small></a></li>)}</ul></section>}
