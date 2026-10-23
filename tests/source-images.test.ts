@@ -16,3 +16,6 @@ it('matches the article link instead of taking another story image',async()=>{
  const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(new Response('<rss><channel><item><link>https://www.panewslab.com/en/articles/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa</link><media:content url="https://uploads.panewslab.com/2edcab5f-2557-48b4-96da-6c558160538e" medium="image" /></item></channel></rss>'));
  try{expect((await resolvePublishedImage('https://www.panewslab.com/en/articles/01a16853-4f0a-7098-997a-9864ad5b2631','story','r','Title')).kind).toBe('illustration');expect(get.mock.calls[0][0]).toBe('https://www.panewslab.com/rss.xml?lang=en&type=NORMAL%2CNEWS%2CVIDEO');}finally{get.mockRestore();}
 });
+it('uses validated collector image metadata without refetching a blocked feed',async()=>{
+ const get=vi.spyOn(globalThis,'fetch');try{const p=await resolvePublishedImage('https://www.panewslab.com/en/articles/01a16853-4f0a-7098-997a-9864ad5b2631','story','r','Title','https://uploads.panewslab.com/2edcab5f-2557-48b4-96da-6c558160538e');expect(p.kind).toBe('source');expect(get).not.toHaveBeenCalled();}finally{get.mockRestore();}
+});

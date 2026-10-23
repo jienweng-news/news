@@ -11,7 +11,9 @@ export class D1Store {
   if(!items.length)return;
   // One atomic insert, not one D1 subrequest per feed item.
   await this.db.prepare(`INSERT OR IGNORE INTO jobs(id,source,payload,created_at)
-   SELECT json_extract(value,'$.fingerprint'),?,json(value),? FROM json_each(?)`).bind(source,now,JSON.stringify(items)).run();
+   SELECT json_extract(value,'$.fingerprint'),?,json(value),? FROM json_each(?) WHERE true
+   ON CONFLICT(id) DO UPDATE SET payload=json_set(jobs.payload,'$.imageUrl',json_extract(excluded.payload,'$.imageUrl'))
+   WHERE jobs.source=excluded.source AND json_extract(jobs.payload,'$.url')=json_extract(excluded.payload,'$.url') AND json_extract(excluded.payload,'$.imageUrl') IS NOT NULL`).bind(source,now,JSON.stringify(items)).run();
  }
  async reserveSlugs(job:string,slugs:Array<[string,string]>){
   // A NOT NULL conflict aborts the entire transactional batch if any slug belongs to another job.

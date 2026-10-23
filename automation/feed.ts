@@ -1,6 +1,6 @@
 import {XMLParser,XMLValidator} from 'fast-xml-parser';
 import {createHash} from 'node:crypto';
-export interface FeedItem{title:string;url:string;publishedAt:string;fingerprint:string}
+export interface FeedItem{title:string;url:string;publishedAt:string;fingerprint:string;imageUrl?:string}
 export function canonicalItemUrl(value:string):string{const url=new URL(value);if(url.protocol!=='https:'||url.username||url.password||url.port||!url.hostname.includes('.'))throw new Error('Unsafe item URL');url.hash='';for(const key of [...url.searchParams.keys()])if(/^utm_|^(fbclid|gclid)$/.test(key))url.searchParams.delete(key);return url.href;}
 // Require an explicit zone and calendar-valid date; never treat an update as first publication.
 export function feedPublicationTime(value:string):number{
@@ -25,7 +25,9 @@ export function parseFeed(xml:string,now=Date.now()):FeedItem[]{
   const link=links.find((l:any)=>l?.['@_rel']==='alternate')||links.find((l:any)=>typeof l==='string'||l?.['@_href']);
   const url=canonicalItemUrl(typeof link==='object'?link['@_href']:string(link));const time=feedPublicationTime(string(item.pubDate||item.published));
   if(!title||!Number.isFinite(time)||time<now-48*3600000||time>now+300000)continue;
-  found.push({title,url,publishedAt:new Date(time).toISOString(),fingerprint:createHash('sha256').update(url).digest('hex')});
+  const media=item['media:content']||item.enclosure;const mediaUrl=(Array.isArray(media)?media[0]:media)?.['@_url'];
+  const imageUrl=new URL(url).hostname==='www.panewslab.com'&&typeof mediaUrl==='string'&&/^https:\/\/uploads\.panewslab\.com\/[a-f0-9-]{20,64}$/.test(mediaUrl)?mediaUrl:undefined;
+  found.push({title,url,...(imageUrl?{imageUrl}:{}),publishedAt:new Date(time).toISOString(),fingerprint:createHash('sha256').update(url).digest('hex')});
  }catch{continue;}}
  return [...new Map(found.map(i=>[i.fingerprint,i])).values()].sort((a,b)=>b.publishedAt.localeCompare(a.publishedAt));
 }

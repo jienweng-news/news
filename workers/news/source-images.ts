@@ -2,10 +2,11 @@ import {XMLParser} from 'fast-xml-parser';
 import {imagePlan,type ImagePlan} from '../../frontend/src/lib/images/policy';
 import inventory from '../../docs/research/source-checks/2026-10-22-fixed-sources.json';
 import {limitedText} from './config';
-export async function resolvePublishedImage(sourceUrl:string|undefined,slug:string,revision:string,title:string):Promise<ImagePlan>{
+export async function resolvePublishedImage(sourceUrl:string|undefined,slug:string,revision:string,title:string,collectorImage?:string):Promise<ImagePlan>{
  const fallback=imagePlan(sourceUrl,slug,revision,title);
  const permission=inventory.sources.some(s=>s.id==='panews'&&s.automation_enabled&&s.rights_status==='reviewed'&&s.allowed_reuse==='metadata-discovery'&&(s.review as {permission_status?:string}|undefined)?.permission_status==='owner-confirmed');
  if(!permission||!sourceUrl||!/^https:\/\/www\.panewslab\.com\/(?:en|zh)\/articles\/[a-f0-9-]{20,64}$/.test(sourceUrl))return fallback;
+ if(collectorImage&&/^https:\/\/uploads\.panewslab\.com\/[a-f0-9-]{20,64}$/.test(collectorImage))return {url:collectorImage,alt:title,credit:'PANews',license:'Used with permission',sourceUrl,kind:'source'};
  try{
   const r=await fetch('https://www.panewslab.com/rss.xml?lang=en&type=NORMAL%2CNEWS%2CVIDEO',{headers:{'User-Agent':'TokenOnAirDiscovery/1.0'},redirect:'error',signal:AbortSignal.timeout(8000)});if(!r.ok)return fallback;
   const xml=await limitedText(r,1048576);

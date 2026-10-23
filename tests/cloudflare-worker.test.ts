@@ -145,7 +145,7 @@ it('attaches real Sanity assets only through an admin, preserves selected images
  const asset='image-'+'c'.repeat(40)+'-1200x630-png';let uploads=0,patches=0;
  vi.stubGlobal('fetch',vi.fn(async(url,init)=>{
   if(String(url).includes('/data/query/'))return Response.json({result:doc});
-  if(String(url).includes('/assets/images/')){uploads++;const body=JSON.parse(init!.body as string);expect(body.url).toBe('https://tokenonair.com/api/images/en/published-headline.png?revision=rev1&version=source-first-v3');return Response.json({document:{_id:asset}});}
+  if(String(url).includes('/assets/images/')){uploads++;const body=JSON.parse(init!.body as string);expect(body.url).toBe('https://tokenonair.com/api/images/en/published-headline.png?revision=rev1&version=source-first-v4');return Response.json({document:{_id:asset}});}
   const patch=JSON.parse(init!.body as string).mutations[0].patch;patches++;expect(patch.ifRevisionID).toBe('rev1');expect(Object.keys(patch.set)).toEqual(['mainImage']);doc={...doc,...patch.set,_rev:'rev2'};return Response.json({results:[{document:doc}]});
  }));
  try{
@@ -205,11 +205,16 @@ it('selects only reviewed source imagery and versions managed upgrades without o
  }));
  try{
   const path='/v1/jobs/'+item.fingerprint+'/attach-image';expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);
-  expect(doc.mainImage).toMatchObject({credit:'Ethereum Foundation',license:'CC BY 4.0 · Unmodified',sourceUrl:doc.provenance.sourceUrl,licenseUrl:'https://creativecommons.org/licenses/by/4.0/',generatedVersion:'source-first-v3'});
+  expect(doc.mainImage).toMatchObject({credit:'Ethereum Foundation',license:'CC BY 4.0 · Unmodified',sourceUrl:doc.provenance.sourceUrl,licenseUrl:'https://creativecommons.org/licenses/by/4.0/',generatedVersion:'source-first-v4'});
   expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);expect(uploads).toBe(1);
  }finally{vi.unstubAllGlobals();}
 });
 it('claims the newest source story even when an older feed batch arrived later',async()=>{
  const {store,item}=await setup();await store.enqueue('openai',{...item,fingerprint:'e'.repeat(64),url:'https://openai.com/index/older',publishedAt:new Date(Date.parse(item.publishedAt)-3600000).toISOString()},Date.now()+1000);
  expect((await store.claim())?.id).toBe(item.fingerprint);
+});
+it('enriches repeated feed metadata with images without changing facts, dates or job state',async()=>{
+ const {store,item}=await setup();await store.claim();const prior=await store.get(item.fingerprint);
+ await store.enqueueMany('openai',[{...item,title:'Changed title',publishedAt:new Date().toISOString(),imageUrl:'https://uploads.panewslab.com/2edcab5f-2557-48b4-96da-6c558160538e'}]);
+ const after=await store.get(item.fingerprint);expect(after?.state).toBe(prior?.state);expect(after?.lease_token).toBe(prior?.lease_token);expect(JSON.parse(after!.payload)).toMatchObject({...item,imageUrl:'https://uploads.panewslab.com/2edcab5f-2557-48b4-96da-6c558160538e'});
 });

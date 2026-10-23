@@ -73,3 +73,8 @@ it('accepts explicitly zoned feeds with high-precision fractions or omitted RSS 
   expect(parseFeed(xml.replace('Thu, 22 Oct 2026 10:00:00 GMT',date),now)).toHaveLength(1);
  }
 });
+it('collects only PANews upload-host image metadata from the matching RSS item',()=>{
+ const feed=xml.replace('https://example.com/a?utm_source=test','https://www.panewslab.com/en/articles/abc').replace('<pubDate>','<media:content url="https://uploads.panewslab.com/2edcab5f-2557-48b4-96da-6c558160538e"/><pubDate>');
+ expect(parseFeed(feed,now)[0].imageUrl).toBe('https://uploads.panewslab.com/2edcab5f-2557-48b4-96da-6c558160538e');
+ expect(parseFeed(feed.replace('uploads.panewslab.com','evil.test'),now)[0].imageUrl).toBeUndefined();
+});
