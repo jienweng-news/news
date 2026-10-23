@@ -36,10 +36,9 @@ const canonicalUrl = canonical || new URL(Astro.url.pathname, config.siteUrl).hr
       {!Astro.url.pathname.startsWith('/preview')&&<Newsletter locale={locale}/>}
       <footer class="site-footer">
         <div class="footer-front"><a class="brand-link footer-brand" href={localePath(locale)} aria-label="Token on Air homepage"><img class="brand-logo" src="/brand/token-on-air-cutout.svg" alt="Token on Air" width="560" height="300" loading="lazy" /></a><p class="footer-statement">{t(locale,'tagline')}</p></div>
-        <nav class="footer-topics" aria-label={t(locale,'headlines')}>{(['latest','ai','crypto','archive'] as const).map(page=><a href={localePath(locale,page==='latest'?'':page)}>{t(locale,page)} <span aria-hidden="true">↗</span></a>)}</nav>
+        <nav class="footer-topics" aria-label={t(locale,'headlines')}>{(['latest','ai','crypto','archive'] as const).map(page=><a href={localePath(locale,page==='latest'?'':page)}>{t(locale,page)}</a>)}</nav>
         <nav class="footer-policies" aria-label="Publication">{(['about','policy','contact','privacy','advertise','terms','disclaimer'] as const).map(page=><a href={localePath(locale,page)}>{t(locale,page)}</a>)}</nav>
-        <div class="footer-bottom"><p>© {new Date().getUTCFullYear()} Token on Air</p><nav class="feed-links" aria-label={t(locale,'feeds')}><span>{t(locale,'feeds')}</span><a href={`/${locale}/rss.xml`}>{t(locale,'latest')}</a><a href={`/${locale}/ai/rss.xml`}>{t(locale,'ai')}</a><a href={`/${locale}/crypto/rss.xml`}>{t(locale,'crypto')}</a></nav>{config.appEnv==='local'&&<a class="footer-link" href="/preview/">Editorial preview</a>}</div>
-        <Analytics locale={locale}/>
+        <div class="footer-bottom"><p>© {new Date().getUTCFullYear()} Token on Air</p><nav class="feed-links" aria-label={t(locale,'feeds')}><span>{t(locale,'feeds')}</span><a href={`/${locale}/rss.xml`}>{t(locale,'latest')}</a><a href={`/${locale}/ai/rss.xml`}>{t(locale,'ai')}</a><a href={`/${locale}/crypto/rss.xml`}>{t(locale,'crypto')}</a></nav>{config.appEnv==='local'&&<a class="footer-link" href="/preview/">Editorial preview</a>}<Analytics locale={locale}/></div>
       </footer>
     </div>
   </body>

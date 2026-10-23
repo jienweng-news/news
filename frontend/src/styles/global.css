@@ -188,17 +188,43 @@ figure.story-thumbnail{margin:0 0 18px}
 .section-stories .news-rows .story-item :is(h2,h3){font-size:27px;line-height:1.12}
 @media(max-width:640px){.section-stories .news-rows .story-item :is(h2,h3){font-size:25px}}
 
-/* Bold publication sign-off; the author belongs with the article. */
-.site-footer{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:32px 64px;border-top:8px solid var(--red);padding-top:44px;padding-bottom:28px}
-.footer-front{grid-column:1/-1;display:grid;grid-template-columns:minmax(160px,.6fr) minmax(0,2fr);align-items:center;gap:56px;padding-bottom:32px;border-bottom:1px solid #534c47}
-.footer-front .brand-logo{width:230px}
-.footer-statement{font:700 clamp(44px,6vw,84px)/.98 var(--display);letter-spacing:-.025em;text-transform:uppercase;color:var(--paper);max-width:17ch;margin:0}
-.footer-topics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 32px;align-content:start}
-.footer-topics a{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:44px;font:700 25px/1.1 var(--display)}
-.footer-topics a span{color:#f4a5ac;font-size:20px}
-.site-footer .footer-policies{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:4px 28px;font-size:13px}
-.footer-bottom{grid-column:1/-1;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px 28px;border-top:1px solid #534c47;padding-top:18px;font-size:12px;color:#d2c5b4}
-.footer-bottom>p{margin:0;align-self:center}
-.footer-bottom .feed-links{flex-basis:auto;border:0;padding-top:0;font-size:12px;gap:8px 20px}
-@media(max-width:760px){.site-footer{gap:28px 32px}.footer-front{gap:32px;grid-template-columns:160px minmax(0,1fr)}.footer-front .brand-logo{width:160px}.footer-statement{font-size:48px}.footer-topics{grid-template-columns:1fr}.footer-topics a{font-size:26px}}
-@media(max-width:480px){.site-footer{grid-template-columns:1fr;padding-top:32px}.footer-front{grid-template-columns:1fr;gap:26px;padding-bottom:26px}.footer-front .brand-logo{width:170px}.footer-statement{font-size:52px;max-width:13ch}.footer-topics{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 24px}.footer-topics a{font-size:24px}.site-footer .footer-policies{font-size:13px}.footer-bottom{gap:14px}.footer-bottom .feed-links{gap:4px 18px}.footer-bottom .feed-links span{flex-basis:100%}}
+/* Compact publication footer: brand, news and publication links share one row. */
+.site-footer{
+  display:grid;
+  grid-template-columns:minmax(200px,1.1fr) minmax(200px,1fr) minmax(300px,1.4fr);
+  align-items:start;
+  gap:32px 64px;
+  border-top:4px solid var(--red);
+  padding:40px var(--page-gutter) 20px;
+}
+.footer-front{display:flex;flex-direction:column;align-items:flex-start;gap:20px;min-width:0}
+.footer-front .brand-logo{width:176px}
+.footer-statement{font:700 28px/1.15 var(--display);letter-spacing:-.015em;color:var(--paper);max-width:22ch;margin:0}
+.footer-topics{display:grid;align-content:start;gap:0}
+.footer-topics a{display:flex;align-items:center;min-height:44px;font:700 23px/1.2 var(--display)}
+.site-footer .footer-policies{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:0 28px;font-size:14px}
+.site-footer .footer-policies a{min-height:44px}
+.site-footer :is(.footer-topics,.footer-policies) a:hover{color:#f4a5ac}
+.footer-bottom{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px 28px;border-top:1px solid #534c47;padding-top:16px;font-size:12px;color:#d2c5b4}
+.footer-bottom>p{margin:0}
+.footer-bottom .privacy-controls{flex-basis:auto;font-size:12px}
+.footer-bottom .feed-links{flex-basis:auto;border:0;padding-top:0;font-size:12px;gap:4px 20px}
+.footer-bottom .feed-links a{display:inline-flex;align-items:center;min-height:44px;padding:0}
+@media(max-width:1000px){
+ .site-footer{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:28px 40px}
+ .footer-front{grid-column:1/-1;flex-direction:row;align-items:center;gap:32px;padding-bottom:24px;border-bottom:1px solid #534c47}
+ .footer-front .brand-logo{width:144px}
+ .footer-statement{max-width:none}
+}
+@media(max-width:540px){
+ .site-footer{grid-template-columns:1fr;gap:24px;padding-top:28px}
+ .footer-front{gap:24px;padding-bottom:24px}
+ .footer-front .brand-logo{width:128px;max-width:42vw}
+ .footer-statement{font-size:24px;max-width:14ch}
+ .footer-topics{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 20px}
+ .footer-topics a{font-size:21px}
+ .site-footer .footer-policies{gap:0 20px}
+ .footer-bottom{align-items:flex-start;gap:12px}
+ .footer-bottom .feed-links{gap:0 16px}
+ .footer-bottom .feed-links span{flex-basis:100%}
+}
