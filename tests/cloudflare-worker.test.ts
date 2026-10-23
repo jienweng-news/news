@@ -39,7 +39,7 @@ it('keeps Sanity identity and import dates fixed and recovers an uncertain write
  });
  try{
   expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/publish',input),env)).status).toBe(502);
-  expect(saved._id).toBe('story.'+item.fingerprint);expect(saved.provenance.sourcePublishedAt).toBe(item.publishedAt);expect(Date.parse(saved.publishedAt)).toBeGreaterThan(Date.parse(item.publishedAt));
+  expect(saved._id).toBe('story-'+item.fingerprint);expect(saved.provenance.sourcePublishedAt).toBe(item.publishedAt);expect(Date.parse(saved.publishedAt)).toBeGreaterThan(Date.parse(item.publishedAt));
   await store.release(item.fingerprint);const reclaim=await(await worker.fetch(request('/v1/jobs/claim'),env)).json() as any;
   expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/publish',{...input,leaseToken:reclaim.leaseToken}),env)).status).toBe(200);
   const before=calls;expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/publish',input),env)).status).toBe(200);expect(calls).toBe(before);
@@ -65,7 +65,7 @@ it('cannot hold another owner’s job by submitting invalid content with the wro
 });
 it('recovers uncertain correction and withdrawal commits without changing first publication or slugs',async()=>{
  const {env,store,item}=await setup();const candidate=signedCandidate(item.url);const validatedHash=candidateHash({article:candidate.article,evidence:candidate.evidence});
- let saved:any={_id:'story.'+item.fingerprint,_rev:'rev1',publicationState:'published',publishedAt:candidate.article.publishedAt,updatedAt:candidate.article.updatedAt,translations:Object.fromEntries(['en','zh','zhCn'].map(l=>[l,{slug:{current:'stable-story'}}])),corrections:[],automation:{candidateHash:validatedHash},provenance:{sourcePublishedAt:item.publishedAt}};
+ let saved:any={_id:'story-'+item.fingerprint,_rev:'rev1',publicationState:'published',publishedAt:candidate.article.publishedAt,updatedAt:candidate.article.updatedAt,translations:Object.fromEntries(['en','zh','zhCn'].map(l=>[l,{slug:{current:'stable-story'}}])),corrections:[],automation:{candidateHash:validatedHash},provenance:{sourcePublishedAt:item.publishedAt}};
  const claim=await store.claim();await store.published(item.fingerprint,claim!.lease_token,validatedHash);
  const corrected=structuredClone(candidate);corrected.article.updatedAt=new Date(Date.parse(candidate.article.updatedAt)+1).toISOString();corrected.article.corrections=[{date:corrected.article.updatedAt,notes:{en:'Correction',zh:'更正',zhCn:'更正'}}] as any;
  corrected.report=signReport(candidateHash({article:corrected.article,evidence:corrected.evidence}),Object.fromEntries(requiredChecks.map(c=>[c,true])),new Date().toISOString(),secret);
@@ -124,4 +124,18 @@ it('accepts only bounded canonical fresh metadata from the fixed reviewed source
  for(const bad of [{...fresh,fingerprint:'a'.repeat(64)},{...fresh,url:'https://evil.test/a'},{...fresh,publishedAt:'2020-01-01T00:00:00Z'}])expect((await worker.fetch(request(path,{source:'openai',items:[bad]}),env)).status).toBe(422);
  expect((await worker.fetch(request(path,{source:'openai',items:Array(51).fill(fresh)}),env)).status).toBe(422);
  sqlite.prepare("UPDATE sources SET automation_enabled=0 WHERE id='openai'").run();expect((await worker.fetch(request(path,{source:'openai',items:[fresh]}),env)).status).toBe(409);
+});
+it('repairs only an authenticated published legacy private ID with matching signed identity',async()=>{
+ const {env,store,item,sqlite}=await setup();const old='story.'+item.fingerprint,next='story-'+item.fingerprint;
+ sqlite.prepare("UPDATE jobs SET state='published',document_id=?,candidate_hash='verified-hash' WHERE id=?").run(old,item.fingerprint);
+ const route='/v1/jobs/'+item.fingerprint+'/repair-public-id';
+ expect((await worker.fetch(request(route,{},token),env)).status).toBe(401);
+ const original={_id:old,_rev:'revision',_type:'article',publicationState:'published',publishedAt:'2026-10-23T01:00:00Z',automation:{candidateHash:'verified-hash'},translations:{en:{slug:{current:'unchanged'}}}};let mutations:any;
+ vi.stubGlobal('fetch',vi.fn(async(input:any,init:any)=>{const url=new URL(String(input));if(url.pathname.includes('/query/')){const id=JSON.parse(url.searchParams.get('$id')!);return Response.json({result:id===old?original:null});}mutations=JSON.parse(init.body).mutations;return Response.json({results:[{document:{...original,_id:next}}]});}));
+ try{const r=await worker.fetch(request(route,{},admin),env);expect(r.status).toBe(200);expect(await r.json()).toEqual({repaired:next});expect((await store.get(item.fingerprint))?.document_id).toBe(next);expect(mutations.find((m:any)=>m.createIfNotExists)?.createIfNotExists).toMatchObject({_id:next,publishedAt:original.publishedAt,translations:original.translations});expect(mutations.some((m:any)=>m.patch?.ifRevisionID==='revision')).toBe(true);expect(mutations.some((m:any)=>m.delete?.id===old)).toBe(true);}finally{vi.unstubAllGlobals();}
+});
+it('refuses mismatched public-ID repair and allows safe retry after a completed CMS transaction',async()=>{
+ const {env,item}=await setup();const {sanityApi}=await import('../workers/news/sanity');let writes=0,old:any=null,current:any={_id:'story-'+item.fingerprint,_type:'article',publicationState:'published',automation:{candidateHash:'expected'}};
+ vi.stubGlobal('fetch',vi.fn(async(input:any,init:any)=>{if(init?.method==='POST'){writes++;throw Error('No write expected');}const u=new URL(String(input)),id=JSON.parse(u.searchParams.get('$id')!);return Response.json({result:id.startsWith('story.')?old:current});}));
+ try{expect(await sanityApi(env).repairPublicId(item.fingerprint,'expected')).toBe(current._id);current.automation.candidateHash='other';await expect(sanityApi(env).repairPublicId(item.fingerprint,'expected')).rejects.toThrow('Public identity collision');current=null;old={_id:'story.'+item.fingerprint,_rev:'rev',_type:'article',publicationState:'published',automation:{candidateHash:'other'}};await expect(sanityApi(env).repairPublicId(item.fingerprint,'expected')).rejects.toThrow('Legacy identity mismatch');expect(writes).toBe(0);}finally{vi.unstubAllGlobals();}
 });

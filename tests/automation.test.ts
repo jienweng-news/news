@@ -35,9 +35,9 @@ it('publishes a verified job once with fixed identity and rejects tampered valid
  const evidence=[{url:item.url,quote:'Evidence excerpt',contentHash:'a'.repeat(64)}];const secret='v'.repeat(40);const hash=candidateHash({article,evidence});const checks=Object.fromEntries(requiredChecks.map(key=>[key,true]));const report=signReport(hash,checks,new Date(time).toISOString(),secret);const candidate={article,evidence,report};
  expect(validateCandidate(candidate,secret).hash).toBe(hash);
  expect(()=>validateCandidate({...candidate,article:{...article,summary:'tampered'}},secret)).toThrow();
- let writes=0;const write=async(doc:Record<string,any>)=>{writes++;expect(Date.parse(doc.publishedAt)).toBeGreaterThanOrEqual(time);expect(doc.updatedAt).toBe(doc.publishedAt);expect(doc.provenance).toEqual({sourceUrl:item.url,sourcePublishedAt:item.publishedAt,discoveredAt:new Date(time).toISOString(),importedAt:doc.publishedAt});expect(doc.author._ref).toBe('editor-jienweng');expect(doc._id).toBe(`story.${id}`);expect(doc).not.toHaveProperty('body');return {id:doc._id,hash:doc.automation.candidateHash};};
+ let writes=0;const write=async(doc:Record<string,any>)=>{writes++;expect(Date.parse(doc.publishedAt)).toBeGreaterThanOrEqual(time);expect(doc.updatedAt).toBe(doc.publishedAt);expect(doc.provenance).toEqual({sourceUrl:item.url,sourcePublishedAt:item.publishedAt,discoveredAt:new Date(time).toISOString(),importedAt:doc.publishedAt});expect(doc.author._ref).toBe('editor-jienweng');expect(doc._id).not.toContain(".");expect(doc._id).toBe(`story-${id}`);expect(doc).not.toHaveProperty('body');return {id:doc._id,hash:doc.automation.candidateHash};};
  const config={enabled:true,killSwitch:false,validationSecret:secret,editorId:'editor-jienweng'};
- expect(await publishJob(q,id,candidate,config,write)).toBe(`story.${id}`);await publishJob(q,id,candidate,config,write);expect(writes).toBe(1);q.close();
+ expect(await publishJob(q,id,candidate,config,write)).toBe(`story-${id}`);await publishJob(q,id,candidate,config,write);expect(writes).toBe(1);q.close();
 });
 it('polls reviewed sources conditionally, skips disabled sources and isolates failures',async()=>{
  const q=new JobQueue(':memory:');const source={id:'example',url:'https://example.com/rss',automation_enabled:true,rights_status:'reviewed',allowed_reuse:'metadata-discovery',proposed_poll_minutes:5};let calls=0;
@@ -55,7 +55,7 @@ it('withdraws only a known published job through the guarded publisher',async()=
  const q=new JobQueue(':memory:');const id=q.enqueue('example',parseFeed(xml,now)[0]);let removed=false;
  const cfg={enabled:true,killSwitch:false,editorId:'editor'};
  await expect(withdrawJob(q,id,cfg,async()=>{removed=true;})).rejects.toThrow();expect(removed).toBe(false);
- q.published(id,`story.${id}`,'testhash');await expect(withdrawJob(q,id,{...cfg,killSwitch:true},async()=>{removed=true;})).rejects.toThrow();expect(removed).toBe(false);
+ q.published(id,`story-${id}`,'testhash');await expect(withdrawJob(q,id,{...cfg,killSwitch:true},async()=>{removed=true;})).rejects.toThrow();expect(removed).toBe(false);
  await withdrawJob(q,id,cfg,async()=>{removed=true;});expect(removed).toBe(true);expect(q.get(id)?.state).toBe('withdrawn');q.close();
 });
 it('serializes independent publishers sharing a durable queue',()=>{const dir=mkdtempSync(join(tmpdir(),'toa-lock-'));try{const a=new JobQueue(join(dir,'jobs.sqlite')),b=new JobQueue(join(dir,'jobs.sqlite'));expect(a.lockPublisher(now)).toBe(true);expect(b.lockPublisher(now+1)).toBe(false);a.unlockPublisher();expect(b.lockPublisher(now+2)).toBe(true);a.close();b.close();}finally{rmSync(dir,{recursive:true,force:true});}});

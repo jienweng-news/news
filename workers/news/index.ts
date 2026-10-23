@@ -56,7 +56,12 @@ async function lifecycle(action:string,body:any,env:Env,store:D1Store,id:string)
  const job=await store.get(id);if(!job||job.state!=='published')throw new Refused(409,'Published job required');
  const owner=crypto.randomUUID();if(!await store.lock(owner))throw new Refused(409,'Publisher busy');
  try{
-  const api=sanityApi(env),existing=await api.read('story.'+id);if(!existing)throw new Refused(409,'Published CMS story required');
+  if(action==='repair-public-id'){
+   if(!job.candidate_hash||!['story.'+id,'story-'+id].includes(job.document_id||''))throw new Refused(409,'Published identity required');
+   const repaired=await sanityApi(env).repairPublicId(id,job.candidate_hash);
+   await env.DB.prepare("UPDATE jobs SET document_id=? WHERE id=? AND state='published' AND candidate_hash=?").bind(repaired,id,job.candidate_hash).run();await store.audit(id,'public-id-repaired');return {repaired};
+  }
+  const api=sanityApi(env),existing=await api.read('story-'+id);if(!existing)throw new Refused(409,'Published CMS story required');
   if(existing.publicationState==='withdrawn'){if(action!=='withdraw')throw new Refused(409,'Story withdrawn');await env.DB.prepare("UPDATE jobs SET state='withdrawn' WHERE id=? AND state='published'").bind(id).run();return {withdrawn:existing._id,replay:true};}
   if(action==='withdraw'){
    await api.patch(existing._id,existing._rev,{publicationState:'withdrawn'});
@@ -74,7 +79,7 @@ export default {
   try{
    const url=new URL(request.url);if(request.method==='GET'&&url.pathname==='/health')return json({service:'token-on-air-news',ok:true});
    if(url.pathname==='/v1/status'&&request.method==='GET'){authorize(request,env.ADMIN_TOKEN);return json({enabled:enabled(env),...await new D1Store(env.DB).status()});}
-   const match=/^\/v1\/jobs\/([a-f0-9]{64})\/(publish|hold|correct|withdraw|release)$/.exec(url.pathname);
+   const match=/^\/v1\/jobs\/([a-f0-9]{64})\/(publish|hold|correct|withdraw|release|repair-public-id)$/.exec(url.pathname);
    const claim=url.pathname==='/v1/jobs/claim',ingest=url.pathname==='/v1/ingest';if(request.method!=='POST'||(!claim&&!ingest&&!match))return json({error:'Not found'},404);
    authorize(request,claim||ingest||match?.[2]==='publish'||match?.[2]==='hold'?env.WRITER_TOKEN:env.ADMIN_TOKEN);
    if(request.headers.has('Origin'))throw new Refused(403,'Browser-origin requests refused');

@@ -23,5 +23,5 @@ it('does not allow a stale owner to mark publication or release terminal jobs',a
  const {db}=testDB();const store=new D1Store(db);await store.enqueue('source',item,1000);const job=await store.claim(1000);
  expect(await store.published(job!.id,'wrong','hash')).toBe(false);
  expect(await store.published(job!.id,job!.lease_token,'hash')).toBe(true);
- expect(await store.release(job!.id)).toBe(false);expect((await store.get(job!.id))?.document_id).toBe('story.'+job!.id);
+ expect(await store.release(job!.id)).toBe(false);expect((await store.get(job!.id))?.document_id).toBe('story-'+job!.id);
 });

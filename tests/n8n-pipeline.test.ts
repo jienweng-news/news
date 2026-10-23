@@ -17,14 +17,14 @@ function harness({approved=true,primary=true,duplicate=false,badIdentity=false}=
    return Response.json({...Object.fromEntries(requiredChecks.filter(k=>k!=='sourceRights').map(k=>[k,true])),claimsVerified:approved,primaryEvidence:primary,reason:'Independent judgment'});
   }
   if(url.endsWith('/hold'))return Response.json({held:id});
-  if(url.endsWith('/publish')){validateCandidate(body.candidate,config.validationSecret);return Response.json({published:badIdentity?'story.wrong':'story.'+id});}
+  if(url.endsWith('/publish')){validateCandidate(body.candidate,config.validationSecret);return Response.json({published:badIdentity?'story-wrong':'story-'+id});}
   throw Error('Unexpected outbound request');
  }));
  return {run:pipeline(config),calls,config};
 }
 afterEach(()=>vi.unstubAllGlobals());
 it('separates writing, fresh review and signed publication without leaking service credentials',async()=>{
- const {run,calls}=harness();expect(await run('queue')).toMatchObject({state:'published',documentId:'story.'+id});
+ const {run,calls}=harness();expect(await run('queue')).toMatchObject({state:'published',documentId:'story-'+id});
  expect(calls.filter(c=>c.url.endsWith('/v1/task')).map(c=>c.body.task)).toEqual(['research','write','review']);
  expect(calls.filter(c=>c.url.endsWith('/publish'))).toHaveLength(1);
 });

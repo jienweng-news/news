@@ -32,7 +32,7 @@ export class D1Store {
   const r=await this.db.prepare("UPDATE jobs SET state='held',lease_until=0,last_error=? WHERE id=? AND state='processing' AND lease_token=?").bind(reason.slice(0,100),id,token).run();return r.meta.changes===1;
  }
  async published(id:string,token:string,hash:string){
-  const r=await this.db.prepare("UPDATE jobs SET state='published',document_id=?,candidate_hash=?,lease_until=0,last_error=NULL WHERE id=? AND state='processing' AND lease_token=?").bind('story.'+id,hash,id,token).run();return r.meta.changes===1;
+  const r=await this.db.prepare("UPDATE jobs SET state='published',document_id=?,candidate_hash=?,lease_until=0,last_error=NULL WHERE id=? AND state='processing' AND lease_token=?").bind('story-'+id,hash,id,token).run();return r.meta.changes===1;
  }
  async release(id:string){
   const r=await this.db.prepare("UPDATE jobs SET state='queued',lease_until=0,lease_token='',attempts=0,last_error=NULL WHERE id=? AND state='held'").bind(id).run();return r.meta.changes===1;

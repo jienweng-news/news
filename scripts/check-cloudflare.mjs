@@ -48,7 +48,7 @@ try{
  const now=new Date().toISOString();const body=[{_type:'block',_key:'b',style:'normal',children:[{_type:'span',_key:'s',text:'Local runtime fixture; no reporting.',marks:[]}],markDefs:[]}];
  const article={section:'ai',format:'news',relationship:'none',author:{name:'jienweng',slug:'jienweng'},publishedAt:now,updatedAt:now,language:'en',sources:[url],corrections:[],translations:Object.fromEntries(['en','zh','zhCn'].map(l=>[l,{title:'Local smoke',slug:'local-smoke',summary:'Test only.',body}]))};
  let candidate=signed(article);let r=await post('/v1/jobs/'+id+'/publish',{leaseToken:claim.leaseToken,candidate});assert.equal(r.status,200,await r.text());
- assert.equal(saved._id,'story.'+id);assert.equal(saved.provenance.sourcePublishedAt,sourceDate);assert.equal(saved.provenance.importedAt,saved.publishedAt);assert.ok(Date.parse(saved.publishedAt)>Date.parse(sourceDate));
+ assert.equal(saved._id,'story-'+id);assert.equal(saved.provenance.sourcePublishedAt,sourceDate);assert.equal(saved.provenance.importedAt,saved.publishedAt);assert.ok(Date.parse(saved.publishedAt)>Date.parse(sourceDate));
  r=await post('/v1/jobs/'+id+'/publish',{leaseToken:claim.leaseToken,candidate});assert.equal(r.status,200);assert.equal(mutations,1,'Idempotent CMS write');
  const first=saved.publishedAt;article.publishedAt=first;article.updatedAt=new Date(Date.parse(first)+1).toISOString();article.corrections=[{date:article.updatedAt,notes:{en:'Correction',zh:'更正',zhCn:'更正'}}];candidate=signed(article);
  r=await post('/v1/jobs/'+id+'/correct',{candidate},admin);assert.equal(r.status,200,await r.text());assert.equal(saved.publishedAt,first);assert.equal(saved.provenance.sourcePublishedAt,sourceDate);

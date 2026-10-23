@@ -31,7 +31,7 @@ export async function publishJob(queue:JobQueue,id:string,candidate:unknown,conf
  let validated:ReturnType<typeof validateCandidate>;try{validated=validateCandidate(candidate,config.validationSecret);}catch{if(job.state==='processing')queue.hold(id,'Candidate validation failed');throw new Error('Candidate validation failed');}const {editions,hash}=validated;if(job.state==='published'){if(job.candidate_hash!==hash)throw new Error('Published payload differs; use correction workflow');return job.document_id;}
  if(job.state!=='processing'||job.lease_until<Date.now())throw new Error('Active job lease required');
  const en=editions[0];const item=JSON.parse(job.payload);if(!en.sources.includes(item.url))throw new Error('Discovery source must be attributed');
- const documentId=`story.${id}`;
+ const documentId=`story-${id}`;
  const sourceTime=feedPublicationTime(item.publishedAt);const importedAt=new Date().toISOString();
  if(!Number.isFinite(sourceTime)||sourceTime>Date.now()+300000||!Number.isFinite(job.created_at)||job.created_at>Date.now()+300000)throw new Error('Invalid source provenance');
  const document={...publicationDocument(editions,id,config.editorId,hash),publishedAt:importedAt,updatedAt:importedAt,
@@ -42,7 +42,7 @@ export async function publishJob(queue:JobQueue,id:string,candidate:unknown,conf
 
 export function publicationDocument(editions:ReturnType<typeof validateCandidate>['editions'],id:string,editorId:string,hash:string){
  const en=editions[0];
- return {_id:`story.${id}`,_type:'article',section:en.section,format:en.format,author:{_type:'reference',_ref:editorId},publishedAt:en.publishedAt,updatedAt:en.updatedAt,language:'en',publicationState:'published',sources:en.sources,relationship:en.relationship,
+ return {_id:`story-${id}`,_type:'article',section:en.section,format:en.format,author:{_type:'reference',_ref:editorId},publishedAt:en.publishedAt,updatedAt:en.updatedAt,language:'en',publicationState:'published',sources:en.sources,relationship:en.relationship,
  translations:Object.fromEntries(editions.map((a,i)=>[localeKey[locales[i]],{title:a.title,summary:a.summary,slug:{_type:'slug',current:a.slug},body:a.body,...(a.disclosure?{disclosure:a.disclosure}:{})}])),
  corrections:en.corrections.map((c,i)=>({date:c.date,notes:Object.fromEntries(editions.map((a,l)=>[localeKey[locales[l]],a.corrections[i]?.note||c.note]))})),automation:{jobId:id,candidateHash:hash}};
 }

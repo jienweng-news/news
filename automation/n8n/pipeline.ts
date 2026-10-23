@@ -83,7 +83,7 @@ export function pipeline(config:Settings){
   if(signal.aborted||job.leaseUntil-Date.now()<10000)throw Error('Lease too short for publish');
   stage='publish';
   const result=await worker(`/v1/jobs/${job.jobId}/publish`,{leaseToken:job.leaseToken,candidate:signed},signal);
-  if(result.published!=='story.'+job.jobId)throw Error('Publication identity mismatch');
+  if(result.published!=='story-'+job.jobId)throw Error('Publication identity mismatch');
   return {state:'published',jobId:job.jobId,documentId:result.published};
   }catch(e){const known=['Independent review refused','Edition numbers disagree','Evidence snapshot mismatch','Primary citation required','Agent unavailable'];const cause=e instanceof Error&&known.includes(e.message)?e.message:'Refused';return hold(`Processing failed at ${stage}: ${cause}; inspect before release`);}
  };

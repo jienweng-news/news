@@ -29,5 +29,16 @@ export function sanityApi(env:Env){
   const r=await mutate([{patch:{id,ifRevisionID:revision,set:fields}}]);
   if(r.results?.[0]?.document?._id!==id)throw new Refused(502,'CMS identity mismatch');
  }
- return {read,create,patch};
+ async function repairPublicId(id:string,hash:string){
+  const oldId='story.'+id,newId='story-'+id;const old=await read(oldId),current=await read(newId);
+  if(current&&(current.automation?.candidateHash!==hash||current.publicationState!=='published'))throw new Refused(409,'Public identity collision');
+  if(!old){if(current)return newId;throw new Refused(409,'Legacy story missing');}
+  if(old._type!=='article'||old.publicationState!=='published'||old.automation?.candidateHash!==hash||!old._rev)throw new Refused(409,'Legacy identity mismatch');
+  const {_id,_rev,_createdAt,_updatedAt,...fields}=old;
+  // One Sanity transaction: revision-fence the private source, copy unchanged content, remove old ID.
+  const result=await mutate([{patch:{id:oldId,ifRevisionID:_rev,set:{publicationState:'published'}}},{createIfNotExists:{...fields,_id:newId}},{delete:{id:oldId}}]);
+  if(!result.results?.some((r:any)=>r.document?._id===newId))throw new Refused(502,'Repair identity mismatch');
+  return newId;
+ }
+ return {read,create,patch,repairPublicId};
 }
