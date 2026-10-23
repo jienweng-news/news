@@ -1,6 +1,6 @@
 # Cloudflare Workers + D1 publisher
 
-The website stays on Vercel; this separate Worker replaces the need for a paid Railway host. Cloudflare Free is the target. No automatic upgrade or paid fallback is configured. This is a publication backend, not an AI model: Dots/generation and independent semantic verification still need actual authenticated tool connectivity.
+The website stays on Vercel; this separate Worker replaces the need for a paid Railway host. Cloudflare Free is the target. No automatic upgrade or paid fallback is configured. This is a publication backend, not an AI model: generation and semantic verification now run through the private self-hosted n8n/Codex integration; real-source acceptance and activation gates remain. See n8n.md.
 
 ## Implemented boundaries
 
@@ -68,6 +68,7 @@ All responses no-store. Authorization: Bearer credential. POST requires applicat
 - GET /v1/status: admin; counts and per-source checkpoint/error state, no content/secrets.
 - POST /v1/jobs/claim {}: writer; one jobId, leaseToken, leaseUntil, untrusted metadata item and instructions, or {job:null}. Five-minute leases, max5attempts. A signed report does not remove the lease requirement.
 - POST /v1/jobs/<64hexid>/publish {leaseToken,candidate}: writer; candidate is the article/evidence/independent report contract in automation.md. Wrong/stale owners cannot change another claim; invalid owned candidates held. Successful replay requires matching content hash and a fresh verifier report.
+- POST /v1/jobs/<id>/hold {leaseToken}: writer; only the matching lease owner can quarantine processing work, including an expired lease not yet reclaimed. Idempotent for the same held owner; cannot hold another owner or a published job.
 - POST /v1/jobs/<id>/correct {candidate}: admin; preserve stored publishedAt/slugs, newer updatedAt, dated correction. Signed verifier contract applies. CMS revision guards and hash replay recovery.
 - POST /v1/jobs/<id>/withdraw {}: admin; CMS withdrawal then D1 tombstone. Retry reconciles uncertain remote outcomes; no resurrection.
 - POST /v1/jobs/<id>/release {}: admin; held jobs only; inspect CMS before release after ambiguous writes.
@@ -106,3 +107,9 @@ Owner saved SANITY_WRITE_TOKEN as an encrypted Worker secret; Wrangler metadata 
 Permanent Worker configuration now includes SANITY_EDITOR_ID=editor-jienweng. Stable Worker version ede401a4-edf5-48e4-86d7-171ba864ea5e restored original API, preserving encrypted secrets. Fresh checks:health200; admin status200/paused/zerojobs/25disabledsources; authenticated claim503; temporary setup readiness/editor routes both404. Private setup script removed. Old temporary version e740b6de-853e-440c-b88a-3ed17e292ec6 is not active and its setup route also carries a20-minute expiry. No secret value entered the transcript or repository.
 
 Remaining:actual Dots/tool connectivity and credential handoff, independently controlled semantic verifier, individual source review, production free-tier CPU checks and first original multilingual backfill/lifecycle acceptance. Publishing remains paused.
+
+## n8n handover update — 2026-10-23
+
+Dots is replaced by private self-hosted n8n with a credential-isolated local Codex agent and separate verifier context. Synthetic n8n smoke passed; this does not establish editorial quality. VALIDATION_SECRET is now installed privately and shared only with the coordinator signer, never the Codex container. The new writer hold endpoint quarantines refused jobs. Worker/coordinator remain paused, all25 discovery sources disabled, zero published articles. See [n8n operations](n8n.md) for owner setup and remaining activation gates. Earlier historical Dots-connectivity blockers above are superseded.
+
+Paused Worker with durable owner-fenced hold endpoint deployed as version `0daa8a16-908e-4acb-95ef-c6b0129cf3b8`. Post-deploy admin check:200, enabled=false, zero jobs,25disabled sources; actual writer claim503. No article mutations performed.

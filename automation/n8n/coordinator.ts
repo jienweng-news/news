@@ -25,14 +25,15 @@ export function verifyAndSign(candidate:ReturnType<typeof buildCandidate>,snapsh
 export class Coordinator{
  private db:DatabaseSync;private busy=false;
  constructor(path:string,private processRun:(mode:'smoke'|'queue')=>Promise<any>,private enabled:boolean){
-  this.db=new DatabaseSync(path);this.db.exec('PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; CREATE TABLE IF NOT EXISTS runs(id TEXT PRIMARY KEY,mode TEXT,state TEXT,created_at INTEGER,finished_at INTEGER,result TEXT);');
+  this.db=new DatabaseSync(path);this.db.exec('PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; CREATE TABLE IF NOT EXISTS runs(id TEXT PRIMARY KEY,mode TEXT,state TEXT,created_at INTEGER,finished_at INTEGER,result TEXT); CREATE TABLE IF NOT EXISTS controls(key TEXT PRIMARY KEY,value TEXT);');
+  if(this.db.prepare("SELECT id FROM runs WHERE state='running' AND mode='queue' LIMIT 1").get())this.db.prepare("INSERT OR REPLACE INTO controls VALUES('safety_pause','Interrupted queue outcome; inspect D1 and CMS')").run();
   this.db.prepare("UPDATE runs SET state='interrupted',finished_at=? WHERE state='running'").run(Date.now());
  }
  history(){return this.db.prepare('SELECT id,mode,state,created_at,finished_at FROM runs ORDER BY created_at DESC LIMIT 20').all();}
  async tick(mode:'smoke'|'queue'){
   if(!['smoke','queue'].includes(mode))throw new Refused(400,'Unknown mode');
   if(this.busy)throw new Refused(409,'Coordinator busy');
-  if(mode==='queue'&&!this.enabled)return {state:'paused'};
+  if(mode==='queue'&&(!this.enabled||this.db.prepare("SELECT value FROM controls WHERE key='safety_pause'").get()))return {state:'paused',reason:'Activation or safety pause; inspect D1 and CMS before resuming'};
   this.busy=true;const id=randomUUID(),now=Date.now();
   try{
    this.db.prepare('DELETE FROM runs WHERE created_at < ?').run(now-7*86400000);
@@ -40,6 +41,7 @@ export class Coordinator{
    this.db.prepare("INSERT INTO runs(id,mode,state,created_at) VALUES(?,?,'running',?)").run(id,mode,now);
    let result;try{result=await this.processRun(mode);}catch{result={state:'failed',reason:'Processing failed; inspect private service diagnostics and worker status before retry'};}
    if(typeof result?.state!=='string')result={state:'failed',reason:'Invalid processor result'};
+   if(result.state==='needs-attention')this.db.prepare("INSERT OR REPLACE INTO controls VALUES('safety_pause','Remote hold unconfirmed; inspect D1 and CMS')").run();
    this.db.prepare('UPDATE runs SET state=?,finished_at=?,result=? WHERE id=?').run(result.state,Date.now(),JSON.stringify(result),id);
    return {id,...result};
   }finally{this.busy=false;}

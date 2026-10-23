@@ -107,3 +107,12 @@ it('reserves slugs across jobs even when a remote write commits after a timeout'
   expect(writes).toBe(1);expect(pending).toHaveLength(1);
  }finally{get.mockRestore();}
 });
+it('lets only the lease owner durably quarantine rejected work, including after lease expiry',async()=>{
+ const {env,store,item,sqlite}=await setup();const claim=await(await worker.fetch(request('/v1/jobs/claim'),env)).json() as any;
+ const path='/v1/jobs/'+item.fingerprint+'/hold';
+ expect((await worker.fetch(request(path,{leaseToken:'wrong'}),env)).status).toBe(409);
+ sqlite.prepare('UPDATE jobs SET lease_until=0 WHERE id=?').run(item.fingerprint);
+ expect((await worker.fetch(request(path,{leaseToken:claim.leaseToken}),env)).status).toBe(200);
+ expect((await store.get(item.fingerprint))?.state).toBe('held');expect(await store.claim(Date.now()+360000)).toBeNull();
+ expect((await worker.fetch(request(path,{leaseToken:claim.leaseToken}),env)).status).toBe(200);
+});

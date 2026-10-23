@@ -1,7 +1,7 @@
 # n8n newsroom implementation
 
 Spec: docs/superpowers/specs/2026-10-23-n8n-newsroom.md
-Execution: native, TDD, one final fresh-context review.
+Execution: native, TDD, one final fresh-context review. All three tasks complete; three Important review findings fixed with regression tests. Execution record: docs/operations/n8n-execution-record.md.
 Global constraints: no existing container changes; no public unclaimed editor; secrets private; source policy and worker pause gates remain; no live publishing or emails during acceptance.
 
 ### Task 1: Bounded Codex agent

@@ -37,3 +37,13 @@ it('ships inactive credential-backed five-minute queue and manual smoke workflow
  expect(workflows[0].nodes.find((n:any)=>n.type==='n8n-nodes-base.scheduleTrigger').parameters.rule.interval[0].minutesInterval).toBe(5);
  expect(JSON.stringify(workflows)).not.toContain('Bearer ');
 });
+it('persists a safety pause after an unconfirmed remote hold and prevents new claims after restart',async()=>{
+ const dir=mkdtempSync(join(tmpdir(),'toa-halt-'));const path=join(dir,'runs.sqlite');
+ const first=new Coordinator(path,async()=>({state:'needs-attention',jobId:'a'.repeat(64)}),true);await first.tick('queue');first.close();
+ const next=new Coordinator(path,async()=>{throw Error('must not claim');},true);expect(await next.tick('queue')).toMatchObject({state:'paused'});next.close();rmSync(dir,{recursive:true,force:true});
+});
+it('does not reclaim more work after a coordinator crash during an unknown queue outcome',async()=>{
+ const dir=mkdtempSync(join(tmpdir(),'toa-crash-'));const path=join(dir,'runs.sqlite');
+ const first=new Coordinator(path,()=>new Promise(()=>{}),true);void first.tick('queue');first.close();
+ const next=new Coordinator(path,async()=>({state:'should-not-run'}),true);expect(await next.tick('queue')).toMatchObject({state:'paused'});next.close();rmSync(dir,{recursive:true,force:true});
+});
