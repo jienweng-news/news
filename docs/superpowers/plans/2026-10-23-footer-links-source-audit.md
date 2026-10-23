@@ -31,3 +31,9 @@ Owner requests a better About page and no editor section. Use a dedicated Read-m
 About final fresh review: about_page_review clean, no material correctness/regression/accessibility findings. Added localized page descriptions for search/social previews. No source ingestion changes or backend restarts.
 
 About release checks:225tests/35files pass; frontend72files0errors/warnings/hints and local build pass. Editor-removal HTTP regression RED→GREEN across en/zh/zh-cn. Existing policy pages remain separate and About inherits shared locale navigation, newsletter and compact footer.
+
+## Advertising services and contact
+
+Owner requests advertising enquiries by email or contact form, with services listed. Use the already owner-supplied/Zoho-verified hello@tokenonair.com email route, without introducing an unconnected form. Dedicated localized Advertise page lists website advertising, labelled sponsored stories, labelled project announcements and explicitly future newsletter sponsorship (digest has not started). A visible email address and primary mailto action prefill a localized subject and service/language/date/budget details; contact and editorial policy links remain. No invented prices, audience metrics, partners, guaranteed placements or send actions. Existing page baseline failed the direct email check. New en/zh/zh-cn routes HTTP200 with4service terms, correctly encoded recipient/subject/body and localized policy/contact links. Desktop1440 rendered and narrow320 measured without overflow; scoped layout detector clean. Frontend73files0diagnostics/build pass.
+
+Advertise final fresh review clean: no material regressions, semantic/accessibility defects or misleading claims. Existing en About/policy/contact/privacy/terms/disclaimer routes6/6 HTTP200. No email was sent; mailto recipient and encoded enquiry fields were verified as links. Ready for existing authorized production deployment.
