@@ -15,3 +15,9 @@ it('distinguishes references on the same publisher',()=>{
  expect(sourceLabel('https://blog.ethereum.org/en/2026/10/22/glamsterdam-hoodi-delay')).toBe('Glamsterdam hoodi delay');
  expect(sourceLabel('https://blog.ethereum.org/')).toBe('blog.ethereum.org');
 });
+it('links a known source mention in legacy body text without changing the prose',()=>{
+ const text='Google Research reported a prospective study.';
+ const p=presentArticleBody([block(text)],['https://research.google/blog/study/']);
+ expect(p.body[0].children.map(s=>s.text).join('')).toBe(text);
+ expect(p.body[0].markDefs[0]).toMatchObject({href:'https://research.google/blog/study/'});
+});

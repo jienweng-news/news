@@ -47,3 +47,7 @@ it('does not reclaim more work after a coordinator crash during an unknown queue
  const first=new Coordinator(path,()=>new Promise(()=>{}),true);void first.tick('queue');first.close();
  const next=new Coordinator(path,async()=>({state:'should-not-run'}),true);expect(await next.tick('queue')).toMatchObject({state:'paused'});next.close();rmSync(dir,{recursive:true,force:true});
 });
+it('stores evidence-backed inline source links in every new edition',()=>{
+ const linked=structuredClone(draft);for(const e of Object.values(linked.editions))e.paragraphs[0]='The [source announcement](https://example.org/news) reports an update.';
+ const c=buildCandidate(linked,'https://example.org/news');for(const e of Object.values(c.article.translations)){expect(e.body[0].markDefs[0].href).toBe('https://example.org/news');expect(e.body[0].children.map(s=>s.text).join('')).toBe('The source announcement reports an update.');}
+});

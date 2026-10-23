@@ -1,3 +1,4 @@
+import {citationBlock} from '../../frontend/src/lib/content/inline-links';
 import {DatabaseSync} from 'node:sqlite';
 import {randomUUID,createHash} from 'node:crypto';
 import {candidateHash,requiredChecks,signReport,validateCandidate} from '../publisher';
@@ -8,7 +9,7 @@ export function buildCandidate(draft:any,discoveryUrl:string){
  if(!draft||!['ai','crypto'].includes(draft.section)||!Array.isArray(draft.evidence)||!draft.evidence.some((e:any)=>e.url===discoveryUrl))throw Error('Discovery attribution required');
  return {article:{section:draft.section,format:'news',relationship:'none',publishedAt:now,updatedAt:now,author:{name:'jienweng',slug:'jienweng'},sources:[...new Set(draft.evidence.map((e:any)=>e.url))],corrections:[],translations:Object.fromEntries(['en','zh','zhCn'].map(locale=>{
   const e=draft.editions?.[locale];if(!e||!Array.isArray(e.paragraphs)||e.paragraphs.length<2||e.paragraphs.length>8)throw Error('Invalid edition');
-  return [locale,{title:e.title,summary:e.summary,slug:e.slug,body:e.paragraphs.map((text:string,i:number)=>({_type:'block',_key:'p'+i,style:'normal',markDefs:[],children:[{_type:'span',_key:'s'+i,text,marks:[]}]}))}];
+  return [locale,{title:e.title,summary:e.summary,slug:e.slug,body:e.paragraphs.map((text:string,i:number)=>citationBlock(text,'p'+i,draft.evidence.map((item:any)=>item.url)))}];
  }))},evidence:draft.evidence.map((e:any)=>({url:e.url,quote:e.quote,contentHash:''}))};
 }
 export function verifyAndSign(candidate:ReturnType<typeof buildCandidate>,snapshots:Snapshot[],review:any,key:string,rightsReviewed:boolean){

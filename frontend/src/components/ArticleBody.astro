@@ -10,7 +10,7 @@ import Disclosure from './Disclosure.astro';
 interface Props { article: Article;locale?:Locale }
 const { article,locale='en' } = Astro.props;
 const image=storyImage(article,locale);
-const {body,credits}=presentArticleBody(article.body);
+const {body,credits}=presentArticleBody(article.body,article.sources);
 const creditHeading={en:'Attribution & licence',zh:'署名與授權','zh-cn':'署名与授权'}[locale];
 ---
 <article class="article-page">
