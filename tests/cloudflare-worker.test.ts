@@ -204,7 +204,7 @@ it('backs off a failed image so a later published article can proceed on the nex
 it('selects only reviewed source imagery and versions managed upgrades without overwriting chosen photos',async()=>{
  const {env,store,item}=await setup();const lease=await store.claim();await store.published(item.fingerprint,lease!.lease_token,'expected');
  const asset='image-'+'a'.repeat(40)+'-2000x1250-jpg';
- let doc:any={_id:'story-'+item.fingerprint,_type:'article',_rev:'rev1',publicationState:'published',automation:{candidateHash:'expected'},provenance:{sourceUrl:'https://blog.ethereum.org/en/2026/10/22/glamsterdam-hoodi-delay'},translations:{en:{title:'Ethereum update',slug:{current:'ethereum-update'}}},mainImage:{asset:{_ref:'old-generated'},credit:'Token on Air',license:'Original editorial illustration · © Token on Air',generatedBy:'token-on-air',generatedAssetId:'old-generated',generatedTitle:'Ethereum update',generatedVersion:'source-first-v6'}};
+ let doc:any={_id:'story-'+item.fingerprint,_type:'article',_rev:'rev1',publicationState:'published',automation:{candidateHash:'expected'},provenance:{sourceUrl:'https://blog.ethereum.org/en/2026/10/22/glamsterdam-hoodi-delay'},translations:{en:{title:'Ethereum update',slug:{current:'ethereum-update'}}},mainImage:{asset:{_ref:'old-generated'},credit:'Photo by Previous Photographer on Wikimedia Commons',license:'CC BY 2.0',sourceUrl:'https://commons.wikimedia.org/wiki/File:Old_photo.jpg',generatedBy:'token-on-air',generatedAssetId:'old-generated',generatedTitle:'Ethereum update',generatedVersion:'source-first-v6'}};
  let uploads=0;vi.stubGlobal('fetch',vi.fn(async(url,init)=>{
   if(String(url).includes('commons.wikimedia.org/w/api.php'))return ethereumPhoto();
   if(String(url).includes('/data/query/'))return Response.json({result:doc});
@@ -216,6 +216,17 @@ it('selects only reviewed source imagery and versions managed upgrades without o
   expect(doc.mainImage).toMatchObject({credit:'Photo by Ivan Radic on Wikimedia Commons',license:'CC BY 2.0',sourceUrl:'https://commons.wikimedia.org/wiki/File:Close-up_of_a_physical_Ethereum_coin_(51002904687).jpg',licenseUrl:'https://creativecommons.org/licenses/by/2.0',generatedVersion:'source-first-v8-topic-relevance'});
   expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);expect(uploads).toBe(1);
  }finally{vi.unstubAllGlobals();}
+});
+it('queues Worker-managed source photos for version refresh regardless of their photographer credit',async()=>{
+ const {env}=await setup();
+ const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({result:[]}));
+ try{
+  const {sanityApi}=await import('../workers/news/sanity');
+  await sanityApi(env).imageCandidates();
+  const query=new URL(String(get.mock.calls[0][0])).searchParams.get('query')||'';
+  expect(query).toContain('mainImage.generatedAssetId == mainImage.asset._ref');
+  expect(query).not.toContain('mainImage.credit == "Token on Air"');
+ }finally{get.mockRestore();}
 });
 it('claims the newest source story even when an older feed batch arrived later',async()=>{
  const {store,item}=await setup();await store.enqueue('openai',{...item,fingerprint:'e'.repeat(64),url:'https://openai.com/index/older',publishedAt:new Date(Date.parse(item.publishedAt)-3600000).toISOString()},Date.now()+1000);
