@@ -12,7 +12,7 @@ chmodSync(join(dir,'auth/auth.json'),0o600);
 copyFileSync(realpathSync(join(homedir(),'.local/bin/codex')),join(dir,'context/codex'));
 for(const file of ['Agent.Dockerfile','Coordinator.Dockerfile'])copyFileSync(join(root,'deploy/n8n',file),join(dir,'context',file));
 copyFileSync(join(root,'docs/research/source-checks/2026-10-22-fixed-sources.json'),join(dir,'context/sources.json'));
-execFileSync(join(root,'node_modules/.bin/esbuild'),['automation/n8n/agent-main.ts','automation/n8n/coordinator-main.ts','automation/n8n/acceptance-main.ts','--bundle','--platform=node','--format=esm','--outdir='+join(dir,'context')],{cwd:root,stdio:'inherit'});
+execFileSync(join(root,'node_modules/.bin/esbuild'),['automation/n8n/agent-main.ts','automation/n8n/coordinator-main.ts','automation/n8n/acceptance-main.ts','automation/n8n/operate-main.ts','--bundle','--platform=node','--format=esm','--outdir='+join(dir,'context')],{cwd:root,stdio:'inherit'});
 copyFileSync(join(root,'deploy/n8n/workflows.json'),join(dir,'import/workflows.json'));
 writeFileSync(join(dir,'import/credentials.json'),JSON.stringify([{id:'toa-coordinator',name:'Private newsroom coordinator',type:'httpHeaderAuth',data:{name:'Authorization',value:'Bearer '+readFileSync(join(dir,'secrets/coordinator_token'),'utf8').trim()}}]),{mode:0o600});
 writeFileSync(join(dir,'compose.env'),'NEWSROOM_PRIVATE_DIR='+dir+'\nNEWSROOM_UID='+process.getuid()+'\nNEWSROOM_GID='+process.getgid()+'\n',{mode:0o600});

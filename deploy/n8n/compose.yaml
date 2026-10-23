@@ -61,7 +61,7 @@ services:
     container_name: token-on-air-coordinator
     user: "${NEWSROOM_UID:?Set NEWSROOM_UID}:${NEWSROOM_GID:?Set NEWSROOM_GID}"
     restart: unless-stopped
-    environment: {NEWSROOM_ENABLED: "0"}
+    environment: {NEWSROOM_ENABLED: "${NEWSROOM_ENABLED:-0}"}
     volumes: [coordinator_data:/data]
     secrets: [coordinator_token, agent_token, writer_token, validation_secret]
     read_only: true

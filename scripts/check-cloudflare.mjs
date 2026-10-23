@@ -57,6 +57,11 @@ try{
  assert.equal(feedRequests,1);assert.equal((await db.prepare("SELECT count(*) AS n FROM jobs WHERE state='queued'").first()).n,50,'Atomic bounded50-item RSS import');
  await db.prepare("UPDATE sources SET next_poll=0 WHERE id='openai'").run();await enabledWorker.scheduled({cron:'* * * * *'});assert.equal((await db.prepare('SELECT count(*) AS n FROM jobs').first()).n,51,'Feed replay deduplication');
  assert.equal((await post('/v1/jobs/'+id+'/publish',{candidate})).status,409);
+ const hostItem={title:'Original host-collected metadata',url:'https://openai.com/index/runtime-ingest',publishedAt:new Date().toISOString()};hostItem.fingerprint=createHash('sha256').update(hostItem.url).digest('hex');
+ assert.equal((await post('/v1/ingest',{source:'openai',items:[{...hostItem,fingerprint:'wrong'}]})).status,422);
+ assert.equal((await post('/v1/ingest',{source:'openai',items:[hostItem]})).status,200);
+ assert.equal((await post('/v1/ingest',{source:'openai',items:[hostItem]})).status,200);
+ assert.equal((await db.prepare('SELECT count(*) AS n FROM jobs').first()).n,52,'Host metadata replay deduplicated');
  const quarantine=await(await post('/v1/jobs/claim')).json();assert.ok(quarantine.jobId);
  assert.equal((await post('/v1/jobs/'+quarantine.jobId+'/hold',{leaseToken:'wrong'})).status,409);
  await db.prepare('UPDATE jobs SET lease_until=0 WHERE id=?').bind(quarantine.jobId).run();
@@ -66,5 +71,5 @@ try{
  assert.equal((await post('/v1/jobs/'+quarantine.jobId+'/hold',{leaseToken:quarantine.leaseToken})).status,200);
  assert.notEqual((await(await post('/v1/jobs/claim')).json()).jobId,quarantine.jobId,'Held rejection never automatically reclaims');
  const status=await mf.dispatchFetch('https://worker.test/v1/status',{headers:{Authorization:'Bearer '+admin}});assert.equal(status.status,200);assert.ok(!(await status.text()).includes(secret));
- console.log('Cloudflare runtime smoke passed: real workerd+D1 migrations, paused cron, auth, restart persistence, concurrent claims, 50-item scheduled RSS/deduplication, signed publish/replay, dates, correction, withdrawal and owner-fenced durable quarantine. All Sanity traffic intercepted; no external content written.');
+ console.log('Cloudflare runtime smoke passed: real workerd+D1 migrations, paused cron, auth, restart persistence, concurrent claims, 50-item scheduled RSS/deduplication, signed publish/replay, dates, correction, withdrawal and owner-fenced durable quarantine and authenticated host metadata ingestion. All Sanity traffic intercepted; no external content written.');
 }finally{await mf.dispose();rmSync(dir,{recursive:true,force:true});}

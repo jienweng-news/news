@@ -1,0 +1,13 @@
+[Unit]
+Description=Token on Air encrypted backup and isolated restore check
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/.t3/worktrees/news/feat-editorial-foundation
+ExecStart=/home/ubuntu/.local/bin/node /home/ubuntu/.t3/worktrees/news/feat-editorial-foundation/scripts/backup-n8n.mjs
+TimeoutStartSec=180
+UMask=0077

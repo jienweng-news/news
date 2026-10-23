@@ -56,11 +56,15 @@ Verified 2026-10-23:
 - [x] Requests require separate credentials; agent has no worker/verifier/CMS credentials; CMS token remains in Cloudflare.
 - [x] Verification secret installed privately in the Worker; local signer holds matching private copy.
 - [x] Unit/integration tests and automation type check pass; restart persistence checked.
-- [ ] Owner completes account setup (no SMTP password recovery configured).
-- [ ] Review actual source terms and enable selected discovery sources in both registry and D1. Existing 25 sources remain disabled. Technical RSS availability alone does not establish reuse rights.
+- [x] Owner completed account setup; public settings now show setup=false (SMTP password recovery still unconfigured).
+- [x] Source audit and scoped launch decisions recorded in source-review.md: five primary article inputs,17additional private lead-only monitors,3held sources. Remote activation is performed only after final checks; RSS access is not a blanket reuse license.
 - [ ] Verify Cloudflare Free plan/CPU budget in dashboard; some large feeds exceed the existing 64 KiB Worker ingestion limit.
-- [ ] Run a real-source full dry-run acceptance with approved primary evidence and realistic output before activation. Synthetic connectivity does not establish editorial quality.
-- [ ] Configure/test private off-server backups and restore.
+- [x] Real-source Ethereum postponement and DeepMind forest-mapping dry-runs validated all three editions, signed verification, attribution and dates without publishing.
+- [x] Encrypted online SQLite backup and isolated restore passed; private Drive copy verified. Local daily systemd timer and daily T3/Drive upload configured; see n8n-backups.md.
 - [ ] Set coordinator `NEWSROOM_ENABLED=1`, Worker `AUTOMATION_ENABLED=1`, `AUTOMATION_KILL_SWITCH=0`, and publish ONLY the queue workflow after the remaining gates pass. Never publish the synthetic smoke workflow on a timer. No per-story owner approval is required once the verified automatic path is activated.
 
 References: [n8n Docker installation](https://docs.n8n.io/deploy/host-n8n/install-options/install-with-docker.md), [n8n CLI](https://docs.n8n.io/deploy/host-n8n/configure-n8n/use-the-command-line.md), [Codex non-interactive mode](https://learn.chatgpt.com/docs/non-interactive-mode).
+
+## Source activation increment — 2026-10-23
+
+The n8n owner account is configured. Large RSS XML now stays on this host: metadata alone enters `/v1/ingest` under writer authentication, bounded50items/60KB batches and exact source/URL/date/fingerprint checks. The Worker XML cron is disabled by `RSS_POLLING_ENABLED=0`; retention pruning remains scheduled. The coordinator collects under a45second sub-deadline before processing the queue. Private monitoring does not enable article derivation. Research receives related approved primary URLs, snapshots are deduplicated by content hash, and independent review compares recent published summaries. Newer corrections supersede old schedules; unresolved contradictions hold. See source-review.md and the current activation execution record for observed live status. Committed defaults remain paused, and a deliberate update/start may require reactivation.

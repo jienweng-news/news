@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily Token on Air private encrypted backups
+
+[Timer]
+OnCalendar=*-*-* 18:15:00 UTC
+Persistent=true
+Unit=token-on-air-backup.service
+
+[Install]
+WantedBy=timers.target
