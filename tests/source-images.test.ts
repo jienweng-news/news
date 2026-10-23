@@ -1,5 +1,14 @@
 import {expect,it,vi} from 'vitest';
-import {commonsSearchQuery,parsePanewsArticleImage,parsePanewsFeedImage,panewsFeedImageUseCount,pexelsSearchQuery,resolvePublishedImage} from '../workers/news/source-images';
+import {commonsSearchQuery,parsePanewsArticleImage,parsePanewsFeedImage,panewsFeedImageUseCount,pexelsSearchQuery,resolvePublishedImage,validateSourceImagePlan} from '../workers/news/source-images';
+it('accepts a licensed Commons thumbnail selected by discovery at the publisher boundary',async()=>{
+ const photo={title:'File:Bitcoin on Laptop Keyboard.jpg',imageinfo:[{thumburl:'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Bitcoin_on_Laptop_Keyboard.jpg/1280px-Bitcoin_on_Laptop_Keyboard.jpg',width:1800,height:1200,descriptionurl:'https://commons.wikimedia.org/wiki/File:Bitcoin_on_Laptop_Keyboard.jpg',extmetadata:{LicenseShortName:{value:'CC BY 2.0'},LicenseUrl:{value:'https://creativecommons.org/licenses/by/2.0'},Artist:{value:'Satheesh Sankaran'},ImageDescription:{value:'Bitcoin on Laptop Keyboard'}}}]};
+ const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({query:{pages:[photo]}}));
+ try{
+  const plan=await resolvePublishedImage(undefined,'bitcoin-price','rev','Bitcoin falls below 81000');
+  expect(validateSourceImagePlan(plan,'https://www.panewslab.com/en/articles/story')).toMatchObject({provider:'commons',url:photo.imageinfo[0].thumburl});
+  for(const url of ['https://thumb.wikimedia.org.evil.test/wikipedia/commons/bitcoin.jpg','https://user@thumb.wikimedia.org/wikipedia/commons/bitcoin.jpg','https://thumb.wikimedia.org:444/wikipedia/commons/bitcoin.jpg','https://thumb.wikimedia.org/not-commons/bitcoin.jpg'])expect(validateSourceImagePlan({...plan,url},'https://www.panewslab.com/en/articles/story')).toBeUndefined();
+ }finally{get.mockRestore();}
+});
 it('selects an image embedded in the matching PANews story body',()=>{
  const html='<article class="article-content"><p>Story</p><img src="https://uploads.panewslab.com/2edcab5f-2557-48b4-96da-6c558160538e" alt="Story chart"></article><aside><img src="https://uploads.panewslab.com/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"></aside>';
  expect(parsePanewsArticleImage(html)).toBe('https://uploads.panewslab.com/2edcab5f-2557-48b4-96da-6c558160538e');
