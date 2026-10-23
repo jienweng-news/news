@@ -12,6 +12,7 @@ function harness({approved=true,primary=true,duplicate=false,badIdentity=false}=
   if(url.includes('.api.sanity.io'))return Response.json({result:duplicate?[{sources:[sourceUrl]}]:[]});
   if(url.endsWith('/v1/task')){
    expect(JSON.stringify(body)).not.toContain(config.writerToken);expect(JSON.stringify(body)).not.toContain(config.validationSecret);
+   if(body.task==='research')return Response.json({primaryUrls:[],reason:'Primary already supplied'});
    if(body.task==='write')return Response.json(draft);
    return Response.json({...Object.fromEntries(requiredChecks.filter(k=>k!=='sourceRights').map(k=>[k,true])),claimsVerified:approved,primaryEvidence:primary,reason:'Independent judgment'});
   }
@@ -24,7 +25,7 @@ function harness({approved=true,primary=true,duplicate=false,badIdentity=false}=
 afterEach(()=>vi.unstubAllGlobals());
 it('separates writing, fresh review and signed publication without leaking service credentials',async()=>{
  const {run,calls}=harness();expect(await run('queue')).toMatchObject({state:'published',documentId:'story.'+id});
- expect(calls.filter(c=>c.url.endsWith('/v1/task')).map(c=>c.body.task)).toEqual(['write','review']);
+ expect(calls.filter(c=>c.url.endsWith('/v1/task')).map(c=>c.body.task)).toEqual(['research','write','review']);
  expect(calls.filter(c=>c.url.endsWith('/publish'))).toHaveLength(1);
 });
 it('never publishes failed independent verification',async()=>{
