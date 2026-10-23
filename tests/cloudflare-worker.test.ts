@@ -139,3 +139,58 @@ it('refuses mismatched public-ID repair and allows safe retry after a completed 
  vi.stubGlobal('fetch',vi.fn(async(input:any,init:any)=>{if(init?.method==='POST'){writes++;throw Error('No write expected');}const u=new URL(String(input)),id=JSON.parse(u.searchParams.get('$id')!);return Response.json({result:id.startsWith('story.')?old:current});}));
  try{expect(await sanityApi(env).repairPublicId(item.fingerprint,'expected')).toBe(current._id);current.automation.candidateHash='other';await expect(sanityApi(env).repairPublicId(item.fingerprint,'expected')).rejects.toThrow('Public identity collision');current=null;old={_id:'story.'+item.fingerprint,_rev:'rev',_type:'article',publicationState:'published',automation:{candidateHash:'other'}};await expect(sanityApi(env).repairPublicId(item.fingerprint,'expected')).rejects.toThrow('Legacy identity mismatch');expect(writes).toBe(0);}finally{vi.unstubAllGlobals();}
 });
+it('attaches real Sanity assets only through an admin, preserves selected images and replays safely',async()=>{
+ const {env,store,item}=await setup();const lease=await store.claim();await store.published(item.fingerprint,lease!.lease_token,'expected');
+ let doc:any={_id:'story-'+item.fingerprint,_type:'article',_rev:'rev1',publicationState:'published',automation:{jobId:item.fingerprint,candidateHash:'expected'},translations:{en:{title:'Published headline',slug:{current:'published-headline'}}},publishedAt:'2026-10-23T00:00:00Z'};
+ const asset='image-'+'c'.repeat(40)+'-1200x630-png';let uploads=0,patches=0;
+ vi.stubGlobal('fetch',vi.fn(async(url,init)=>{
+  if(String(url).includes('/data/query/'))return Response.json({result:doc});
+  if(String(url).includes('/assets/images/')){uploads++;const body=JSON.parse(init!.body as string);expect(body.url).toBe('https://tokenonair.com/api/images/en/published-headline.png?revision=rev1');return Response.json({document:{_id:asset}});}
+  const patch=JSON.parse(init!.body as string).mutations[0].patch;patches++;expect(patch.ifRevisionID).toBe('rev1');expect(Object.keys(patch.set)).toEqual(['mainImage']);doc={...doc,...patch.set,_rev:'rev2'};return Response.json({results:[{document:doc}]});
+ }));
+ try{
+  const path='/v1/jobs/'+item.fingerprint+'/attach-image';expect((await worker.fetch(request(path),env)).status).toBe(401);expect(uploads).toBe(0);
+  const first=await worker.fetch(request(path,{},admin),env);expect(first.status).toBe(200);
+  expect(doc.mainImage.asset).toEqual({_type:'reference',_ref:asset});expect(doc.mainImage.alt).toBe('Published headline');expect(doc.publishedAt).toBe('2026-10-23T00:00:00Z');
+  expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);expect(uploads).toBe(1);expect(patches).toBe(1);
+  doc.mainImage={...doc.mainImage,asset:{_ref:'chosen-photo'},credit:'Photographer'};
+  doc.translations.en.title='Corrected headline';
+  expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);expect(uploads).toBe(1);
+ }finally{vi.unstubAllGlobals();}
+});
+it('refuses attaching media when the published CMS identity differs from the job',async()=>{
+ const {env,store,item}=await setup();const lease=await store.claim();await store.published(item.fingerprint,lease!.lease_token,'expected');
+ const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({result:{_id:'story-'+item.fingerprint,_type:'article',_rev:'r',publicationState:'published',automation:{candidateHash:'different'}}}));
+ try{expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/attach-image',{},admin),env)).status).toBe(409);expect(get).toHaveBeenCalledTimes(1);}finally{get.mockRestore();}
+});
+it('keeps image retries bounded to five-minute ticks and the automation kill switch',async()=>{
+ const {env}=await setup();const e={...env,RSS_POLLING_ENABLED:'0'};
+ const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({result:[]}));
+ try{
+  await worker.scheduled({cron:'* * * * *',scheduledTime:60000},e);expect(get).not.toHaveBeenCalled();
+  await worker.scheduled({cron:'* * * * *',scheduledTime:300000},e);expect(get).toHaveBeenCalledTimes(1);
+  await worker.scheduled({cron:'* * * * *',scheduledTime:600000},{...e,AUTOMATION_KILL_SWITCH:'1'});expect(get).toHaveBeenCalledTimes(1);
+ }finally{get.mockRestore();}
+});
+it('refuses unexpected uploaded assets without patching or holding a published job',async()=>{
+ const {env,store,item}=await setup();const lease=await store.claim();await store.published(item.fingerprint,lease!.lease_token,'expected');
+ const doc={_id:'story-'+item.fingerprint,_type:'article',_rev:'r',publicationState:'published',automation:{candidateHash:'expected'},translations:{en:{title:'Title',slug:{current:'published'}}}};
+ const get=vi.spyOn(globalThis,'fetch').mockImplementation(async url=>Response.json(String(url).includes('/data/query/')?{result:doc}:{document:{_id:'file-unknown-pdf'}}));
+ try{expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/attach-image',{},admin),env)).status).toBe(502);expect(get).toHaveBeenCalledTimes(2);expect((await store.get(item.fingerprint))?.state).toBe('published');}finally{get.mockRestore();}
+});
+
+it('backs off a failed image so a later published article can proceed on the next tick',async()=>{
+ const {env,store,item}=await setup();const lease=await store.claim();await store.published(item.fingerprint,lease!.lease_token,'expected');
+ const second='d'.repeat(64);await store.enqueue('openai',{...item,fingerprint:second,url:'https://openai.com/index/second'});const claim=await store.claim();await store.published(second,claim!.lease_token,'second');
+ let queries=0;const get=vi.spyOn(globalThis,'fetch').mockImplementation(async input=>{
+  const url=new URL(String(input));
+  if(url.searchParams.has('$excluded')){const excluded=JSON.parse(url.searchParams.get('$excluded')!);queries++;expect(excluded).toEqual(queries===1?[]:[item.fingerprint]);return Response.json({result:[{jobId:queries===1?item.fingerprint:second}]});}
+  if(url.pathname.includes('/assets/'))throw Error('First image unavailable');
+  const id=JSON.parse(url.searchParams.get('$id')!);return Response.json({result:{_id:id,_type:'article',_rev:'r',publicationState:'published',automation:{candidateHash:id.endsWith(second)?'second':'expected'},translations:{en:{title:'Title',slug:{current:'valid'}}},mainImage:id.endsWith(second)?{asset:{_ref:'chosen'}}:undefined}});
+ });
+ try{
+  const {retryPublishedImage}=await import('../workers/news/media');
+  expect(await retryPublishedImage(env)).toEqual({pending:item.fingerprint});
+  expect(await retryPublishedImage(env)).toMatchObject({preserved:true,documentId:'story-'+second});
+ }finally{get.mockRestore();}
+});

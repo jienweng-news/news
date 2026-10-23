@@ -29,6 +29,15 @@ export function sanityApi(env:Env){
   const r=await mutate([{patch:{id,ifRevisionID:revision,set:fields}}]);
   if(r.results?.[0]?.document?._id!==id)throw new Refused(502,'CMS identity mismatch');
  }
+ async function uploadEditorialImage(slug:string,revision:string,title:string,id:string){
+  const image=new URL(`https://tokenonair.com/api/images/en/${slug}.png`);image.searchParams.set('revision',revision);
+  const url=new URL(base.replace(/\/data$/,'/assets')+'/images/production/from-url');
+  url.searchParams.set('title',title);url.searchParams.set('creditLine','Token on Air');url.searchParams.set('sourceName','Token on Air');url.searchParams.set('sourceId',id+':'+revision);
+  const result=await call(url.href,{url:image.href,filename:slug+'.png'});const asset=result.document?._id;
+  if(typeof asset!=='string'||!/^image-[a-f0-9]{32,64}-1200x630-png$/.test(asset))throw new Refused(502,'Unexpected editorial image asset');
+  return asset;
+ }
+ async function imageCandidates(excluded:string[]=[]){return (await query(`*[_type == "article" && publicationState == "published" && _id match "story-*" && defined(automation.jobId) && !(automation.jobId in $excluded) && (!defined(mainImage.asset) || (mainImage.generatedBy == "token-on-air" && mainImage.generatedAssetId == mainImage.asset._ref && mainImage.generatedTitle != coalesce(translations.en.title,title)))] | order(publishedAt desc)[0...10]{"jobId":automation.jobId}`,{excluded})).result;}
  async function repairPublicId(id:string,hash:string){
   const oldId='story.'+id,newId='story-'+id;const old=await read(oldId),current=await read(newId);
   if(current&&(current.automation?.candidateHash!==hash||current.publicationState!=='published'))throw new Refused(409,'Public identity collision');
@@ -40,5 +49,5 @@ export function sanityApi(env:Env){
   if(!result.results?.some((r:any)=>r.document?._id===newId))throw new Refused(502,'Repair identity mismatch');
   return newId;
  }
- return {read,create,patch,repairPublicId};
+ return {read,create,patch,repairPublicId,uploadEditorialImage,imageCandidates};
 }

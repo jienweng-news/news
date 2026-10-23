@@ -6,6 +6,7 @@ import {authorize,enabled,json,limitedText,Refused,type Env} from './config';
 import inventory from '../../docs/research/source-checks/2026-10-22-fixed-sources.json';
 import {createHash} from 'node:crypto';
 import {fetchFeed} from './network';
+import {attachPublishedImage,retryPublishedImage} from './media';
 import {sanityApi} from './sanity';
 const active=(s:any)=>s?.automation_enabled===1&&s.rights_status==='reviewed'&&s.allowed_reuse==='metadata-discovery';
 export async function runScheduled(env:Env,get=fetchFeed){
@@ -79,7 +80,7 @@ export default {
   try{
    const url=new URL(request.url);if(request.method==='GET'&&url.pathname==='/health')return json({service:'token-on-air-news',ok:true});
    if(url.pathname==='/v1/status'&&request.method==='GET'){authorize(request,env.ADMIN_TOKEN);return json({enabled:enabled(env),...await new D1Store(env.DB).status()});}
-   const match=/^\/v1\/jobs\/([a-f0-9]{64})\/(publish|hold|correct|withdraw|release|repair-public-id)$/.exec(url.pathname);
+   const match=/^\/v1\/jobs\/([a-f0-9]{64})\/(publish|hold|correct|withdraw|release|repair-public-id|attach-image)$/.exec(url.pathname);
    const claim=url.pathname==='/v1/jobs/claim',ingest=url.pathname==='/v1/ingest';if(request.method!=='POST'||(!claim&&!ingest&&!match))return json({error:'Not found'},404);
    authorize(request,claim||ingest||match?.[2]==='publish'||match?.[2]==='hold'?env.WRITER_TOKEN:env.ADMIN_TOKEN);
    if(request.headers.has('Origin'))throw new Refused(403,'Browser-origin requests refused');
@@ -103,11 +104,12 @@ export default {
     if(!await store.hold(job.id,body.leaseToken,'Independent processing refused; inspect before release'))throw new Refused(409,'Processing job required');
     await store.audit(job.id,'held');return json({held:job.id});
    }
+   if(match![2]==='attach-image')return json(await attachPublishedImage(env,store,match![1]));
    return json(match![2]==='publish'?await publish(body,env,store,match![1]):await lifecycle(match![2],body,env,store,match![1]));
   }catch(error){return json({error:error instanceof Refused?error.label:'Operation failed'},error instanceof Refused?error.status:502);}
  },
- async scheduled(controller:{cron:string},env:Env){
+ async scheduled(controller:{cron:string;scheduledTime?:number},env:Env){
   if(!enabled(env))return;
-  if(controller.cron==='7 0 * * *')await new D1Store(env.DB).prune();else if(env.RSS_POLLING_ENABLED!=='0')await runScheduled(env);
+  if(controller.cron==='7 0 * * *')await new D1Store(env.DB).prune();else{if(env.RSS_POLLING_ENABLED!=='0')await runScheduled(env);if(Math.floor((controller.scheduledTime??Date.now())/60000)%5===0)await retryPublishedImage(env);}
  }
 };
