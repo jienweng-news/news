@@ -118,6 +118,6 @@ export default {
   const automationEnabled=enabled(env);
   if(controller.cron==='7 0 * * *'){if(automationEnabled)await new D1Store(env.DB).prune();return;}
   if(automationEnabled&&env.RSS_POLLING_ENABLED!=='0')await runScheduled(env);
-  if(env.IMAGE_MAINTENANCE_ENABLED==='1'&&Math.floor((controller.scheduledTime??Date.now())/60000)%5===0)await retryPublishedImage(env);
+  if(env.IMAGE_MAINTENANCE_ENABLED==='1')await retryPublishedImage(env);
  }
 };

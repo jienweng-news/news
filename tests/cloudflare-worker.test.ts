@@ -179,13 +179,12 @@ it('refuses attaching media when the published CMS identity differs from the job
  const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({result:{_id:'story-'+item.fingerprint,_type:'article',_rev:'r',publicationState:'published',automation:{candidateHash:'different'}}}));
  try{expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/attach-image',{},admin),env)).status).toBe(409);expect(get).toHaveBeenCalledTimes(1);}finally{get.mockRestore();}
 });
-it('keeps image retries bounded to five-minute ticks without resuming news polling',async()=>{
+it('runs one image refresh per minute without resuming news polling',async()=>{
  const {env}=await setup();const e={...env,RSS_POLLING_ENABLED:'0'};
  const get=vi.spyOn(globalThis,'fetch').mockImplementation(async()=>Response.json({result:[]}));
  try{
-  await worker.scheduled({cron:'* * * * *',scheduledTime:60000},e);expect(get).not.toHaveBeenCalled();
-  await worker.scheduled({cron:'* * * * *',scheduledTime:300000},e);expect(get).toHaveBeenCalledTimes(1);
-  await worker.scheduled({cron:'* * * * *',scheduledTime:600000},{...e,AUTOMATION_KILL_SWITCH:'1'});expect(get).toHaveBeenCalledTimes(2);expect(get.mock.calls.every(([url])=>String(url).includes('/data/query/production'))).toBe(true);
+  await worker.scheduled({cron:'* * * * *',scheduledTime:60000},e);expect(get).toHaveBeenCalledTimes(1);
+  await worker.scheduled({cron:'* * * * *',scheduledTime:120000},{...e,AUTOMATION_KILL_SWITCH:'1'});expect(get).toHaveBeenCalledTimes(2);expect(get.mock.calls.every(([url])=>String(url).includes('/data/query/production'))).toBe(true);
  }finally{get.mockRestore();}
 });
 it('refuses unexpected uploaded assets without patching or holding a published job',async()=>{
