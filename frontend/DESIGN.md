@@ -37,7 +37,7 @@ Type: self-hosted Barlow Condensed Bold (SIL OFL, frontend/public/fonts/OFL.txt)
 
 ## Layout
 
-Composition: max 1320px shell; desktop 40px gutters, tablet 24px, mobile20px. Lead/latest split 1.7:1; equal AI/Crypto columns; single column under640px. A cutout masthead and red/black typographic artwork supply identity when no licensed lead image exists. Latest headlines use an ink panel; no fabricated time-relative urgency or story counts. Analysis appears only with matching real records.
+Composition: full browser-width shell; desktop 40px gutters, tablet 24px, mobile20px. Lead/latest split 1.7:1; equal AI/Crypto columns; single column under640px. A cutout masthead and red/black typographic artwork supply identity when no licensed lead image exists. Latest headlines use an ink panel; no fabricated time-relative urgency or story counts. Analysis appears only with matching real records.
 
 ## Components
 
@@ -48,3 +48,21 @@ Interaction: semantic links, main navigation current-state, skip link, visible3p
 Verification: build/type checks and HTTP smoke passed. Rendered visual comparison, narrow-viewport overflow and keyboard browser checks remain outstanding because T3 preview is blocked by host AppArmor. Do not treat responsive CSS as measured browser evidence.
 
 Approved logo: Cutout02, implemented with local outlined SVG wordmark (560×300), compact TOA (160×160) and T favicon (64×64). Use the wordmark at260px desktop/210px mobile and150px footer; keep its original aspect ratio. Logo glyphs are paths derived from the local OFL font, with no external resources.
+
+## Approved styling refinement — direction B
+
+Founder selected dramatic Persona direction B: full-width ink masthead, compact Cutout logo, restrained angled red edition title and ink topic tabs, upright story/body text, and a full-width dark newsletter panel with envelope geometry and red action. The AI/Crypto independent-perspective topline is removed. Newsletter uses two columns on desktop and one on mobile, preserving explicit labels, language choices, consent, disabled availability and provider guards. Existing content, permissions and analytics behavior are unchanged.
+
+Founder requested full browser width after reviewing the live screenshot. The page shell has no maximum width; desktop/tablet/mobile gutters remain 40/24/20px. Masthead extends to both browser edges. Article and prose width limits remain for reading comfort.
+
+Lower surfaces also span edge to edge: newsletter and footer use ink backgrounds with shared 40/24/20px gutters. The intervening analytics consent row uses matching minimum44px buttons and preserves native hidden states and opt-in behavior.
+
+## Approved newsroom hierarchy — 2026-10-23
+
+Owner selected magazine newsroom preserving the Persona-inspired red/black identity. Desktop content uses lead/supporting/latest columns (1.65/1/.8), becoming two columns plus a full-width latest rail at1100px and stacked at760px. Masthead minimum128px desktop/104px mobile, 200/144px wordmark. Lead headline34–52px desktop/38px mobile precedes its image; supporting headlines24–31px. News rows use27px headlines/25px mobile, 13px decks and10–11px timestamp/credit text; long-form reading remains18–19px. Compact metadata intentionally uses the existing publication scale. Desktop gap28px, supporting inset28px with1px neutral separator; mobile gaps18–24px. All timestamps show absolute publication date/time in UTC, localized to edition language. Mobile nav remains one scrollable row of native links. Image/source credits remain outside story anchors.
+
+Footer correction2026-10-23 after owner screenshot: keep edge-to-edge ink with4px red top rule, but use one compact desktop row with brand/tagline, news links and publication links.176px wordmark,28px sentence-case tagline below it,23px news links and14px policies. Desktop groups align at the top;32px row gap and64px column gaps. Below1000px the brand becomes a horizontal row above the two navigation groups. At540px use one outer column,128px wordmark/24px tagline and two-column news/policy links. All navigation targets stay44px tall. Copyright, RSS and privacy controls share the bottom flex row. No footer editor credit or decorative arrows. Native browser checks at1920px and320px verify no overflow; mobile English and Traditional Chinese reflow correctly.
+
+About page: dedicated Read surface using the publication's existing display/body faces and paper background. Desktop1280px maximum reading shell, two-column heading/content grid (1:1.7),72px-capped title,30–42px tagline,20px introduction and17px body. Coverage uses open linked rows with red headings; neutral separators and one4px red introductory rule establish hierarchy. At760px the grid stacks with48px title/18px introduction. No editor biography/credit or policy timestamp; policy and contact links keep supporting details accessible.
+
+Advertising page extends the About typography and open-row editorial structure with a compact red email action, four service descriptions, clear commercial standards and a visible inquiry address.1120px maximum shell,64px-capped title,20px introduction and17px descriptions. Service rows use a1:2 label/content grid, stacked under760px. Primary action minimum48px and other contact links minimum44px. Newsletter sponsorship is explicitly a future offering while delivery is not started; no inventory, pricing or reach claims are implied.

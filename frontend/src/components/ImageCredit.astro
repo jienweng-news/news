@@ -1,0 +1,5 @@
+---
+interface Props {image:{credit:string;license:string;sourceUrl?:string;licenseUrl?:string}}
+const {image}=Astro.props;
+---
+<figcaption>{image.sourceUrl?<a href={image.sourceUrl} rel="noopener noreferrer">{image.credit}</a>:image.credit} · {image.licenseUrl?<a href={image.licenseUrl} rel="license noopener noreferrer">{image.license}</a>:image.license}</figcaption>

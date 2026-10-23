@@ -22,7 +22,14 @@
       "last_modified_present": false,
       "feed_format": "rss",
       "item_count_observed": 1312,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "private RSS metadata leads only; no automated article derivation",
+        "terms_url": null,
+        "decision": "private-metadata-only"
+      }
     },
     {
       "id": "deepmind",
@@ -33,9 +40,9 @@
       "proposed_poll_minutes": 5,
       "notes": "Decode gzip responses before XML parsing.",
       "selected_for_fixed_list": true,
-      "automation_enabled": false,
-      "rights_status": "terms_review_pending",
-      "allowed_reuse": "none_granted",
+      "automation_enabled": true,
+      "rights_status": "reviewed",
+      "allowed_reuse": "metadata-discovery",
       "checked_at_utc": "2026-10-22T08:19:54.618434+00:00",
       "http_status": 200,
       "resolved_url": "https://deepmind.google/blog/rss.xml",
@@ -45,7 +52,15 @@
       "last_modified_present": false,
       "feed_format": "rss",
       "item_count_observed": 100,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "original attributed factual reporting only; no copied article wording/images or blanket republication permission",
+        "terms_url": "https://policies.google.com/terms",
+        "decision": "launch-original-reporting",
+        "robots_sha256": "f43be63c1571009a5f6a1364ef3bf60b48e50db989dbe9f47cc07818796b92f8"
+      }
     },
     {
       "id": "google-ai",
@@ -56,9 +71,9 @@
       "proposed_poll_minutes": 5,
       "notes": "Follow canonical redirect; relevance-filter broad Google coverage.",
       "selected_for_fixed_list": true,
-      "automation_enabled": false,
-      "rights_status": "terms_review_pending",
-      "allowed_reuse": "none_granted",
+      "automation_enabled": true,
+      "rights_status": "reviewed",
+      "allowed_reuse": "metadata-discovery",
       "checked_at_utc": "2026-10-22T08:19:54.618894+00:00",
       "http_status": 200,
       "resolved_url": "https://blog.google/innovation-and-ai/technology/ai/rss/",
@@ -68,7 +83,15 @@
       "last_modified_present": false,
       "feed_format": "rss",
       "item_count_observed": 20,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "original attributed factual reporting only; no copied article wording/images or blanket republication permission",
+        "terms_url": "https://policies.google.com/terms",
+        "decision": "launch-original-reporting",
+        "robots_sha256": "949de8ba1917ca71523b5c314533188573e0dcd4211dd353e942882c87b41f9c"
+      }
     },
     {
       "id": "google-research",
@@ -79,9 +102,9 @@
       "proposed_poll_minutes": 15,
       "notes": "Research results are not equivalent to available products.",
       "selected_for_fixed_list": true,
-      "automation_enabled": false,
-      "rights_status": "terms_review_pending",
-      "allowed_reuse": "none_granted",
+      "automation_enabled": true,
+      "rights_status": "reviewed",
+      "allowed_reuse": "metadata-discovery",
       "checked_at_utc": "2026-10-22T08:19:54.619386+00:00",
       "http_status": 200,
       "resolved_url": "https://research.google/blog/rss/",
@@ -91,7 +114,15 @@
       "last_modified_present": true,
       "feed_format": "rss",
       "item_count_observed": 100,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "original attributed factual reporting only; no copied article wording/images or blanket republication permission",
+        "terms_url": "https://policies.google.com/terms",
+        "decision": "launch-original-reporting",
+        "robots_sha256": "d9c80d619935ed4da8027c09289b43a9c9d1bcb76968958ef7a25836d45e1be9"
+      }
     },
     {
       "id": "huggingface",
@@ -114,7 +145,14 @@
       "last_modified_present": false,
       "feed_format": "rss",
       "item_count_observed": 888,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "private RSS metadata leads only; no automated article derivation",
+        "terms_url": "https://huggingface.co/terms-of-service",
+        "decision": "private-metadata-only"
+      }
     },
     {
       "id": "microsoft-research",
@@ -137,7 +175,14 @@
       "last_modified_present": true,
       "feed_format": "rss",
       "item_count_observed": 10,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "private RSS metadata leads only; no automated article derivation",
+        "terms_url": "https://www.microsoft.com/en-us/legal/intellectualproperty/copyright/permissions",
+        "decision": "private-metadata-only"
+      }
     },
     {
       "id": "nvidia",
@@ -160,7 +205,14 @@
       "last_modified_present": true,
       "feed_format": "rss",
       "item_count_observed": 18,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "private RSS metadata leads only; no automated article derivation",
+        "terms_url": null,
+        "decision": "private-metadata-only"
+      }
     },
     {
       "id": "ethereum",
@@ -171,9 +223,9 @@
       "proposed_poll_minutes": 5,
       "notes": "Distinguish testnet announcements from mainnet activation.",
       "selected_for_fixed_list": true,
-      "automation_enabled": false,
-      "rights_status": "terms_review_pending",
-      "allowed_reuse": "none_granted",
+      "automation_enabled": true,
+      "rights_status": "reviewed",
+      "allowed_reuse": "metadata-discovery",
       "checked_at_utc": "2026-10-22T08:19:54.824802+00:00",
       "http_status": 200,
       "resolved_url": "https://blog.ethereum.org/en/feed.xml",
@@ -183,7 +235,17 @@
       "last_modified_present": false,
       "feed_format": "rss",
       "item_count_observed": 643,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "original attributed factual reporting only; no copied article wording/images or blanket republication permission",
+        "terms_url": "https://ethereum.org/terms-of-use/",
+        "decision": "launch-original-reporting",
+        "license": "CC-BY-4.0",
+        "attribution": "Ethereum Foundation and original article author; source URL, license link, changes/translation notice; no implied endorsement",
+        "robots_sha256": "25d7ddd905cb22792deca35da478942438584aa73144086c52fba85cdd89ce8e"
+      }
     },
     {
       "id": "bitcoin-core",
@@ -194,9 +256,9 @@
       "proposed_poll_minutes": 15,
       "notes": "Software releases; do not imply endorsement of investments.",
       "selected_for_fixed_list": true,
-      "automation_enabled": false,
-      "rights_status": "terms_review_pending",
-      "allowed_reuse": "none_granted",
+      "automation_enabled": true,
+      "rights_status": "reviewed",
+      "allowed_reuse": "metadata-discovery",
       "checked_at_utc": "2026-10-22T08:19:54.922848+00:00",
       "http_status": 200,
       "resolved_url": "https://bitcoincore.org/en/rss.xml",
@@ -206,7 +268,17 @@
       "last_modified_present": true,
       "feed_format": "rss",
       "item_count_observed": 112,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "original attributed factual reporting only; no copied article wording/images or blanket republication permission",
+        "terms_url": "https://github.com/bitcoin-core/bitcoincore.org/blob/master/LICENSE",
+        "decision": "launch-original-reporting",
+        "license": "MIT",
+        "attribution": "Bitcoin Core website contributors; link source; include license notice if any substantial source content is reproduced (not used by this original-reporting workflow)",
+        "robots_sha256": "fd89345af6aca5dab85f2aa6a830e270a362b1fa6b5f19607ddd773a081ed651"
+      }
     },
     {
       "id": "a16z-crypto",
@@ -229,7 +301,14 @@
       "last_modified_present": true,
       "feed_format": "rss",
       "item_count_observed": 30,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": false,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "held; original URL now redirects to unreviewed a16zfrontier.com",
+        "terms_url": null,
+        "decision": "held"
+      }
     },
     {
       "id": "chainalysis",
@@ -252,7 +331,14 @@
       "last_modified_present": true,
       "feed_format": "rss",
       "item_count_observed": 10,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "private RSS metadata leads only; no automated article derivation",
+        "terms_url": null,
+        "decision": "private-metadata-only"
+      }
     },
     {
       "id": "techcrunch-ai",
@@ -275,7 +361,14 @@
       "last_modified_present": true,
       "feed_format": "rss",
       "item_count_observed": 20,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "private RSS metadata leads only; no automated article derivation",
+        "terms_url": null,
+        "decision": "private-metadata-only"
+      }
     },
     {
       "id": "the-decoder",
@@ -298,7 +391,14 @@
       "last_modified_present": true,
       "feed_format": "rss",
       "item_count_observed": 10,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "private RSS metadata leads only; no automated article derivation",
+        "terms_url": null,
+        "decision": "private-metadata-only"
+      }
     },
     {
       "id": "coindesk",
@@ -310,7 +410,7 @@
       "notes": "Discovery only pending terms review; syndication is not licensed.",
       "selected_for_fixed_list": true,
       "automation_enabled": false,
-      "rights_status": "terms_review_pending",
+      "rights_status": "automated_collection_restricted",
       "allowed_reuse": "none_granted",
       "checked_at_utc": "2026-10-22T08:19:55.363757+00:00",
       "http_status": 200,
@@ -321,7 +421,14 @@
       "last_modified_present": false,
       "feed_format": "rss",
       "item_count_observed": 25,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": false,
+      "review": {
+        "checked_at_utc": "2026-10-23T09:55:00Z",
+        "scope": "Automated access requires written permission; no ongoing automated monitoring or article derivation.",
+        "terms_url": "https://www.coindesk.com/terms",
+        "decision": "held-automated-collection-restriction"
+      }
     },
     {
       "id": "the-block",
@@ -333,7 +440,7 @@
       "notes": "No paywall bypass; use accessible primary evidence.",
       "selected_for_fixed_list": true,
       "automation_enabled": false,
-      "rights_status": "terms_review_pending",
+      "rights_status": "automated_collection_restricted",
       "allowed_reuse": "none_granted",
       "checked_at_utc": "2026-10-22T08:19:55.398415+00:00",
       "http_status": 200,
@@ -344,7 +451,14 @@
       "last_modified_present": true,
       "feed_format": "rss",
       "item_count_observed": 18,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": false,
+      "review": {
+        "checked_at_utc": "2026-10-23T09:52:00Z",
+        "scope": "No ongoing automated collection or article derivation pending explicit permission; existing public source links are not a license.",
+        "terms_url": "https://www.theblock.co/terms-service",
+        "decision": "held-automated-collection-restriction"
+      }
     },
     {
       "id": "decrypt",
@@ -356,7 +470,7 @@
       "notes": "Filter news from sponsored content; discovery is not reuse permission.",
       "selected_for_fixed_list": true,
       "automation_enabled": false,
-      "rights_status": "terms_review_pending",
+      "rights_status": "automated_collection_restricted",
       "allowed_reuse": "none_granted",
       "checked_at_utc": "2026-10-22T08:19:55.402475+00:00",
       "http_status": 200,
@@ -367,7 +481,14 @@
       "last_modified_present": true,
       "feed_format": "rss",
       "item_count_observed": 39,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": false,
+      "review": {
+        "checked_at_utc": "2026-10-23T09:58:00Z",
+        "scope": "Written permission required for automated collection/caching; hold ongoing collection and article derivation.",
+        "terms_url": "https://decrypt.co/terms-of-service",
+        "decision": "held-automated-collection-restriction"
+      }
     },
     {
       "id": "unchained",
@@ -390,7 +511,14 @@
       "last_modified_present": true,
       "feed_format": "rss",
       "item_count_observed": 10,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "private RSS metadata leads only; no automated article derivation",
+        "terms_url": null,
+        "decision": "private-metadata-only"
+      }
     },
     {
       "id": "blockworks",
@@ -402,7 +530,7 @@
       "notes": "Atom feed; allow only verified redirect to blockworks.com.",
       "selected_for_fixed_list": true,
       "automation_enabled": false,
-      "rights_status": "terms_review_pending",
+      "rights_status": "automated_collection_restricted",
       "allowed_reuse": "none_granted",
       "checked_at_utc": "2026-10-22T08:19:55.443882+00:00",
       "http_status": 200,
@@ -413,7 +541,14 @@
       "last_modified_present": false,
       "feed_format": "atom",
       "item_count_observed": 50,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": false,
+      "review": {
+        "checked_at_utc": "2026-10-23T09:52:00Z",
+        "scope": "No ongoing automated collection or article derivation pending explicit permission; existing public source links are not a license.",
+        "terms_url": "https://blockworks.com/terms",
+        "decision": "held-automated-collection-restriction"
+      }
     },
     {
       "id": "ithome",
@@ -436,7 +571,14 @@
       "last_modified_present": true,
       "feed_format": "rss",
       "item_count_observed": 30,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "private RSS metadata leads only; no automated article derivation",
+        "terms_url": null,
+        "decision": "private-metadata-only"
+      }
     },
     {
       "id": "inside",
@@ -459,7 +601,14 @@
       "last_modified_present": false,
       "feed_format": "rss",
       "item_count_observed": 10,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "private RSS metadata leads only; no automated article derivation",
+        "terms_url": null,
+        "decision": "private-metadata-only"
+      }
     },
     {
       "id": "techorange",
@@ -482,10 +631,18 @@
       "last_modified_present": false,
       "feed_format": "rss",
       "item_count_observed": 20,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "private RSS metadata leads only; no automated article derivation",
+        "terms_url": null,
+        "decision": "private-metadata-only"
+      }
     },
     {
       "id": "panews",
+      "content_hosts": ["panews.io"],
       "name": "PANews",
       "url": "https://www.panewslab.com/rss.xml?lang=en&type=NORMAL%2CNEWS%2CVIDEO",
       "classification": "crypto-newsroom",
@@ -493,9 +650,9 @@
       "proposed_poll_minutes": 5,
       "notes": "Preserve query; actual item languages can differ from feed declaration.",
       "selected_for_fixed_list": true,
-      "automation_enabled": false,
-      "rights_status": "terms_review_pending",
-      "allowed_reuse": "none_granted",
+      "automation_enabled": true,
+      "rights_status": "reviewed",
+      "allowed_reuse": "metadata-discovery",
       "checked_at_utc": "2026-10-22T08:19:55.623747+00:00",
       "http_status": 200,
       "resolved_url": "https://www.panewslab.com/rss.xml?lang=en&type=NORMAL%2CNEWS%2CVIDEO",
@@ -505,7 +662,16 @@
       "last_modified_present": false,
       "feed_format": "rss",
       "item_count_observed": 100,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T12:03:38.748918+00:00",
+        "scope": "Owner confirms commercial article/image reuse permission; attributed original reporting/translation from licensed PANews reports; standard PANews-hosted images only; preserve external rights and verification.",
+        "terms_url": "https://www.panewslab.com/en/user-agreement",
+        "decision": "enabled-with-owner-permission",
+        "permission_status": "owner-confirmed",
+        "permission_basis": "Owner explicitly confirmed PANews reuse permission in conversation on2026-10-23; no publisher contacted by agent."
+      }
     },
     {
       "id": "grenade",
@@ -528,7 +694,14 @@
       "last_modified_present": true,
       "feed_format": "rss",
       "item_count_observed": 20,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "private RSS metadata leads only; no automated article derivation",
+        "terms_url": null,
+        "decision": "private-metadata-only"
+      }
     },
     {
       "id": "blocktempo",
@@ -540,7 +713,7 @@
       "notes": "Discover and verify primary evidence; filter sponsored material.",
       "selected_for_fixed_list": true,
       "automation_enabled": false,
-      "rights_status": "terms_review_pending",
+      "rights_status": "commercial_rewrite_restricted",
       "allowed_reuse": "none_granted",
       "checked_at_utc": "2026-10-22T08:19:55.927782+00:00",
       "http_status": 200,
@@ -551,7 +724,14 @@
       "last_modified_present": true,
       "feed_format": "rss",
       "item_count_observed": 10,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": false,
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "held; commercial rewrite restriction",
+        "terms_url": "https://www.blocktempo.com/terms-of-use/",
+        "decision": "held"
+      }
     },
     {
       "id": "arxiv-ai",
@@ -574,7 +754,17 @@
       "last_modified_present": false,
       "feed_format": "rss",
       "item_count_observed": 370,
-      "feed_verified": true
+      "feed_verified": true,
+      "monitoring_enabled": true,
+      "content_hosts": [
+        "arxiv.org"
+      ],
+      "review": {
+        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
+        "scope": "private RSS metadata leads only; no automated article derivation",
+        "terms_url": null,
+        "decision": "private-metadata-only"
+      }
     }
   ],
   "separate_page_watch_candidates": [

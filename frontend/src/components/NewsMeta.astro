@@ -1,0 +1,8 @@
+---
+import {publicationTime} from '../lib/news-date';
+import {t,type Locale} from '../lib/i18n';
+import type {ArticleCard} from '../lib/content/types';
+interface Props {article:ArticleCard;locale:Locale}
+const {article,locale}=Astro.props;
+---
+<div class="news-meta"><span>{t(locale,article.section)}</span><time datetime={article.publishedAt}>{publicationTime(article.publishedAt,locale)}</time></div>

@@ -10,8 +10,8 @@ export interface BodyBlock {
 }
 export interface Article {
   id: string; slug: string; title: string; summary: string; section: Section; format: Format; body: BodyBlock[];
-  author: { name: string; slug: string; bio?: string }; publishedAt: string; updatedAt: string; language: string;
-  sources: string[]; media?: { url: string; alt: string; credit: string; license: string };
+  author: { name: string; slug: string; bio?: string; image?: {url:string;alt:string} }; publishedAt: string; updatedAt: string; language: string;
+  sources: string[]; media?: { url: string; alt: string; credit: string; license: string; sourceUrl?:string; licenseUrl?:string };
   corrections: { date: string; note: string }[]; relationship: Relationship; disclosure?: string;
   fixture: boolean; previewOnly: boolean; localeSlugs?: Partial<Record<Locale,string>>;
 }

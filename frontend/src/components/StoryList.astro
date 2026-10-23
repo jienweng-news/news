@@ -1,16 +1,21 @@
 ---
+import {responsiveImage} from '../lib/images/delivery';
+import {storyImage,storyThumbnail} from '../lib/news-images';
 import RelationshipLabel from './RelationshipLabel.astro';
-import {t,localePath,languageTag,type Locale} from '../lib/i18n';
+import {publicationTime} from '../lib/news-date';
+import {t,localePath,type Locale} from '../lib/i18n';
 import type { ArticleCard } from '../lib/content/types';
-interface Props { articles: ArticleCard[]; compact?: boolean; locale?:Locale; headingLevel?:'h2'|'h3' }
-const { articles, compact = false, locale='en', headingLevel='h3' } = Astro.props;
+interface Props { articles: ArticleCard[]; compact?: boolean; locale?:Locale; headingLevel?:'h2'|'h3';layout?:'standard'|'rows';priorityFirst?:boolean }
+const { articles, compact = false, locale='en', headingLevel='h3',layout='standard',priorityFirst=false } = Astro.props;
 const Heading=headingLevel;
-const date = (value: string) => new Intl.DateTimeFormat(languageTag[locale], { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(value));
+const imageDeliveryBySlug=new Map(compact?[]:articles.flatMap(article=>{const image=storyThumbnail(article,locale);return image?[[article.slug,responsiveImage(image.url,440,'(max-width: 700px) calc(100vw - 40px), (max-width: 1100px) 45vw, 34vw')]]:[]}));
+
 ---
-<div class:list={['story-list', { compact }]}>
-  {articles.map(article => <article class="story-item">
+<div class:list={['story-list', { compact, 'news-rows':layout==='rows' }]}>
+  {articles.map((article,index) => <article class="story-item">
+    {!compact&&storyImage(article,locale)&&imageDeliveryBySlug.has(article.slug)&&<figure class="story-thumbnail"><a href={localePath(locale,`articles/${article.slug}`)} tabindex="-1" aria-hidden="true"><img class:list={{'source-chart':storyImage(article,locale)?.credit==='PANews'}} src={imageDeliveryBySlug.get(article.slug)?.src} srcset={imageDeliveryBySlug.get(article.slug)?.srcset} sizes={imageDeliveryBySlug.get(article.slug)?.sizes} alt="" width="1200" height="630" loading={priorityFirst&&index===0?'eager':'lazy'} decoding={priorityFirst&&index===0?'sync':'async'} fetchpriority={priorityFirst&&index===0?'high':'auto'}/></a></figure>}
     <Heading><a href={localePath(locale,`articles/${article.slug}`)}>{article.title}</a></Heading>
     {!compact && <p>{article.summary}</p>}
-    <div class="story-details"><RelationshipLabel locale={locale} relationship={article.relationship} /><span>{t(locale,article.section)}</span><span>{t(locale,article.format)}</span><time datetime={article.publishedAt}>{date(article.publishedAt)}</time></div>
+    <div class="story-details"><RelationshipLabel locale={locale} relationship={article.relationship} /><span>{t(locale,article.section)}</span><span>{t(locale,article.format)}</span><time datetime={article.publishedAt}>{publicationTime(article.publishedAt,locale)}</time></div>
   </article>)}
 </div>

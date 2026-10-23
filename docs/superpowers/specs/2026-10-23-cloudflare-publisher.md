@@ -1,0 +1,11 @@
+# Free Cloudflare publisher
+
+User approved Workers+D1+Cron, retaining Dots for generation, Sanity for content and Vercel for reading. No paid hosting or automatic plan upgrade. Implement natively in this worktree. No production news or email without actual verified evidence.
+
+A private API (bearer authentication, no CORS/cookie authentication) exposes redacted status, job claim and signed-candidate publication, plus admin correction/withdrawal. A Worker scheduled handler polls one reviewed due source per invocation, stores metadata in D1 and honors global disable/kill switch. All sources start disabled. D1 replaces local SQLite for this runtime; existing Node tooling remains supported.
+
+Atomic SQL claims carry random lease-owner tokens; late writers cannot mutate a newer claim. Publication uses a global owner-fenced lock, deterministic story identity, existing candidate-hash replay checks, locale slug checks and Sanity createIfNotExists. Corrections preserve publication provenance and locale slugs, use CMS revision checks; withdrawals preserve CMS documents and prevent resurrection. Writer identity never receives validation/CMS/admin credentials. The independent signed-verifier contract stays intact; a signature is not semantic verification.
+
+Free-tier limits demand bounded payloads/feed sizes and one source per scheduled invocation. No claim of CPU compliance until actual Cloudflare CPU telemetry exists; local runtime/wall-time is not production CPU proof. Oversized feeds are held with diagnostic status rather than truncated into misleading success. No fallback paid execution. Outbound feed URLs are bundled reviewed hosts only; redirect checks and byte/timeout bounds apply. Worker fetch cannot reproduce Node DNS pinning; no user-provided arbitrary fetch destinations are exposed.
+
+Source time, first discovery and import time remain separate; initial site publication uses actual time. Work packages are untrusted RSS metadata, never instructions. Dots connectivity remains gated until it can call this API; no callable Dots API is assumed. Durable D1 metadata, bounded retries, held jobs, retention and restore instructions required. Public health reveals no operational or subscriber details. Cloudflare account authentication and secrets are external deployment gates, not a reason to leave local code unfinished.

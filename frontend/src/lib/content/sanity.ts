@@ -1,6 +1,6 @@
 import { createClient } from '@sanity/client';
 import type { AppConfig } from '../config';
-const projection = `{ "id": _id, "slug": slug.current, title, summary, section, format, body, "author": author->{name, "slug": slug.current, bio}, publishedAt, updatedAt, language, publicationState, translations, sources, corrections, relationship, disclosure, "media": select(defined(mainImage.asset) => {"url": mainImage.asset->url, "alt": mainImage.alt, "credit": mainImage.credit, "license": mainImage.license}) }`;
+const projection = `{ "id": _id, "slug": slug.current, title, summary, section, format, body, "author": author->{name, "slug": slug.current, bio, "image": select(defined(image.asset) => {"url": image.asset->url, "alt": image.alt})}, publishedAt, updatedAt, language, publicationState, translations, sources, corrections, relationship, disclosure, "media": select(defined(mainImage.asset) => {"url": mainImage.asset->url, "alt": mainImage.alt, "credit": mainImage.credit, "license": mainImage.license,"sourceUrl":mainImage.sourceUrl,"licenseUrl":mainImage.licenseUrl}) }`;
 const published = `_type == "article" && (!defined(publicationState) || publicationState == "published") && !(_id in path("drafts.**")) && !(_id in path("versions.**"))`;
 export const listQuery = `*[${published}] | order(publishedAt desc) ${projection}`;
 export const articleQuery = `*[${published} && (slug.current == $slug || translations[$localeKey].slug.current == $slug)][0] ${projection}`;

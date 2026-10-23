@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import {t,localePath,type Locale} from '../lib/i18n';
+interface Props{locale:Locale}
+const {locale}=Astro.props;
+const content={
+ en:{title:'About Token on Air',intro:'Artificial intelligence, crypto and the technology changing how we build, work and exchange value. We follow the developments, explain the context and connect the ideas behind the headlines.',coverage:'What we cover',ai:'Models, tools and research—and what they mean for the people building with and using AI.',crypto:'Networks, digital assets, wallets and the businesses shaping the crypto economy.',approach:'A wider perspective',paragraphs:['Technology crosses borders. Our coverage takes a global view, with attention to Taiwan and Asia, and is available in English, Traditional Chinese and Simplified Chinese.','We publish news, analysis, guides and reviews for builders, technology users and readers following these markets. Facts, claims and uncertainty should be distinguishable; material corrections should be clear and dated.'],policy:'Read our editorial policy',contact:'Stay in the conversation',contactText:'Have a story tip, a correction or a question about the publication? We welcome useful leads and thoughtful feedback.',contactLink:'Get in touch'},
+ zh:{title:'關於 Token on Air',intro:'關注人工智慧、加密貨幣，以及改變開發、工作與價值交換方式的科技。我們追蹤新進展、梳理脈絡，串起新聞背後的關鍵想法。',coverage:'我們關注的領域',ai:'模型、工具與研究，以及這些發展對 AI 開發者與使用者的意義。',crypto:'區塊鏈網路、數位資產、錢包，以及推動加密經濟發展的企業。',approach:'更寬廣的視角',paragraphs:['科技跨越國界。我們以全球視角關注台灣與亞洲，提供英文、繁體中文與簡體中文版本。','我們為開發者、科技使用者與市場讀者提供新聞、分析、指南與評測。事實、主張與不確定性應清楚區分，重要更正應明確標示並附上日期。'],policy:'閱讀編輯政策',contact:'讓交流持續',contactText:'有新聞線索、更正建議，或想進一步了解本刊？歡迎提供有助於報導的資訊與回饋。',contactLink:'聯絡我們'},
+ 'zh-cn':{title:'关于 Token on Air',intro:'关注人工智能、加密货币，以及改变开发、工作与价值交换方式的科技。我们追踪新进展、梳理背景，串起新闻背后的关键想法。',coverage:'我们关注的领域',ai:'模型、工具与研究，以及这些发展对 AI 开发者与使用者的意义。',crypto:'区块链网络、数字资产、钱包，以及推动加密经济发展的企业。',approach:'更宽广的视角',paragraphs:['科技跨越国界。我们以全球视角关注台湾与亚洲，提供英文、繁体中文与简体中文版本。','我们为开发者、科技用户与市场读者提供新闻、分析、指南与评测。事实、主张与不确定性应清楚区分，重要更正应明确标注并附上日期。'],policy:'阅读编辑政策',contact:'让交流持续',contactText:'有新闻线索、更正建议，或想进一步了解本刊？欢迎提供有助于报道的信息与反馈。',contactLink:'联系我们'}
+}[locale];
+---
+<BaseLayout locale={locale} title={t(locale,'about')} description={content.intro}>
+ <article class="about-page">
+  <header class="about-opening"><h1>{content.title}</h1><div><p class="about-lead">{t(locale,'tagline')}</p><p class="about-intro">{content.intro}</p></div></header>
+  <section class="about-section" aria-labelledby="about-coverage"><h2 id="about-coverage">{content.coverage}</h2><div class="about-beats">{(['ai','crypto'] as const).map(beat=><a href={localePath(locale,beat)}><h3>{t(locale,beat)}</h3><p>{content[beat]}</p></a>)}</div></section>
+  <section class="about-section" aria-labelledby="about-approach"><h2 id="about-approach">{content.approach}</h2><div class="about-copy">{content.paragraphs.map(p=><p>{p}</p>)}<a class="about-text-link" href={localePath(locale,'policy')}>{content.policy}</a></div></section>
+  <section class="about-section about-contact" aria-labelledby="about-contact"><h2 id="about-contact">{content.contact}</h2><div class="about-copy"><p>{content.contactText}</p><a class="about-text-link" href={localePath(locale,'contact')}>{content.contactLink}</a></div></section>
+ </article>
+</BaseLayout>
+<style>
+.about-page{max-width:1280px;margin:48px auto 72px}
+.about-opening,.about-section{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.7fr);gap:32px 64px}
+.about-opening{align-items:start;padding:12px 0 48px;border-bottom:4px solid var(--red)}
+.about-opening h1{font:700 clamp(44px,5vw,72px)/1.02 var(--display);letter-spacing:-.025em;max-width:12ch;margin:0}
+.about-lead{font:700 clamp(30px,3vw,42px)/1.12 var(--display);margin:0 0 24px;letter-spacing:-.015em}
+.about-intro{font-size:20px;line-height:1.65;max-width:58ch;margin:0;color:var(--muted)}
+.about-section{padding:40px 0;border-bottom:1px solid var(--line)}
+.about-section h2{font:700 32px/1.15 var(--display);margin:0;max-width:16ch}
+.about-beats>a{display:block;padding:4px 0 24px;min-height:44px}
+.about-beats>a+a{padding-top:24px;border-top:1px solid var(--line)}
+.about-beats>a:last-child{padding-bottom:0}
+.about-beats h3{font:700 30px/1.15 var(--display);margin:0 0 12px;color:var(--red)}
+.about-beats p,.about-copy p{font-size:17px;line-height:1.7;max-width:65ch;margin:0;color:var(--muted)}
+.about-beats>a:hover{text-decoration:none}
+.about-beats>a:hover h3{text-decoration:underline;text-underline-offset:.18em}
+.about-copy p+p{margin-top:20px}
+.about-text-link{display:inline-flex;align-items:center;min-height:44px;margin-top:16px;font-size:15px;font-weight:700;text-decoration:underline;text-underline-offset:.2em}
+.about-contact{border-bottom:0;padding-bottom:0}
+@media(max-width:760px){.about-page{margin:32px auto 48px}.about-opening,.about-section{grid-template-columns:1fr;gap:24px}.about-opening{padding:0 0 32px}.about-opening h1{max-width:none;font-size:48px}.about-lead{font-size:32px;margin-bottom:16px}.about-intro{font-size:18px}.about-section{padding:28px 0}.about-section h2{font-size:30px;max-width:none}.about-contact{padding-bottom:0}}
+</style>

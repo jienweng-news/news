@@ -1,0 +1,7 @@
+# Self-hosted n8n newsroom
+
+Approved direction: use n8n on this server with the existing ChatGPT-authenticated Codex CLI, retaining Cloudflare/D1, Sanity and Vercel. No new paid service, host migration, email broadcast or article publication during acceptance.
+
+Run isolated Compose services: n8n editor on loopback only; coordinator with durable local run history and worker credentials; Codex agent with only its own persisted login, no CMS/publisher/verifier credentials or host filesystem. Use fixed writer/reviewer/smoke tasks, bounded JSON, no arbitrary command interface. Independent fresh-context verification and deterministic evidence checks precede signing outside the agent. Existing source-rights and publication gates remain authoritative. Queue processing is single-flight and bounded by the worker's five-minute lease. Schedules begin unpublished; manual acceptance uses synthetic content and cannot publish.
+
+Persist n8n's encryption key/database and agent authentication, restart automatically, cap executions/logs/resources. Install an importable five-minute queue workflow and a separate manual smoke workflow. Verify Docker health, n8n workflow execution, real ChatGPT-authenticated structured output, unauthorized request refusal, paused backend and no new articles. Owner sets their own n8n password privately; never invent an account password. Document access, backups, updates, login refresh, limitations and activation checklist.

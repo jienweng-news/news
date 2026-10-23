@@ -3,6 +3,7 @@ import {normalizeLocalizedArticle} from '../frontend/src/lib/content/localized';
 import {object,safeUrl,text} from '../frontend/src/lib/content/normalize';
 import {locales,localeKey} from '../frontend/src/lib/i18n';
 import {JobQueue} from './queue';
+import {feedPublicationTime} from './feed';
 export const requiredChecks=['sourceRights','primaryEvidence','claimsVerified','translationConsistency','originalWording','duplicateCheck','relationshipVerified'] as const;
 export function canonical(value:unknown):string{if(Array.isArray(value))return `[${value.map(canonical).join(',')}]`;if(value&&typeof value==='object')return `{${Object.keys(value).sort().map(k=>`${JSON.stringify(k)}:${canonical((value as any)[k])}`).join(',')}}`;return JSON.stringify(value);}
 export const candidateHash=(candidate:unknown)=>createHash('sha256').update(canonical(candidate)).digest('hex');
@@ -30,15 +31,18 @@ export async function publishJob(queue:JobQueue,id:string,candidate:unknown,conf
  let validated:ReturnType<typeof validateCandidate>;try{validated=validateCandidate(candidate,config.validationSecret);}catch{if(job.state==='processing')queue.hold(id,'Candidate validation failed');throw new Error('Candidate validation failed');}const {editions,hash}=validated;if(job.state==='published'){if(job.candidate_hash!==hash)throw new Error('Published payload differs; use correction workflow');return job.document_id;}
  if(job.state!=='processing'||job.lease_until<Date.now())throw new Error('Active job lease required');
  const en=editions[0];const item=JSON.parse(job.payload);if(!en.sources.includes(item.url))throw new Error('Discovery source must be attributed');
- const documentId=`story.${id}`;
- const document=publicationDocument(editions,id,config.editorId,hash);
+ const documentId=`story-${id}`;
+ const sourceTime=feedPublicationTime(item.publishedAt);const importedAt=new Date().toISOString();
+ if(!Number.isFinite(sourceTime)||sourceTime>Date.now()+300000||!Number.isFinite(job.created_at)||job.created_at>Date.now()+300000)throw new Error('Invalid source provenance');
+ const document={...publicationDocument(editions,id,config.editorId,hash),publishedAt:importedAt,updatedAt:importedAt,
+  provenance:{sourceUrl:item.url,sourcePublishedAt:new Date(sourceTime).toISOString(),discoveredAt:new Date(job.created_at).toISOString(),importedAt}};
  if(!queue.lockPublisher())throw new Error('Publisher busy');
  try{const result=await write(document);if(result.id!==documentId||result.hash!==hash)throw new Error('Publication identity mismatch');queue.published(id,documentId,hash);return documentId;}catch{queue.hold(id,'Publish failed; inspect CMS before retry');throw new Error('Publication failed');}finally{queue.unlockPublisher();}
 }
 
 export function publicationDocument(editions:ReturnType<typeof validateCandidate>['editions'],id:string,editorId:string,hash:string){
  const en=editions[0];
- return {_id:`story.${id}`,_type:'article',section:en.section,format:en.format,author:{_type:'reference',_ref:editorId},publishedAt:en.publishedAt,updatedAt:en.updatedAt,language:'en',publicationState:'published',sources:en.sources,relationship:en.relationship,
+ return {_id:`story-${id}`,_type:'article',section:en.section,format:en.format,author:{_type:'reference',_ref:editorId},publishedAt:en.publishedAt,updatedAt:en.updatedAt,language:'en',publicationState:'published',sources:en.sources,relationship:en.relationship,
  translations:Object.fromEntries(editions.map((a,i)=>[localeKey[locales[i]],{title:a.title,summary:a.summary,slug:{_type:'slug',current:a.slug},body:a.body,...(a.disclosure?{disclosure:a.disclosure}:{})}])),
  corrections:en.corrections.map((c,i)=>({date:c.date,notes:Object.fromEntries(editions.map((a,l)=>[localeKey[locales[l]],a.corrections[i]?.note||c.note]))})),automation:{jobId:id,candidateHash:hash}};
 }

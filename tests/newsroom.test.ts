@@ -25,3 +25,10 @@ it('never promotes preview-only cards and selects analysis without substituting 
   expect(composeNewsroom([ai, analysis]).analysis.map(a => a.slug)).toEqual(['understanding-wallet-custody']);
   expect(composeNewsroom([])).toMatchObject({ latest: [], analysis: [] });
 });
+it('selects at most two supporting stories after the lead without promoting drafts',()=>{
+ const stories=Array.from({length:9},(_,i)=>({...ai,id:'story-'+i,slug:'story-'+i,publishedAt:new Date(Date.UTC(2026,9,23,12,i)).toISOString()}));
+ const result=composeNewsroom([...stories,{...ai,id:'draft',previewOnly:true}]);
+ expect(result.supporting.map(a=>a.id)).toEqual(['story-7','story-6']);
+ expect(result.supporting.every(a=>a.id!==result.lead?.id)).toBe(true);
+ expect(composeNewsroom([]).supporting).toEqual([]);expect(composeNewsroom([ai]).supporting).toEqual([]);
+});

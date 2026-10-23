@@ -1,7 +1,14 @@
 ---
+import AdvertisePage from '../../components/AdvertisePage.astro';
+import AboutPage from '../../components/AboutPage.astro';
 import PolicyPage from '../../components/PolicyPage.astro';
 import SectionPage from '../../components/SectionPage.astro';
+import {createContentRepository} from '../../lib/content/repository';
+import {runtimeConfig} from '../../lib/runtime';
+import {resolveListingPage} from '../../lib/content/listing';
 import {isLocale} from '../../lib/i18n';
-const {locale,section}=Astro.params;if(!isLocale(locale)||!['ai','crypto','about','policy','contact','privacy','advertise'].includes(section||''))return new Response('Not found',{status:404});
+const {locale,section}=Astro.params;if(!isLocale(locale)||!['ai','crypto','about','policy','contact','privacy','advertise','terms','disclaimer'].includes(section||''))return new Response('Not found',{status:404});
+const result=['ai','crypto'].includes(section!)?await resolveListingPage(()=>createContentRepository(runtimeConfig()).listPublished(locale)):null;
+if(result){Astro.response.status=result.status;Astro.response.headers.set('Cache-Control',result.cacheControl);}
 ---
-{['ai','crypto'].includes(section!)?<SectionPage locale={locale} section={section as 'ai'|'crypto'}/>:<PolicyPage locale={locale} page={section as 'about'|'policy'|'contact'|'privacy'|'advertise'}/>}
+{['ai','crypto'].includes(section!)?<SectionPage articles={result!.articles} unavailable={result!.unavailable} locale={locale} section={section as 'ai'|'crypto'}/>:section==='about'?<AboutPage locale={locale}/>:section==='advertise'?<AdvertisePage locale={locale}/>:<PolicyPage locale={locale} page={section as 'policy'|'contact'|'privacy'|'terms'|'disclaimer'}/>}

@@ -2,11 +2,11 @@
 
 Implemented local components: bounded RSS/Atom parsing, reviewed-source registry gate, pinned public-IPv4 HTTPS fetching with checked redirects, conditional polling/backoff, 48-hour lookback, durable SQLite queue, five-attempt retry limit, leases, private Dots work-package export, signed-candidate validation, idempotent Sanity create, revision-checked corrections, withdrawal and operator kill switch. No public CMS mutation endpoint exists.
 
-**Current state: disabled, paused, zero enabled sources. No live CMS write or Dots connection has been verified.**
+**Current state: disabled, paused, zero enabled sources. Cloudflare Worker token read/write capability and jienweng editor record are verified; no live article publication, Dots connection or independent semantic verifier has been accepted.**
 
 ## Deployment boundary
 
-The Astro reader site runs on Vercel. This Node22 worker requires a private durable disk for SQLite, separate secrets and a scheduler. Do not place the database in a Vercel function filesystem. A managed durable queue/database adapter is an alternative that still needs selection and verification; the worker has not been provisioned. Node22's SQLite API is experimental; run the tested Node version and keep backup/restore checks.
+The Astro reader site runs on Vercel. This Node22 worker requires a private durable disk for SQLite, separate secrets and a scheduler. Do not place the database in a Vercel function filesystem. A Workers+D1 adapter is now implemented for a zero additional hosting cost path; see cloudflare-worker.md for actual local/deployment evidence and remaining gates. The Node deployment described here remains optional. Node22's SQLite API is experimental; run the tested Node version and keep backup/restore checks.
 
 Use a private OS user/volume, directory permissions700, files600, and an environment file outside the repository. CLI uses umask077. Never supply SANITY_WRITE_TOKEN or VALIDATION_SECRET to Dots or the public frontend deployment. Sanity Free has no custom draft-only role; the publish token retains residual broad dataset permissions. Limit it to the selected project/dataset using available account roles, verify those permissions live, isolate/rotate it, and keep subscriber/contract records out of Sanity.
 
@@ -52,3 +52,9 @@ Publisher chooses `story.<url fingerprint>` and the configured editor reference.
 Run `prune` daily after operational approval: delete old queued/held metadata after30days; clear completed source payloads after30days while retaining minimal idempotency tombstones; retain audit events180days. Backups inherit those private retention requirements. Make daily SQLite snapshots with `backup`; keep them in access-controlled external storage. Restore into a separate staging volume, run inbox/status and replay/idempotency tests, and measure duration. Never claim the24-hour/4-hour recovery targets without a completed drill.
 
 Kill switch: set AUTOMATION_KILL_SWITCH=1 or AUTOMATION_ENABLED=0 and stop worker/scheduler. This blocks poll/publish/correct/withdraw commands; emergency withdrawal therefore needs a deliberately authorized publisher action or the Sanity operator UI while routine automation remains stopped. Rotate compromised tokens, remove affected content, purge/verify caches, and record the incident. Do not unpause the entire worker just to issue an emergency action; use an isolated operator process with the necessary command scope.
+
+## Backfill date contract
+
+Feed discovery requires RSS pubDate or Atom published with an explicit timezone and valid calendar date. Atom updated alone is not first publication and is skipped; missing/ambiguous dates are skipped for manual investigation. The existing48-hour window and five-minute clock-skew limit still apply.
+
+On first import, the publisher assigns actual UTC site publishedAt/updatedAt and records read-only provenance: sourceUrl, sourcePublishedAt, discoveredAt (queue creation) and importedAt. Writer-supplied historical dates do not backdate a new Token on Air article. Signed candidateHash continues to identify the reviewed input; system-assigned publication/provenance fields are derived by the worker. Retry uses the same document identity and existing-document hash checks, retaining the original successful CMS write. Corrections must use the stored site publishedAt and retain existing provenance; they never refresh first-publication time. This does not establish source rights or enable automatic publication.

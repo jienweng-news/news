@@ -1,0 +1,26 @@
+-- Discovery inventory only. No source is enabled or approved by this migration.
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('openai','https://openai.com/news/rss.xml','https://openai.com/news/rss.xml',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('deepmind','https://deepmind.google/blog/rss.xml','https://deepmind.google/blog/rss.xml',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('google-ai','https://blog.google/technology/ai/rss/','https://blog.google/innovation-and-ai/technology/ai/rss/',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('google-research','https://research.google/blog/rss/','https://research.google/blog/rss/',15);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('huggingface','https://huggingface.co/blog/feed.xml','https://huggingface.co/blog/feed.xml',15);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('microsoft-research','https://www.microsoft.com/en-us/research/feed/','https://www.microsoft.com/en-us/research/feed/',15);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('nvidia','https://blogs.nvidia.com/feed/','https://blogs.nvidia.com/feed/',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('ethereum','https://blog.ethereum.org/feed.xml','https://blog.ethereum.org/en/feed.xml',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('bitcoin-core','https://bitcoincore.org/en/rss.xml','https://bitcoincore.org/en/rss.xml',15);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('a16z-crypto','https://a16zcrypto.com/feed/','https://a16zcrypto.com/feed.xml',15);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('chainalysis','https://www.chainalysis.com/blog/feed/','https://www.chainalysis.com/blog/feed/',15);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('techcrunch-ai','https://techcrunch.com/category/artificial-intelligence/feed/','https://techcrunch.com/category/artificial-intelligence/feed/',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('the-decoder','https://the-decoder.com/feed/','https://the-decoder.com/feed/',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('coindesk','https://www.coindesk.com/arc/outboundfeeds/rss/','https://www.coindesk.com/arc/outboundfeeds/rss',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('the-block','https://www.theblock.co/rss.xml','https://www.theblock.co/rss.xml',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('decrypt','https://decrypt.co/feed','https://decrypt.co/feed',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('unchained','https://unchainedcrypto.com/feed/','https://unchainedcrypto.com/feed/',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('blockworks','https://blockworks.co/feed','https://blockworks.com/feed',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('ithome','https://www.ithome.com.tw/rss','https://www.ithome.com.tw/rss',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('inside','https://www.inside.com.tw/feed/rss','https://www.inside.com.tw/feed/rss',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('techorange','https://buzzorange.com/techorange/feed/','https://techorange.com/feed/',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('panews','https://www.panewslab.com/rss.xml?lang=en&type=NORMAL%2CNEWS%2CVIDEO','https://www.panewslab.com/rss.xml?lang=en&type=NORMAL%2CNEWS%2CVIDEO',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('grenade','https://grenade.tw/rss','https://grenade.tw/feed/',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('blocktempo','https://www.blocktempo.com/rss','https://www.blocktempo.com/feed/',5);
+INSERT OR IGNORE INTO sources(id,url,resolved_url,proposed_poll_minutes) VALUES('arxiv-ai','https://rss.arxiv.org/rss/cs.AI','https://rss.arxiv.org/rss/cs.AI',60);

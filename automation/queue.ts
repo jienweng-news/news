@@ -1,6 +1,6 @@
 import {DatabaseSync} from 'node:sqlite';
 import type {FeedItem} from './feed';
-export interface Job{id:string;source:string;state:string;payload:string;attempts:number;lease_until:number;next_at:number;document_id:string|null;candidate_hash:string|null;last_error:string|null}
+export interface Job{created_at:number;id:string;source:string;state:string;payload:string;attempts:number;lease_until:number;next_at:number;document_id:string|null;candidate_hash:string|null;last_error:string|null}
 export class JobQueue{
  readonly db:DatabaseSync;
  constructor(path:string){this.db=new DatabaseSync(path);this.db.exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; CREATE TABLE IF NOT EXISTS jobs(id TEXT PRIMARY KEY,source TEXT NOT NULL,state TEXT NOT NULL,payload TEXT NOT NULL,attempts INTEGER NOT NULL DEFAULT 0,lease_until INTEGER NOT NULL DEFAULT 0,next_at INTEGER NOT NULL DEFAULT 0,document_id TEXT,candidate_hash TEXT,last_error TEXT,created_at INTEGER NOT NULL); CREATE TABLE IF NOT EXISTS sources(id TEXT PRIMARY KEY,etag TEXT,last_modified TEXT,last_success INTEGER,last_error TEXT,next_poll INTEGER NOT NULL DEFAULT 0);CREATE TABLE IF NOT EXISTS publisher_lock(id INTEGER PRIMARY KEY,until INTEGER NOT NULL); INSERT OR IGNORE INTO publisher_lock(id,until) VALUES(1,0);CREATE TABLE IF NOT EXISTS audit(id INTEGER PRIMARY KEY,job TEXT,event TEXT,time INTEGER,detail TEXT);`);}

@@ -73,11 +73,11 @@ export function normalizeArticle(raw: unknown, mode: 'published' | 'preview' = '
   if (!Array.isArray(corrections)) throw new InvalidArticleError();
   const result: Article = {
     id, slug: slug(a.slug), title: text(a.title), summary: text(a.summary), section: section as Section, format: format as Format,
-    body: body(a.body), author: { name: text(author.name), slug: slug(author.slug), ...(author.bio ? { bio: text(author.bio) } : {}) },
+    body: body(a.body), author: { name: text(author.name), slug: slug(author.slug), ...(author.bio ? { bio: text(author.bio) } : {}), ...(author.image ? {image: {url:safeUrl(object(author.image).url),alt:text(object(author.image).alt)}} : {}) },
     publishedAt, updatedAt, language: text(a.language), sources: sources.map(safeUrl), relationship: relationship as Relationship, disclosure,
     corrections: corrections.map(c => { const correction = object(c); return { date: date(correction.date), note: text(correction.note) }; }),
     fixture: a.fixture === true, previewOnly: mode === 'preview',
   };
-  if (a.media) { const m = object(a.media); result.media = { url: safeUrl(m.url), alt: text(m.alt), credit: text(m.credit), license: text(m.license) }; }
+  if (a.media) { const m = object(a.media); result.media = { url: safeUrl(m.url), alt: text(m.alt), credit: text(m.credit), license: text(m.license), ...(m.sourceUrl?{sourceUrl:safeUrl(m.sourceUrl)}:{}), ...(m.licenseUrl?{licenseUrl:safeUrl(m.licenseUrl)}:{}) }; }
   return result;
 }
