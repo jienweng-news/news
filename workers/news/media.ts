@@ -1,3 +1,4 @@
+import {imagePlan,imageVersion} from '../../frontend/src/lib/images/policy';
 import {Refused,type Env} from './config';
 import {sanityApi} from './sanity';
 import {D1Store} from './store';
@@ -10,9 +11,10 @@ export async function attachPublishedImage(env:Env,store:D1Store,id:string){
   if(!doc||doc._id!=='story-'+id||doc._type!=='article'||doc.publicationState!=='published'||doc.automation?.candidateHash!==job.candidate_hash||!doc._rev)throw new Refused(409,'Published CMS identity required');
   const title=doc.translations?.en?.title||doc.title,slug=doc.translations?.en?.slug?.current||doc.slug?.current;
   if(typeof title!=='string'||!title.trim()||title.length>200||typeof slug!=='string'||slug.length>200||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))throw new Refused(409,'Published image metadata required');
-  if(doc.mainImage?.asset&&(doc.mainImage.generatedBy!=='token-on-air'||doc.mainImage.generatedAssetId!==doc.mainImage.asset._ref||doc.mainImage.generatedTitle===title))return {documentId:doc._id,assetId:doc.mainImage.asset._ref,preserved:true};
-  const assetId=await api.uploadEditorialImage(slug,doc._rev,title,id);
-  const mainImage={_type:'image',asset:{_type:'reference',_ref:assetId},alt:title,credit:'Token on Air',license:'Original editorial illustration · © Token on Air',generatedBy:'token-on-air',generatedTitle:title,generatedAssetId:assetId};
+  if(doc.mainImage?.asset&&(doc.mainImage.generatedBy!=='token-on-air'||doc.mainImage.generatedAssetId!==doc.mainImage.asset._ref||(doc.mainImage.generatedTitle===title&&doc.mainImage.generatedVersion===imageVersion)))return {documentId:doc._id,assetId:doc.mainImage.asset._ref,preserved:true};
+  const plan=imagePlan(doc.provenance?.sourceUrl,slug,doc._rev,title);
+  const assetId=await api.uploadEditorialImage(slug,doc._rev,title,id,doc.provenance?.sourceUrl);
+  const mainImage={_type:'image',asset:{_type:'reference',_ref:assetId},alt:plan.alt,credit:plan.credit,license:plan.license,...('sourceUrl' in plan?{sourceUrl:plan.sourceUrl,licenseUrl:plan.licenseUrl}:{}),generatedVersion:imageVersion,generatedBy:'token-on-air',generatedTitle:title,generatedAssetId:assetId};
   await api.patch(doc._id,doc._rev,{mainImage});
   const saved=await api.read(doc._id);
   if(saved?.mainImage?.asset?._ref!==assetId||saved.publicationState!=='published')throw new Refused(502,'Image attachment not verified');

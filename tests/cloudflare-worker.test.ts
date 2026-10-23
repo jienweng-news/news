@@ -145,7 +145,7 @@ it('attaches real Sanity assets only through an admin, preserves selected images
  const asset='image-'+'c'.repeat(40)+'-1200x630-png';let uploads=0,patches=0;
  vi.stubGlobal('fetch',vi.fn(async(url,init)=>{
   if(String(url).includes('/data/query/'))return Response.json({result:doc});
-  if(String(url).includes('/assets/images/')){uploads++;const body=JSON.parse(init!.body as string);expect(body.url).toBe('https://tokenonair.com/api/images/en/published-headline.png?revision=rev1');return Response.json({document:{_id:asset}});}
+  if(String(url).includes('/assets/images/')){uploads++;const body=JSON.parse(init!.body as string);expect(body.url).toBe('https://tokenonair.com/api/images/en/published-headline.png?revision=rev1&version=source-first-v2');return Response.json({document:{_id:asset}});}
   const patch=JSON.parse(init!.body as string).mutations[0].patch;patches++;expect(patch.ifRevisionID).toBe('rev1');expect(Object.keys(patch.set)).toEqual(['mainImage']);doc={...doc,...patch.set,_rev:'rev2'};return Response.json({results:[{document:doc}]});
  }));
  try{
@@ -193,4 +193,19 @@ it('backs off a failed image so a later published article can proceed on the nex
   expect(await retryPublishedImage(env)).toEqual({pending:item.fingerprint});
   expect(await retryPublishedImage(env)).toMatchObject({preserved:true,documentId:'story-'+second});
  }finally{get.mockRestore();}
+});
+it('selects only reviewed source imagery and versions managed upgrades without overwriting chosen photos',async()=>{
+ const {env,store,item}=await setup();const lease=await store.claim();await store.published(item.fingerprint,lease!.lease_token,'expected');
+ const asset='image-'+'a'.repeat(40)+'-2000x1250-jpg';
+ let doc:any={_id:'story-'+item.fingerprint,_type:'article',_rev:'rev1',publicationState:'published',automation:{candidateHash:'expected'},provenance:{sourceUrl:'https://blog.ethereum.org/en/2026/10/22/glamsterdam-hoodi-delay'},translations:{en:{title:'Ethereum update',slug:{current:'ethereum-update'}}},mainImage:{asset:{_ref:'old-generated'},generatedBy:'token-on-air',generatedAssetId:'old-generated',generatedTitle:'Ethereum update'}};
+ let uploads=0;vi.stubGlobal('fetch',vi.fn(async(url,init)=>{
+  if(String(url).includes('/data/query/'))return Response.json({result:doc});
+  if(String(url).includes('/assets/')){uploads++;expect(JSON.parse(init!.body as string).url).toBe('https://blog.ethereum.org/images/eth-org.jpeg');return Response.json({document:{_id:asset}});}
+  const patch=JSON.parse(init!.body as string).mutations[0].patch;doc={...doc,...patch.set};return Response.json({results:[{document:doc}]});
+ }));
+ try{
+  const path='/v1/jobs/'+item.fingerprint+'/attach-image';expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);
+  expect(doc.mainImage).toMatchObject({credit:'Ethereum Foundation',license:'CC BY 4.0 · Unmodified',sourceUrl:doc.provenance.sourceUrl,licenseUrl:'https://creativecommons.org/licenses/by/4.0/',generatedVersion:'source-first-v2'});
+  expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);expect(uploads).toBe(1);
+ }finally{vi.unstubAllGlobals();}
 });

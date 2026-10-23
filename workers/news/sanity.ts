@@ -1,3 +1,4 @@
+import {imagePlan,imageVersion} from '../../frontend/src/lib/images/policy';
 import {slugCollisionQuery} from '../../frontend/src/lib/content/slugs';
 import {limitedText,Refused,type Env} from './config';
 export function sanityApi(env:Env){
@@ -29,15 +30,15 @@ export function sanityApi(env:Env){
   const r=await mutate([{patch:{id,ifRevisionID:revision,set:fields}}]);
   if(r.results?.[0]?.document?._id!==id)throw new Refused(502,'CMS identity mismatch');
  }
- async function uploadEditorialImage(slug:string,revision:string,title:string,id:string){
-  const image=new URL(`https://tokenonair.com/api/images/en/${slug}.png`);image.searchParams.set('revision',revision);
+ async function uploadEditorialImage(slug:string,revision:string,title:string,id:string,sourceUrl?:string){
+  const plan=imagePlan(sourceUrl,slug,revision,title);
   const url=new URL(base.replace(/\/data$/,'/assets')+'/images/production/from-url');
-  url.searchParams.set('title',title);url.searchParams.set('creditLine','Token on Air');url.searchParams.set('sourceName','Token on Air');url.searchParams.set('sourceId',id+':'+revision);
-  const result=await call(url.href,{url:image.href,filename:slug+'.png'});const asset=result.document?._id;
-  if(typeof asset!=='string'||!/^image-[a-f0-9]{32,64}-1200x630-png$/.test(asset))throw new Refused(502,'Unexpected editorial image asset');
+  url.searchParams.set('title',title);url.searchParams.set('creditLine',plan.credit);url.searchParams.set('sourceName',plan.credit);url.searchParams.set('sourceId',id+':'+revision);
+  const result=await call(url.href,{url:plan.url,filename:slug+(plan.kind==='source'?'.jpg':'.png')});const asset=result.document?._id;
+  if(typeof asset!=='string'||!(plan.kind==='source'?/^image-[a-f0-9]{32,64}-[1-9][0-9]{1,3}x[1-9][0-9]{1,3}-jpg$/:/^image-[a-f0-9]{32,64}-1200x630-png$/).test(asset))throw new Refused(502,'Unexpected editorial image asset');
   return asset;
  }
- async function imageCandidates(excluded:string[]=[]){return (await query(`*[_type == "article" && publicationState == "published" && _id match "story-*" && defined(automation.jobId) && !(automation.jobId in $excluded) && (!defined(mainImage.asset) || (mainImage.generatedBy == "token-on-air" && mainImage.generatedAssetId == mainImage.asset._ref && mainImage.generatedTitle != coalesce(translations.en.title,title)))] | order(publishedAt desc)[0...10]{"jobId":automation.jobId}`,{excluded})).result;}
+ async function imageCandidates(excluded:string[]=[]){return (await query(`*[_type == "article" && publicationState == "published" && _id match "story-*" && defined(automation.jobId) && !(automation.jobId in $excluded) && (!defined(mainImage.asset) || (mainImage.generatedBy == "token-on-air" && mainImage.generatedAssetId == mainImage.asset._ref && (mainImage.generatedTitle != coalesce(translations.en.title,title) || coalesce(mainImage.generatedVersion,"") != $imageVersion)))] | order(publishedAt desc)[0...10]{"jobId":automation.jobId}`,{excluded,imageVersion})).result;}
  async function repairPublicId(id:string,hash:string){
   const oldId='story.'+id,newId='story-'+id;const old=await read(oldId),current=await read(newId);
   if(current&&(current.automation?.candidateHash!==hash||current.publicationState!=='published'))throw new Refused(409,'Public identity collision');

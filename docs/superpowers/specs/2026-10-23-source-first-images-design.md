@@ -1,0 +1,7 @@
+# Source-first news imagery
+
+Owner selected original source photos/charts when reuse is permitted, varied story-specific original branded illustrations otherwise. Preserve existing identity, publication dates, translations, and manually chosen photos. All selected images must be real Sanity assets attached to article.mainImage.
+
+Approaches: uniform typographic cards are reproducible but repetitive; copying every RSS image lacks verified reuse permission; selected source assets plus original topic-specific illustrations gives variety while preserving reviewed rights. Owner chose the third approach.
+
+Current backfill: use the Ethereum blog's original generic Ethereum illustration under its published CC BY 4.0 terms (https://ethereum.org/terms-of-use includes blog.ethereum.org); no contrary asset marking found. Record source and license URLs and avoid implying endorsement. Google post images have no established reproduction permission; create forest mapping and ultrasound conceptual editorial illustrations instead, without invented maps/clinical evidence. These illustrations are illustrative, not photos or figures from the studies. Future unmatched stories retain a deterministic graphic with multiple compositions. Preserve manually selected images using recorded generated asset identity. Version managed images so the current three can be upgraded once, without an unrestricted overwrite route.
