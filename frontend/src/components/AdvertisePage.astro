@@ -4,41 +4,58 @@ import {t,localePath,type Locale} from '../lib/i18n';
 interface Props{locale:Locale}
 const {locale}=Astro.props;
 const copy={
- en:{title:'Advertise with Token on Air',intro:'Put your brand or project alongside our AI and crypto coverage. Tell us what you want to achieve, and we can discuss a placement that fits.',services:'Ways to work together',options:[['Website advertising','Display placements alongside relevant news and section pages. Discuss the format, placement and campaign duration with us.'],['Sponsored stories','Clearly labelled sponsored articles introducing your product, service or campaign, with scope and publication language agreed in advance.'],['Project announcements','Paid publication of launch news, milestones and product updates. Announcements are labelled and remain subject to accuracy and content checks.'],['Newsletter sponsorship','Enquiries for future newsletter editions are welcome. Digest delivery has not started; availability will be confirmed before any booking.']],standards:'Commercial content is clearly labelled. Sponsorship does not change our evidence or correction standards. Placement, timing, deliverables and pricing are agreed before booking.',policy:'Read our editorial policy',inquiry:'Let’s discuss your campaign',details:'Include your company or project, website, service of interest, preferred language, campaign dates and approximate budget. We’ll use these details to discuss options with you.',email:'Email an advertising enquiry',contact:'Other questions? Contact us',subject:'Advertising enquiry — Token on Air',body:'Company / project:\nWebsite:\nService of interest:\nPreferred language:\nCampaign dates:\nApproximate budget:\nMessage:\n'},
- zh:{title:'與 Token on Air 合作',intro:'讓您的品牌或專案出現在 AI 與加密貨幣報導旁。告訴我們您的目標，一起討論合適的合作方式。',services:'合作服務',options:[['網站廣告','於相關新聞與分類頁面安排展示版位。廣告格式、刊登位置與投放期間可另行討論。'],['贊助文章','以清楚標示的贊助文章介紹產品、服務或活動，合作範圍與刊登語言將事先確認。'],['專案公告','付費刊登上線消息、重要里程碑與產品更新。公告會明確標示，並須通過準確性與內容檢查。'],['電子報贊助','歡迎洽詢未來電子報的贊助機會。目前尚未開始寄送摘要電子報，預訂前將確認可用版位。']],standards:'商業內容會清楚標示。贊助不會改變我們的查證與更正標準。刊登位置、時間、交付內容與價格將於預訂前確認。',policy:'閱讀編輯政策',inquiry:'聊聊您的合作計畫',details:'請提供公司或專案名稱、網站、感興趣的服務、偏好語言、活動日期與大致預算，方便我們一起討論合作選項。',email:'寄送廣告合作詢問',contact:'其他問題？聯絡我們',subject:'廣告合作詢問 — Token on Air',body:'公司／專案：\n網站：\n合作服務：\n偏好語言：\n活動日期：\n大致預算：\n訊息：\n'},
- 'zh-cn':{title:'与 Token on Air 合作',intro:'让您的品牌或项目出现在 AI 与加密货币报道旁。告诉我们您的目标，一起讨论合适的合作方式。',services:'合作服务',options:[['网站广告','于相关新闻与分类页面安排展示版位。广告格式、刊登位置与投放期间可另行讨论。'],['赞助文章','以清楚标注的赞助文章介绍产品、服务或活动，合作范围与刊登语言将事先确认。'],['项目公告','付费刊登上线消息、重要里程碑与产品更新。公告会明确标注，并须通过准确性与内容检查。'],['电子报赞助','欢迎洽询未来电子报的赞助机会。目前尚未开始发送摘要电子报，预订前将确认可用版位。']],standards:'商业内容会清楚标注。赞助不会改变我们的查证与更正标准。刊登位置、时间、交付内容与价格将于预订前确认。',policy:'阅读编辑政策',inquiry:'聊聊您的合作计划',details:'请提供公司或项目名称、网站、感兴趣的服务、偏好语言、活动日期与大致预算，方便我们一起讨论合作选项。',email:'发送广告合作咨询',contact:'其他问题？联系我们',subject:'广告合作咨询 — Token on Air',body:'公司／项目：\n网站：\n合作服务：\n偏好语言：\n活动日期：\n大致预算：\n消息：\n'}
+ en:{title:'Advertise with Token on Air',intro:'Put your brand or project alongside our AI and crypto coverage. Tell us what you want to achieve, and we can discuss a placement that fits.',services:'Ways to work together',options:[['Website advertising','Display placements alongside relevant news and section pages. Discuss the format, placement and campaign duration with us.'],['Sponsored stories','Clearly labelled sponsored articles introducing your product, service or campaign, with scope and publication language agreed in advance.'],['Project announcements','Paid publication of launch news, milestones and product updates. Announcements are labelled and remain subject to accuracy and content checks.'],['Newsletter sponsorship','Enquiries for future newsletter editions are welcome. Digest delivery has not started; availability will be confirmed before any booking.']],standards:'Commercial content is clearly labelled. Sponsorship does not change our evidence or correction standards. Placement, timing, deliverables and pricing are agreed before booking.',policy:'Read our editorial policy',inquiry:'Let’s discuss your campaign',details:'Share a few details and we’ll reply to discuss fit, timing and next steps.',name:'Your name',email:'Work email',company:'Company or project',website:'Website (optional)',service:'What are you interested in?',serviceOptions:['Choose a service','Website advertising','Sponsored stories','Project announcements','Newsletter sponsorship','Something else'],message:'Campaign details',messageHint:'Tell us about your goals, preferred dates, audience or budget.',submit:'Send enquiry',privacy:'Your details will only be used to respond to this enquiry. See our privacy notice.',unavailable:'The online form is being connected. Email us directly and we’ll be glad to discuss your campaign.',emailCta:'Email hello@tokenonair.com',contact:'Other questions? Contact us',subject:'Advertising enquiry — Token on Air'},
+ zh:{title:'與 Token on Air 合作',intro:'讓您的品牌或專案出現在 AI 與加密貨幣報導旁。告訴我們您的目標，一起討論合適的合作方式。',services:'合作服務',options:[['網站廣告','於相關新聞與分類頁面安排展示版位。廣告格式、刊登位置與投放期間可另行討論。'],['贊助文章','以清楚標示的贊助文章介紹產品、服務或活動，合作範圍與刊登語言將事先確認。'],['專案公告','付費刊登上線消息、重要里程碑與產品更新。公告會明確標示，並須通過準確性與內容檢查。'],['電子報贊助','歡迎洽詢未來電子報的贊助機會。目前尚未開始寄送摘要電子報，預訂前將確認可用版位。']],standards:'商業內容會清楚標示。贊助不會改變我們的查證與更正標準。刊登位置、時間、交付內容與價格將於預訂前確認。',policy:'閱讀編輯政策',inquiry:'聊聊您的合作計畫',details:'請留下基本資訊，我們會回覆您，討論合作方式、時間與後續安排。',name:'您的姓名',email:'工作電子郵件',company:'公司或專案',website:'網站（選填）',service:'您感興趣的服務',serviceOptions:['請選擇服務','網站廣告','贊助文章','專案公告','電子報贊助','其他需求'],message:'合作計畫',messageHint:'請告訴我們您的目標、偏好日期、受眾或預算。',submit:'送出詢問',privacy:'您的資料僅用於回覆此詢問。請參閱隱私權聲明。',unavailable:'線上表單正在設定中。您可以直接寄信給我們，討論合作計畫。',emailCta:'寄信至 hello@tokenonair.com',contact:'其他問題？聯絡我們',subject:'廣告合作詢問 — Token on Air'},
+ 'zh-cn':{title:'与 Token on Air 合作',intro:'让您的品牌或项目出现在 AI 与加密货币报道旁。告诉我们您的目标，一起讨论合适的合作方式。',services:'合作服务',options:[['网站广告','于相关新闻与分类页面安排展示版位。广告格式、刊登位置与投放期间可另行讨论。'],['赞助文章','以清楚标注的赞助文章介绍产品、服务或活动，合作范围与刊登语言将事先确认。'],['项目公告','付费刊登上线消息、重要里程碑与产品更新。公告会明确标注，并须通过准确性与内容检查。'],['电子报赞助','欢迎洽询未来电子报的赞助机会。目前尚未开始发送摘要电子报，预订前将确认可用版位。']],standards:'商业内容会清楚标注。赞助不会改变我们的查证与更正标准。刊登位置、时间、交付内容与价格将于预订前确认。',policy:'阅读编辑政策',inquiry:'聊聊您的合作计划',details:'请留下基本信息，我们会回复您，讨论合作方式、时间与后续安排。',name:'您的姓名',email:'工作邮箱',company:'公司或项目',website:'网站（选填）',service:'您感兴趣的服务',serviceOptions:['请选择服务','网站广告','赞助文章','项目公告','电子报赞助','其他需求'],message:'合作计划',messageHint:'请告诉我们您的目标、期望日期、受众或预算。',submit:'发送咨询',privacy:'您的资料仅用于回复此咨询。请参阅隐私声明。',unavailable:'在线表单正在设置中。您可以直接发邮件给我们，讨论合作计划。',emailCta:'发送邮件至 hello@tokenonair.com',contact:'其他问题？联系我们',subject:'广告合作咨询 — Token on Air'}
 }[locale];
-// This publication address was supplied by the owner and verified in Zoho.
 const email='hello@tokenonair.com';
-const inquiryUrl=`mailto:${email}?subject=${encodeURIComponent(copy.subject)}&body=${encodeURIComponent(copy.body)}`;
+const configuredEndpoint=import.meta.env.PUBLIC_FORMSPREE_ENDPOINT?.trim();
+const formspreeEndpoint=configuredEndpoint&&/^https:\/\/formspree\.io\/f\/[A-Za-z0-9]+$/.test(configuredEndpoint)?configuredEndpoint:undefined;
+const mailto=`mailto:${email}?subject=${encodeURIComponent(copy.subject)}`;
 ---
 <BaseLayout locale={locale} title={t(locale,'advertise')} description={copy.intro}>
  <article class="advertise-page">
-  <header class="advertise-opening"><h1>{copy.title}</h1><p>{copy.intro}</p><a class="advertise-action" href={inquiryUrl}>{copy.email}</a></header>
+  <header class="advertise-opening"><h1>{copy.title}</h1><p>{copy.intro}</p></header>
   <section class="advertise-services" aria-labelledby="advertise-services"><h2 id="advertise-services">{copy.services}</h2><dl>{copy.options.map(([name,description])=><div><dt>{name}</dt><dd>{description}</dd></div>)}</dl></section>
   <div class="advertise-standards"><p>{copy.standards}</p><a href={localePath(locale,'policy')}>{copy.policy}</a></div>
-  <section class="advertise-inquiry" aria-labelledby="advertise-inquiry"><h2 id="advertise-inquiry">{copy.inquiry}</h2><div><p>{copy.details}</p><a class="advertise-email" href={inquiryUrl}>{email}</a><a class="advertise-contact" href={localePath(locale,'contact')}>{copy.contact}</a></div></section>
+  <section class="advertise-inquiry" aria-labelledby="advertise-inquiry"><div class="inquiry-copy"><h2 id="advertise-inquiry">{copy.inquiry}</h2><p>{copy.details}</p></div>
+   {formspreeEndpoint?<form class="advertise-form" action={formspreeEndpoint} method="POST">
+    <input type="hidden" name="_subject" value={copy.subject}/><label class="form-trap" aria-hidden="true">Leave this field empty<input name="_gotcha" tabindex="-1" autocomplete="off"/></label>
+    <div class="form-grid">
+     <label>{copy.name}<input name="name" autocomplete="name" required/></label>
+     <label>{copy.email}<input name="email" type="email" autocomplete="email" required/></label>
+     <label>{copy.company}<input name="company" autocomplete="organization" required/></label>
+     <label>{copy.website}<input name="website" type="url" autocomplete="url"/></label>
+     <label class="form-wide">{copy.service}<select name="service" required><option value="" selected disabled>{copy.serviceOptions[0]}</option>{copy.serviceOptions.slice(1).map((option,index)=><option value={['website-advertising','sponsored-stories','project-announcements','newsletter-sponsorship','other'][index]}>{option}</option>)}</select></label>
+     <label class="form-wide">{copy.message}<textarea name="message" rows="5" placeholder={copy.messageHint} required></textarea></label>
+    </div>
+    <div class="form-submit"><p>{copy.privacy} <a href={localePath(locale,'privacy')}>{t(locale,'privacy')}</a></p><button type="submit">{copy.submit}<span aria-hidden="true">→</span></button></div>
+   </form>:<div class="inquiry-fallback"><p>{copy.unavailable}</p><a href={mailto}>{copy.emailCta}<span aria-hidden="true">→</span></a><small>Set <code>PUBLIC_FORMSPREE_ENDPOINT</code> to enable secure form submissions.</small></div>}
+  </section>
+  <a class="advertise-contact" href={localePath(locale,'contact')}>{copy.contact}</a>
  </article>
 </BaseLayout>
 <style>
 .advertise-page{max-width:1120px;margin:48px auto 72px}
 .advertise-opening{max-width:780px;padding:12px 0 44px}
 .advertise-opening h1{font:700 clamp(44px,5vw,64px)/1.04 var(--display);letter-spacing:-.025em;margin:0 0 24px;max-width:20ch}
-.advertise-opening p{font-size:20px;line-height:1.65;color:var(--muted);max-width:58ch;margin:0 0 24px}
-.advertise-action{display:inline-flex;align-items:center;min-height:48px;padding:12px 24px;background:var(--red);color:var(--paper);font-size:15px;font-weight:700}
-.advertise-action:hover{background:var(--ink);text-decoration:none}
-.advertise-services,.advertise-inquiry{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:32px 64px;padding:36px 0;border-top:4px solid var(--red)}
+.advertise-opening p{font-size:20px;line-height:1.65;color:var(--muted);max-width:58ch;margin:0}
+.advertise-services{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:32px 64px;padding:36px 0;border-top:4px solid var(--red)}
 .advertise-page h2{font:700 32px/1.15 var(--display);margin:0;max-width:16ch}
 .advertise-services dl{margin:0}
-.advertise-services dl>div{padding:0 0 24px}
-.advertise-services dl>div+div{padding-top:24px;border-top:1px solid var(--line)}
-.advertise-services dl>div:last-child{padding-bottom:0}
+.advertise-services dl>div{padding:0 0 24px}.advertise-services dl>div+div{padding-top:24px;border-top:1px solid var(--line)}.advertise-services dl>div:last-child{padding-bottom:0}
 .advertise-services dt{font:700 28px/1.2 var(--display);margin-bottom:12px}
-.advertise-services dd,.advertise-inquiry p{font-size:17px;line-height:1.7;margin:0;max-width:65ch;color:var(--muted)}
-.advertise-standards{border-top:1px solid var(--line);padding:24px 0 36px;max-width:100%}
-.advertise-standards p{font-size:15px;line-height:1.7;margin:0;max-width:85ch;color:var(--muted)}
+.advertise-services dd,.inquiry-copy p{font-size:17px;line-height:1.7;margin:0;max-width:65ch;color:var(--muted)}
+.advertise-standards{border-top:1px solid var(--line);padding:24px 0 36px}.advertise-standards p{font-size:15px;line-height:1.7;margin:0 0 8px;max-width:85ch;color:var(--muted)}
 .advertise-standards a,.advertise-contact{display:inline-flex;align-items:center;min-height:44px;font-size:14px;font-weight:700;text-decoration:underline}
-.advertise-inquiry{border-top:1px solid var(--line);padding-bottom:0}
-.advertise-email{display:table;font:700 clamp(24px,3vw,34px)/1.3 var(--display);padding:12px 0;min-height:44px;color:var(--red);overflow-wrap:anywhere}
-@media(max-width:760px){.advertise-page{margin:32px auto 48px}.advertise-opening{padding:0 0 32px}.advertise-opening p{font-size:18px}.advertise-services,.advertise-inquiry{grid-template-columns:1fr;gap:24px;padding:28px 0}.advertise-page h2{font-size:30px;max-width:none}.advertise-action{width:100%;justify-content:center;text-align:center}.advertise-inquiry{padding-bottom:0}}
+.advertise-inquiry{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(0,1.6fr);gap:34px 60px;padding:38px;background:var(--ink);color:var(--paper);border-top:5px solid var(--red)}
+.advertise-inquiry h2{font-size:36px;margin-bottom:15px}.inquiry-copy p{color:#d8d0c3}
+.advertise-form label{display:grid;gap:8px;font-size:13px;font-weight:700;min-width:0}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 20px}
+.advertise-form input,.advertise-form select,.advertise-form textarea{width:100%;min-width:0;border:1px solid #bdb5a8;border-radius:0;background:var(--paper);color:var(--ink);padding:13px 14px;font:16px/1.45 var(--body);accent-color:var(--red)}
+.advertise-form textarea{resize:vertical;min-height:132px}.advertise-form :is(input,select,textarea):focus-visible{outline:3px solid #ee6472;outline-offset:2px}.form-wide{grid-column:1/-1}
+.form-submit{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-top:22px}.form-submit p{font-size:12px;line-height:1.5;color:#d8d0c3;margin:0;max-width:50ch}.form-submit a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.form-submit button,.inquiry-fallback>a{display:flex;align-items:center;justify-content:space-between;gap:30px;min-height:52px;padding:12px 18px;background:var(--red);color:white;border:0;font:700 15px var(--body);text-decoration:none;cursor:pointer;flex-shrink:0}.form-submit button:hover,.inquiry-fallback>a:hover{background:#a81728;text-decoration:none}
+.form-submit button span,.inquiry-fallback>a span{font-size:22px}.form-trap{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.inquiry-fallback p{font-size:17px;line-height:1.65;color:#d8d0c3;max-width:58ch;margin:0 0 20px}.inquiry-fallback small{display:block;margin-top:16px;color:#d8d0c3;font-size:12px}.inquiry-fallback code{color:var(--paper)}.advertise-contact{margin-top:28px}
+@media(max-width:760px){.advertise-page{margin:32px auto 48px}.advertise-opening{padding:0 0 32px}.advertise-opening p{font-size:18px}.advertise-services{grid-template-columns:1fr;gap:24px;padding:28px 0}.advertise-page h2{font-size:30px;max-width:none}.advertise-inquiry{grid-template-columns:1fr;gap:24px;padding:26px 20px}.advertise-inquiry h2{font-size:32px}.form-grid{grid-template-columns:1fr;gap:16px}.form-wide{grid-column:auto}.form-submit{align-items:stretch;flex-direction:column}.form-submit button{width:100%}}
 </style>
