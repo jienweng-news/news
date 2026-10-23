@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest';
 import {resolvePublishedImage} from '../workers/news/source-images';
 it('uses a licensed PANews-hosted source image and preserves attribution',async()=>{
- const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(new Response('<meta property="og:image" content="https://uploads.panewslab.com/2edcab5f-2557-48b4-96da-6c558160538e">'));
+ const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(new Response('<rss><channel><item><link>https://www.panewslab.com/en/articles/01a16853-4f0a-7098-997a-9864ad5b2631</link><media:content url="https://uploads.panewslab.com/2edcab5f-2557-48b4-96da-6c558160538e" medium="image" /></item></channel></rss>'));
  try{const p=await resolvePublishedImage('https://www.panewslab.com/en/articles/01a16853-4f0a-7098-997a-9864ad5b2631','story','rev','Story');expect(p).toMatchObject({kind:'source',url:'https://uploads.panewslab.com/2edcab5f-2557-48b4-96da-6c558160538e',credit:'PANews',license:'Used with permission'});}finally{get.mockRestore();}
 });
 it('does not fetch arbitrary sources or promote external and credential-bearing image URLs',async()=>{
@@ -11,4 +11,8 @@ it('does not fetch arbitrary sources or promote external and credential-bearing 
 it('stops source-image reuse when registry rights are withdrawn',async()=>{
  const {default:inventory}=await import('../docs/research/source-checks/2026-10-22-fixed-sources.json');const row=inventory.sources.find(s=>s.id==='panews')!;const prior=row.rights_status;row.rights_status='held';
  const get=vi.spyOn(globalThis,'fetch');try{expect((await resolvePublishedImage('https://www.panewslab.com/en/articles/01a16853-4f0a-7098-997a-9864ad5b2631','story','r','Title')).kind).toBe('illustration');expect(get).not.toHaveBeenCalled();}finally{row.rights_status=prior;get.mockRestore();}
+});
+it('matches the article link instead of taking another story image',async()=>{
+ const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(new Response('<rss><channel><item><link>https://www.panewslab.com/en/articles/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa</link><media:content url="https://uploads.panewslab.com/2edcab5f-2557-48b4-96da-6c558160538e" medium="image" /></item></channel></rss>'));
+ try{expect((await resolvePublishedImage('https://www.panewslab.com/en/articles/01a16853-4f0a-7098-997a-9864ad5b2631','story','r','Title')).kind).toBe('illustration');expect(get.mock.calls[0][0]).toBe('https://www.panewslab.com/rss.xml?lang=en&type=NORMAL%2CNEWS%2CVIDEO');}finally{get.mockRestore();}
 });

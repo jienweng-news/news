@@ -27,3 +27,11 @@ Blockworks, The Block, CoinDesk and Decrypt have explicit automated-collection r
 Privacy policies, vendor product agreements and repository licenses must not be treated as blanket publisher licenses. The correct Unchained publisher is Laura Shin Media at unchainedcrypto.com; unrelated unchained.com terms do not apply. No publisher was contacted and no permission inferred from an inaccessible page.
 
 References checked: https://blockworks.com/terms ; https://www.theblock.co/terms-service ; https://www.coindesk.com/terms ; https://decrypt.co/terms-of-service ; https://info.arxiv.org/help/license/index.html .
+
+## PANews permission update — 2026-10-23, 12:20UTC
+
+The owner explicitly confirms permission for commercial PANews article/image reuse. This supersedes PANews' earlier hold only; no publisher was contacted by this agent. PANews is now a reviewed publication source, polled every five minutes. Its licensed reports qualify as evidence only in PANews-discovered jobs under the owner-confirmed agreement; other publishers' jobs retain their primary-evidence requirement. Independent review, conflict checks, duplicate handling, a 48-hour freshness window and verification holds remain enabled.
+
+Live collection accepted 100 PANews RSS items into D1. First publication attempt held because old www.panewslab.com article URLs redirect to panews.io, which was not allowlisted. The destination was checked directly (HTTP200) and added explicitly; its robots allow this collector. Image selection matches the exact article's RSS media:content (or enclosure) on uploads.panewslab.com; it does not use the new site's generic logo OG image. Invalid/missing images use the existing original illustration fallback. Source assets retain PANews credit and owner-confirmed permission metadata in Sanity.
+
+Owner additionally confirms PANews article citation is not required by their agreement. Future prose must be original, preserve source meaning and qualifications, omit mandatory PANews article references and keep exact evidence URLs internally. Public references exclude PANews article links; useful primary links and separate image rights/credits remain. Earlier published prose is preserved rather than mechanically deleting factual attribution sentences.

@@ -1,11 +1,16 @@
 import {citationBlock} from './content/inline-links';
 import type {BodyBlock} from './content/types';
 
+export function publicArticleSources(sources:string[]){return sources.filter(source=>!['www.panewslab.com','panews.io','www.panews.io'].includes(new URL(source).hostname));}
+
 // Only the pipeline's explicit licensing credit is separated; editorial prose stays intact.
 export function presentArticleBody(blocks:BodyBlock[],sources:string[]=[]) {
+ sources=publicArticleSources(sources);
  const body:BodyBlock[]=[],credits:BodyBlock[]=[];const mentioned=new Set<string>();
  const names:Record<string,string[]>={'research.google':['Google Research','Google 研究','Google研究'],'deepmind.google':['Google DeepMind','DeepMind','Google'],'blog.ethereum.org':['Ethereum Foundation','以太坊基金會','以太坊基金会'],'www.panewslab.com':['PANews']};
  const withLinks=(block:BodyBlock)=>{
+  const hidden=new Set(block.markDefs.filter(m=>m._type==='link'&&typeof m.href==='string'&&publicArticleSources([m.href]).length===0).map(m=>m._key));
+  if(hidden.size)block={...block,markDefs:block.markDefs.filter(m=>!hidden.has(m._key)),children:block.children.map(c=>({...c,marks:c.marks.filter(m=>!hidden.has(m))}))};
   if(!sources.length||block.markDefs.length||block.children.some(c=>c.marks.length))return block;
   const text=block.children.map(c=>c.text).join('');let linked=citationBlock(text,block._key,sources);
   for(const href of sources){if(mentioned.has(href))continue;const labels=names[new URL(href).hostname]||[];const label=labels.find(n=>text.includes(n));if(!label||linked.markDefs.length)continue;const start=text.indexOf(label),key=block._key+'-source';

@@ -642,6 +642,7 @@
     },
     {
       "id": "panews",
+      "content_hosts": ["panews.io"],
       "name": "PANews",
       "url": "https://www.panewslab.com/rss.xml?lang=en&type=NORMAL%2CNEWS%2CVIDEO",
       "classification": "crypto-newsroom",

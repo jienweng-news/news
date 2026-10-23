@@ -21,3 +21,13 @@ it('links a known source mention in legacy body text without changing the prose'
  expect(p.body[0].children.map(s=>s.text).join('')).toBe(text);
  expect(p.body[0].markDefs[0]).toMatchObject({href:'https://research.google/blog/study/'});
 });
+
+it('keeps licensed PANews provenance internal while retaining primary references',async()=>{
+ const {publicArticleSources}=await import('../frontend/src/lib/article-presentation');
+ expect(publicArticleSources(['https://www.panewslab.com/en/articles/abc','https://panews.io/articles/abc','https://blog.ethereum.org/example'])).toEqual(['https://blog.ethereum.org/example']);
+});
+it('removes public PANews link marks without changing stored article text',()=>{
+ const original={...block('PANews reports the update.'),markDefs:[{_type:'link',_key:'licensed',href:'https://www.panewslab.com/en/articles/abc'}]};original.children[0].marks=['licensed'];
+ const shown=presentArticleBody([original],['https://www.panewslab.com/en/articles/abc']).body[0];
+ expect(shown.markDefs).toEqual([]);expect(shown.children[0].text).toBe(original.children[0].text);expect(original.children[0].marks).toEqual(['licensed']);
+});
