@@ -145,7 +145,7 @@ it('attaches real Sanity assets only through an admin, preserves selected images
  const asset='image-'+'c'.repeat(40)+'-1200x630-png';let uploads=0,patches=0;
  vi.stubGlobal('fetch',vi.fn(async(url,init)=>{
   if(String(url).includes('/data/query/'))return Response.json({result:doc});
-  if(String(url).includes('/assets/images/')){uploads++;const body=JSON.parse(init!.body as string);expect(body.url).toBe('https://tokenonair.com/api/images/en/published-headline.png?revision=rev1&version=source-first-v5');return Response.json({document:{_id:asset}});}
+  if(String(url).includes('/assets/images/')){uploads++;const body=JSON.parse(init!.body as string);expect(body.url).toBe('https://tokenonair.com/api/images/en/published-headline.png?revision=rev1&version=source-first-v6');return Response.json({document:{_id:asset}});}
   const patch=JSON.parse(init!.body as string).mutations[0].patch;patches++;expect(patch.ifRevisionID).toBe('rev1');expect(Object.keys(patch.set)).toEqual(['mainImage']);doc={...doc,...patch.set,_rev:'rev2'};return Response.json({results:[{document:doc}]});
  }));
  try{
@@ -205,7 +205,7 @@ it('selects only reviewed source imagery and versions managed upgrades without o
  }));
  try{
   const path='/v1/jobs/'+item.fingerprint+'/attach-image';expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);
-  expect(doc.mainImage).toMatchObject({credit:'Ethereum Foundation',license:'CC BY 4.0 · Unmodified',sourceUrl:doc.provenance.sourceUrl,licenseUrl:'https://creativecommons.org/licenses/by/4.0/',generatedVersion:'source-first-v5'});
+  expect(doc.mainImage).toMatchObject({credit:'Ethereum Foundation',license:'CC BY 4.0 · Unmodified',sourceUrl:doc.provenance.sourceUrl,licenseUrl:'https://creativecommons.org/licenses/by/4.0/',generatedVersion:'source-first-v6'});
   expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);expect(uploads).toBe(1);
  }finally{vi.unstubAllGlobals();}
 });

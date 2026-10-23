@@ -1,5 +1,5 @@
 import {expect,it,vi} from 'vitest';
-import {parsePanewsArticleImage,resolvePublishedImage} from '../workers/news/source-images';
+import {parsePanewsArticleImage,pexelsSearchQuery,resolvePublishedImage} from '../workers/news/source-images';
 it('selects an image embedded in the matching PANews story body',()=>{
  const html='<article class="article-content"><p>Story</p><img src="https://uploads.panewslab.com/2edcab5f-2557-48b4-96da-6c558160538e" alt="Story chart"></article><aside><img src="https://uploads.panewslab.com/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"></aside>';
  expect(parsePanewsArticleImage(html)).toBe('https://uploads.panewslab.com/2edcab5f-2557-48b4-96da-6c558160538e');
@@ -34,4 +34,24 @@ it('does not fetch arbitrary sources or promote external and credential-bearing 
 it('stops source-image reuse when registry rights are withdrawn',async()=>{
  const {default:inventory}=await import('../docs/research/source-checks/2026-10-22-fixed-sources.json');const row=inventory.sources.find(s=>s.id==='panews')!;const prior=row.rights_status;row.rights_status='held';
  const get=vi.spyOn(globalThis,'fetch');try{expect((await resolvePublishedImage('https://www.panewslab.com/en/articles/01a16853-4f0a-7098-997a-9864ad5b2631','story','r','Title')).kind).toBe('illustration');expect(get).not.toHaveBeenCalled();}finally{row.rights_status=prior;get.mockRestore();}
+});
+it('turns technology headlines into descriptive stock-photo searches rather than brand names',()=>{
+ expect(pexelsSearchQuery('Nvidia memory oversupply through 2029','HBM demand is rising while wafer capacity is constrained.')).toBe('semiconductor chip');
+ expect(pexelsSearchQuery('Google releases global forest typology map','The AI map distinguishes forest types worldwide.')).toBe('aerial forest');
+ expect(pexelsSearchQuery('Bitcoin ETF outflows continue','Investors pulled funds from spot Bitcoin products.')).toBe('cryptocurrency finance');
+});
+it('selects a relevant, unused Pexels landscape image and retains its required attribution',async()=>{
+ const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({photos:[
+  {id:11,width:1800,height:1200,url:'https://www.pexels.com/photo/used-11/',photographer:'A. One',src:{landscape:'https://images.pexels.com/photos/11/large.jpeg'}},
+  {id:12,width:1800,height:1200,url:'https://www.pexels.com/photo/chip-12/',photographer:'B. Two',src:{landscape:'https://images.pexels.com/photos/12/large.jpeg'}}
+ ]}));
+ try{
+  const plan=await resolvePublishedImage(undefined,'story','rev','Nvidia chip announcement','HBM semiconductor manufacturing','secret',['https://www.pexels.com/photo/used-11/']);
+  expect(plan).toMatchObject({kind:'source',url:'https://images.pexels.com/photos/12/large.jpeg',sourceUrl:'https://www.pexels.com/photo/chip-12/',credit:'Photo by B. Two on Pexels',provider:'pexels'});
+  expect(get.mock.calls[0][0]).toContain('query=semiconductor+chip');
+ }finally{get.mockRestore();}
+});
+it('falls back to original artwork if all relevant Pexels results were already used',async()=>{
+ const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({photos:[{id:11,width:1800,height:1200,url:'https://www.pexels.com/photo/used-11/',photographer:'A. One',src:{landscape:'https://images.pexels.com/photos/11/large.jpeg'}}]}));
+ try{expect((await resolvePublishedImage(undefined,'story','rev','Nvidia chip announcement','HBM semiconductor manufacturing','secret',['https://www.pexels.com/photo/used-11/'])).kind).toBe('illustration');}finally{get.mockRestore();}
 });

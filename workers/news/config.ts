@@ -1,6 +1,6 @@
 import type {D1Database} from '@cloudflare/workers-types';
 import {createHash,timingSafeEqual} from 'node:crypto';
-export interface Env {DB:D1Database;ADMIN_TOKEN?:string;WRITER_TOKEN?:string;VALIDATION_SECRET?:string;SANITY_WRITE_TOKEN?:string;SANITY_PROJECT_ID?:string;SANITY_DATASET?:string;SANITY_EDITOR_ID?:string;RSS_POLLING_ENABLED?:string;AUTOMATION_ENABLED?:string;AUTOMATION_KILL_SWITCH?:string}
+export interface Env {DB:D1Database;ADMIN_TOKEN?:string;WRITER_TOKEN?:string;VALIDATION_SECRET?:string;SANITY_WRITE_TOKEN?:string;PEXELS_API_KEY?:string;SANITY_PROJECT_ID?:string;SANITY_DATASET?:string;SANITY_EDITOR_ID?:string;RSS_POLLING_ENABLED?:string;AUTOMATION_ENABLED?:string;AUTOMATION_KILL_SWITCH?:string}
 export class Refused extends Error {constructor(readonly status:number,readonly label:string){super(label);}}
 export const enabled=(env:Env)=>env.AUTOMATION_ENABLED==='1'&&env.AUTOMATION_KILL_SWITCH==='0';
 export function authorize(request:Request,secret?:string){

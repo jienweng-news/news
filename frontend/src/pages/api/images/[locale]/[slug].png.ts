@@ -13,7 +13,8 @@ export const GET:APIRoute=async({params})=>{
   if(!article)return failure(404);
   // The shared illustration uses the original English headline; page metadata/alt remain localized.
   const english=locale!=='en'&&article.localeSlugs?.en?await repo.getPublished(article.localeSlugs.en,'en'):article;
-  const png=await renderEditorialImage((english||article).title,article.section);
+  const source=english||article;
+  const png=await renderEditorialImage(source.title,article.section,source.summary);
   return new Response(new Uint8Array(png),{headers:{'Content-Type':'image/png','Cache-Control':config.contentMode==='fixture'?'no-store':'public, max-age=300, s-maxage=300','X-Content-Type-Options':'nosniff'}});
  }catch{return failure(503);}
 };

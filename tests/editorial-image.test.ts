@@ -22,3 +22,17 @@ it('provides stable, visibly different fallback compositions for different headl
  expect(variants.size).toBe(3);expect(variants.has(undefined)).toBe(false);
  expect(editorialSvg('Technology update','ai')).toBe(editorialSvg('Technology update','ai'));
 });
+it('chooses story-specific visual scenes from the headline and summary',()=>{
+ expect(editorialSvg('Nvidia memory oversupply and HBM chips','ai','Advanced wafer capacity constrains chip production.')).toContain('data-subject="semiconductors"');
+ expect(editorialSvg('Bitcoin ETF outflows deepen','crypto','Investors pulled funds from spot Bitcoin products.')).toContain('data-subject="markets"');
+ expect(editorialSvg('Google releases forest typology map','ai','The map classifies forests around the world.')).toContain('data-subject="earth-observation"');
+ expect(editorialSvg('Bitcoin network adds new wallet','crypto','A new wallet joins the blockchain.')).toContain('data-subject="crypto-network"');
+});
+it('renders the story scene and headline as visible pixels',async()=>{
+ const png=await renderEditorialImage('Nvidia memory supply remains tight','ai','Wafer capacity limits semiconductor production.');
+ const {data,info}=await sharp(png).raw().toBuffer({resolveWithObject:true});let accent=0,headline=0;
+ for(let y=210;y<440;y++)for(let x=886;x<1178;x++){const i=(y*info.width+x)*info.channels;if(data[i]===40&&data[i+1]===168&&data[i+2]===161)accent++;}
+ const base=(520*info.width+60)*info.channels;
+ for(let y=210;y<540;y++)for(let x=60;x<860;x++){const i=(y*info.width+x)*info.channels;if(Math.abs(data[i]-data[base])+Math.abs(data[i+1]-data[base+1])+Math.abs(data[i+2]-data[base+2])>60)headline++;}
+ expect(accent).toBeGreaterThan(500);expect(headline).toBeGreaterThan(10000);
+});
