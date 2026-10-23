@@ -1,7 +1,6 @@
 ---
-import ImageCredit from './ImageCredit.astro';
 import {responsiveImage} from '../lib/images/delivery';
-import {storyImage,imageCaption} from '../lib/news-images';
+import {storyImage} from '../lib/news-images';
 import RelationshipLabel from './RelationshipLabel.astro';
 import {publicationTime} from '../lib/news-date';
 import {t,localePath,type Locale} from '../lib/i18n';
@@ -14,7 +13,7 @@ const imageDeliveryBySlug=new Map(compact?[]:articles.map(article=>[article.slug
 ---
 <div class:list={['story-list', { compact, 'news-rows':layout==='rows' }]}>
   {articles.map((article,index) => <article class="story-item">
-    {!compact&&<figure class="story-thumbnail"><a href={localePath(locale,`articles/${article.slug}`)} tabindex="-1" aria-hidden="true"><img class:list={{'source-chart':storyImage(article,locale).credit==='PANews'}} src={imageDeliveryBySlug.get(article.slug)?.src} srcset={imageDeliveryBySlug.get(article.slug)?.srcset} sizes={imageDeliveryBySlug.get(article.slug)?.sizes} alt="" width="1200" height="630" loading={priorityFirst&&index===0?'eager':'lazy'} decoding={priorityFirst&&index===0?'sync':'async'} fetchpriority={priorityFirst&&index===0?'high':'auto'}/></a>{imageCaption(article)&&<ImageCredit image={storyImage(article,locale)}/>}</figure>}
+    {!compact&&<figure class="story-thumbnail"><a href={localePath(locale,`articles/${article.slug}`)} tabindex="-1" aria-hidden="true"><img class:list={{'source-chart':storyImage(article,locale).credit==='PANews'}} src={imageDeliveryBySlug.get(article.slug)?.src} srcset={imageDeliveryBySlug.get(article.slug)?.srcset} sizes={imageDeliveryBySlug.get(article.slug)?.sizes} alt="" width="1200" height="630" loading={priorityFirst&&index===0?'eager':'lazy'} decoding={priorityFirst&&index===0?'sync':'async'} fetchpriority={priorityFirst&&index===0?'high':'auto'}/></a></figure>}
     <Heading><a href={localePath(locale,`articles/${article.slug}`)}>{article.title}</a></Heading>
     {!compact && <p>{article.summary}</p>}
     <div class="story-details"><RelationshipLabel locale={locale} relationship={article.relationship} /><span>{t(locale,article.section)}</span><span>{t(locale,article.format)}</span><time datetime={article.publishedAt}>{publicationTime(article.publishedAt,locale)}</time></div>

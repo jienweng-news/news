@@ -17,3 +17,12 @@ it('removes the footer editor credit while retaining its privacy controls and po
  const text=await readFile('frontend/src/layouts/BaseLayout.astro','utf8');const footer=text.slice(text.indexOf('<footer'),text.indexOf('</footer>'));
  expect(footer).not.toContain('jienweng');expect(footer).toContain('footer-statement');expect(footer).toContain('<Analytics');expect(footer).toContain('footer-policies');
 });
+it('shows image captions on article details only, never on landing or story listing cards',async()=>{
+ for(const file of ['HomePage','StoryList']){
+  const text=await readFile(`frontend/src/components/${file}.astro`,'utf8');
+  expect(text,`${file} should not render image credit captions`).not.toContain('ImageCredit');
+  expect(text,`${file} should not render caption labels`).not.toContain('imageCaption');
+ }
+ const detail=await readFile('frontend/src/components/ArticleBody.astro','utf8');
+ expect(detail).toContain('ImageCredit');
+});
