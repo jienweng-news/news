@@ -1,10 +1,10 @@
 import {createHash} from 'node:crypto';
 import type {FeedItem} from '../feed';
 import {safeFetch} from '../network';
-import {activeSource,sourceHosts,type Source} from '../sources';
+import {activeSource,reportingEvidenceSource,sourceHosts,type Source} from '../sources';
 import {buildCandidate,verifyAndSign,type Snapshot} from './coordinator';
 import {limitedText} from '../../workers/news/config';
-type Policy=Source&{classification:string;name?:string;review?:{license?:string;attribution_name?:string}};
+type Policy=Source&{classification:string;name?:string;review?:{license?:string;attribution_name?:string;permission_status?:string}};
 export interface Settings{workerUrl:string;writerToken:string;agentUrl:string;agentToken:string;validationSecret:string;sources:Policy[];projectId:string;dataset:string;acceptanceItem?:FeedItem;context?:()=>FeedItem[];canAccess?:(url:string,signal:AbortSignal)=>Promise<boolean>;collect?:(signal:AbortSignal)=>Promise<unknown>}
 // These functions fetch only the fixed source registry's public HTTPS hosts, with DNS pinning and checked redirects.
 export function plainText(html:string){
@@ -15,7 +15,7 @@ export function plainText(html:string){
 
 export function pipeline(config:Settings){
  const acceptanceItem=config.acceptanceItem?structuredClone(config.acceptanceItem):undefined;const dryRun=!!acceptanceItem;
- const primaryHosts=new Set(config.sources.filter(s=>activeSource(s)&&(s.classification==='ai-primary'||s.classification==='crypto-primary')).flatMap(s=>[...sourceHosts(s)]));
+
  async function agent(task:string,input:any,signal:AbortSignal){
   const res=await fetch(config.agentUrl+'/v1/task',{method:'POST',headers:{authorization:'Bearer '+config.agentToken,'content-type':'application/json'},body:JSON.stringify({task,input}),signal,redirect:'error'});
   if(!res.ok)throw Error('Agent unavailable');return JSON.parse(await limitedText(res,200000));
@@ -44,6 +44,9 @@ export function pipeline(config:Settings){
   try{
   const source=config.sources.find(s=>sourceHosts(s).has(new URL(job.item.url).hostname)&&activeSource(s));
   if(!source||job.leaseUntil-Date.now()<270000)return hold('Source policy mismatch or insufficient lease');
+  const sourceTime=Date.parse(job.item.publishedAt);if(!Number.isFinite(sourceTime)||sourceTime<Date.now()-48*3600000||sourceTime>Date.now()+300000)return hold('Source story is outside the approved freshness window');
+  // Licensed reports qualify only for jobs carrying that publisher's explicit attribution policy.
+  const primaryHosts=new Set(config.sources.filter(s=>reportingEvidenceSource(s)&&(['ai-primary','crypto-primary'].includes(s.classification)||s.id===source.id)).flatMap(s=>[...sourceHosts(s)]));
   if(config.canAccess&&!await config.canAccess(job.item.url,signal))return hold('Source robots policy refuses article access');
   // Read public recent headlines independently; failure blocks publishing rather than silently skipping duplication review.
   const url=new URL(`https://${config.projectId}.api.sanity.io/v2026-10-01/data/query/${config.dataset}`);
@@ -68,7 +71,8 @@ export function pipeline(config:Settings){
   }
   if(!snapshots.some(s=>s.primary))return hold('No approved fetched primary evidence');
   stage='write';
-  const written=await agent('write',{item:job.item,snapshots},signal);const candidate=buildCandidate(written,job.item.url);
+  const licensedReporting=source.review?.permission_status==='owner-confirmed'?(source.name||source.id):undefined;
+  const written=await agent('write',{item:job.item,snapshots,licensedReporting},signal);const candidate=buildCandidate(written,job.item.url);
   const licensed=config.sources.filter(s=>s.review?.license==='CC-BY-4.0'&&snapshots.some(p=>sourceHosts(s).has(new URL(p.url).hostname)));
   for(const policy of licensed)for(const locale of ['en','zh','zhCn']){
    const sourceUrl=snapshots.find(p=>sourceHosts(policy).has(new URL(p.url).hostname))!.url;
@@ -76,7 +80,7 @@ export function pipeline(config:Settings){
    const edition=(candidate.article.translations as any)[locale];edition.body.push({_type:'block',_key:'credit-'+policy.id,style:'normal',markDefs:[],children:[{_type:'span',_key:'credit-span',text:credit,marks:[]}]});
   }
   candidateForDebug=candidate;stage='review';
-  const review=await agent('review',{candidate,snapshots,recentStories,discovery:job.item,operatorPolicy:{relationship:'none',basis:'Independent editorial workflow configured by the publisher. No sponsor, affiliate URL or owned-project relationship is supplied. Source-company affiliations do not establish a relationship with this publisher.'}},signal);
+  const review=await agent('review',{candidate,snapshots,recentStories,licensedReporting,discovery:job.item,operatorPolicy:{relationship:'none',basis:'Independent editorial workflow configured by the publisher. No sponsor, affiliate URL or owned-project relationship is supplied. Source-company affiliations do not establish a relationship with this publisher.'}},signal);
   reviewForDebug=review;stage='signed-validation';
   const signed=verifyAndSign(candidate,snapshots,review,config.validationSecret,candidate.evidence.every((e:any)=>config.sources.some(s=>activeSource(s)&&sourceHosts(s).has(new URL(e.url).hostname))));
   if(dryRun)return {state:'validated',published:false,jobId:job.jobId,candidate:signed,snapshotUrls:snapshots.map(s=>s.url),reviewReason:review.reason};

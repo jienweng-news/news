@@ -649,9 +649,9 @@
       "proposed_poll_minutes": 5,
       "notes": "Preserve query; actual item languages can differ from feed declaration.",
       "selected_for_fixed_list": true,
-      "automation_enabled": false,
-      "rights_status": "commercial_rewrite_restricted",
-      "allowed_reuse": "none_granted",
+      "automation_enabled": true,
+      "rights_status": "reviewed",
+      "allowed_reuse": "metadata-discovery",
       "checked_at_utc": "2026-10-22T08:19:55.623747+00:00",
       "http_status": 200,
       "resolved_url": "https://www.panewslab.com/rss.xml?lang=en&type=NORMAL%2CNEWS%2CVIDEO",
@@ -662,12 +662,14 @@
       "feed_format": "rss",
       "item_count_observed": 100,
       "feed_verified": true,
-      "monitoring_enabled": false,
+      "monitoring_enabled": true,
       "review": {
-        "checked_at_utc": "2026-10-23T06:58:07.823877+00:00",
-        "scope": "held; commercial rewrite restriction",
+        "checked_at_utc": "2026-10-23T12:03:38.748918+00:00",
+        "scope": "Owner confirms commercial article/image reuse permission; attributed original reporting/translation from licensed PANews reports; standard PANews-hosted images only; preserve external rights and verification.",
         "terms_url": "https://www.panewslab.com/en/user-agreement",
-        "decision": "held"
+        "decision": "enabled-with-owner-permission",
+        "permission_status": "owner-confirmed",
+        "permission_basis": "Owner explicitly confirmed PANews reuse permission in conversation on2026-10-23; no publisher contacted by agent."
       }
     },
     {

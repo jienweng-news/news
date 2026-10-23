@@ -59,3 +59,12 @@ it('quarantines ambiguous publication failure, and halts if hold cannot be confi
  vi.stubGlobal('fetch',vi.fn(async(url:any,init:any)=>{if(String(url).endsWith('/publish')||String(url).endsWith('/hold'))throw Error('Network lost');return previous(url,init);}));
  expect(await pipeline(config)('queue')).toMatchObject({state:'needs-attention',jobId:id});
 });
+it('does not treat licensed PANews reporting as primary evidence for another source job',async()=>{
+ const {config,calls}=harness();(config.sources as any[]).push({id:'panews',url:'https://www.panewslab.com/rss.xml',classification:'crypto-newsroom',automation_enabled:true,rights_status:'reviewed',allowed_reuse:'metadata-discovery',proposed_poll_minutes:5,review:{permission_status:'owner-confirmed'}});
+ await pipeline(config)('queue');expect(calls.find(c=>c.body?.task==='research')?.body.input.primaryHosts).not.toContain('www.panewslab.com');
+});
+it('holds source stories older than the approved 48-hour window before generation',async()=>{
+ const {config,calls}=harness();const previous=globalThis.fetch;
+ vi.stubGlobal('fetch',vi.fn(async(url:any,init:any)=>String(url).endsWith('/claim')?Response.json({jobId:id,leaseToken:'lease',leaseUntil:Date.now()+300000,item:{url:sourceUrl,publishedAt:new Date(Date.now()-49*3600000).toISOString()}}):previous(url,init)));
+ expect(await pipeline(config)('queue')).toMatchObject({state:'held'});expect(calls.some(c=>c.body?.task==='write')).toBe(false);
+});

@@ -22,7 +22,7 @@ export class D1Store {
  async claim(now=Date.now()){
   await this.db.prepare("UPDATE jobs SET state='held',lease_until=0,last_error='Retry limit' WHERE state='processing' AND lease_until<=? AND attempts>=5").bind(now).run();
   return this.db.prepare(`UPDATE jobs SET state='processing',lease_until=?,lease_token=?,attempts=attempts+1
-   WHERE id=(SELECT id FROM jobs WHERE (state='queued' OR (state='processing' AND lease_until<=?)) AND attempts<5 AND (SELECT until FROM publisher_lock WHERE id=1)<=? ORDER BY created_at DESC,id LIMIT 1) RETURNING *`)
+   WHERE id=(SELECT id FROM jobs WHERE (state='queued' OR (state='processing' AND lease_until<=?)) AND attempts<5 AND (SELECT until FROM publisher_lock WHERE id=1)<=? ORDER BY json_extract(payload,'$.publishedAt') DESC,created_at DESC,id LIMIT 1) RETURNING *`)
    .bind(now+300000,crypto.randomUUID(),now,now).first<Job>();
  }
  async owned(id:string,token:string,now=Date.now()){

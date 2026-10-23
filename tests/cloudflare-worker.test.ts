@@ -209,3 +209,7 @@ it('selects only reviewed source imagery and versions managed upgrades without o
   expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);expect(uploads).toBe(1);
  }finally{vi.unstubAllGlobals();}
 });
+it('claims the newest source story even when an older feed batch arrived later',async()=>{
+ const {store,item}=await setup();await store.enqueue('openai',{...item,fingerprint:'e'.repeat(64),url:'https://openai.com/index/older',publishedAt:new Date(Date.parse(item.publishedAt)-3600000).toISOString()},Date.now()+1000);
+ expect((await store.claim())?.id).toBe(item.fingerprint);
+});
