@@ -1,4 +1,5 @@
 ---
+import ImageCredit from './ImageCredit.astro';
 import {storyImage,imageCaption} from '../lib/news-images';
 import RelationshipLabel from './RelationshipLabel.astro';
 import {t,localePath,languageTag,type Locale} from '../lib/i18n';
@@ -10,7 +11,7 @@ const date = (value: string) => new Intl.DateTimeFormat(languageTag[locale], { m
 ---
 <div class:list={['story-list', { compact }]}>
   {articles.map(article => <article class="story-item">
-    {!compact&&<figure class="story-thumbnail"><a href={localePath(locale,`articles/${article.slug}`)} tabindex="-1" aria-hidden="true"><img src={storyImage(article,locale).url} alt="" width="1200" height="630" loading="lazy" decoding="async"/></a>{imageCaption(article)&&<figcaption>{imageCaption(article)}</figcaption>}</figure>}
+    {!compact&&<figure class="story-thumbnail"><a href={localePath(locale,`articles/${article.slug}`)} tabindex="-1" aria-hidden="true"><img src={storyImage(article,locale).url} alt="" width="1200" height="630" loading="lazy" decoding="async"/></a>{imageCaption(article)&&<ImageCredit image={storyImage(article,locale)}/>}</figure>}
     <Heading><a href={localePath(locale,`articles/${article.slug}`)}>{article.title}</a></Heading>
     {!compact && <p>{article.summary}</p>}
     <div class="story-details"><RelationshipLabel locale={locale} relationship={article.relationship} /><span>{t(locale,article.section)}</span><span>{t(locale,article.format)}</span><time datetime={article.publishedAt}>{date(article.publishedAt)}</time></div>

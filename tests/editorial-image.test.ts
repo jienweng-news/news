@@ -17,3 +17,8 @@ it('serves published graphics and refuses invalid/missing story paths',async()=>
 });
 
 it('keeps long headlines and labels free of invalid outline coordinates',()=>{expect(editorialSvg('Ethereum postpones Hoodi Glamsterdam upgrade; replacement date unset','ai').includes('NaN')).toBe(false)});
+it('provides stable, visibly different fallback compositions for different headlines',()=>{
+ const variants=new Set(Array.from({length:12},(_,i)=>editorialSvg('Technology update '+i,'ai').match(/data-composition="([^"]+)"/)?.[1]));
+ expect(variants.size).toBe(3);expect(variants.has(undefined)).toBe(false);
+ expect(editorialSvg('Technology update','ai')).toBe(editorialSvg('Technology update','ai'));
+});

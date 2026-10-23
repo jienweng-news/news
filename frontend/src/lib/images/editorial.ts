@@ -21,12 +21,14 @@ function headlinePaths(title:string){
  return lines.slice(0,6).map((line,i)=>outline(font.getPath(line,60,280+i*size*1.1,size))).join('');
 }
 export function editorialSvg(title:string,section:'ai'|'crypto'){
+ const variant=[...title].reduce((n,c)=>(n+c.charCodeAt(0))%3,0);
+ const dark=variant===1;
  const icon=section==='ai'
  ? '<rect x="932" y="54" width="150" height="116" rx="6" fill="none" stroke="#f7f3e8" stroke-width="5"/><path d="M958 112h98m-49-36v72m-96-50h20m-20 30h20m152-30h25m-25 30h25" stroke="#f7f3e8" stroke-width="5"/>'
  : '<g fill="none" stroke="#f7f3e8" stroke-width="5"><circle cx="971" cy="91" r="28"/><circle cx="1050" cy="134" r="28"/><path d="m995 104 31 17m-78 36-18 20m133-104 18-20"/></g>';
  const label=section==='ai'?'ARTIFICIAL INTELLIGENCE':'CRYPTO';
  const labelPath=outline(font.getPath(label,60,590,24));
- const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="#f7f3e8"/><path d="M0 0h1200v208L0 178z" fill="#171717"/><path d="m804 0 396 0v205l-226-18z" fill="#c92032"/>${logo.replace('width="560" height="300"','x="60" y="32" width="230" height="123"')}${icon}<g fill="#171717">${headlinePaths(title)}${labelPath}</g><path d="M60 548h1080" stroke="#171717" stroke-width="2"/><path d="m1055 568 83-5v29l-83 5z" fill="#c92032"/></svg>`;
+ const svg=`<svg data-composition="${variant}" xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="${dark?'#171717':'#f7f3e8'}"/>${variant===2?'<path d="M0 0h1200v190H0z" fill="#c92032"/><path d="M770 0h430v190H850z" fill="#171717"/>':'<path d="M0 0h1200v208L0 178z" fill="#171717"/><path d="m804 0 396 0v205l-226-18z" fill="#c92032"/>'}${logo.replace('width="560" height="300"','x="60" y="32" width="230" height="123"')}${icon}<g fill="${dark?'#f7f3e8':'#171717'}">${headlinePaths(title)}${labelPath}</g><path d="M60 548h1080" stroke="${dark?'#f7f3e8':'#171717'}" stroke-width="2"/><path d="m1055 568 83-5v29l-83 5z" fill="#c92032"/></svg>`;
  return svg;
 }
 

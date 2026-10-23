@@ -1,4 +1,5 @@
 ---
+import ImageCredit from './ImageCredit.astro';
 import {storyImage,imageCaption} from '../lib/news-images';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import StoryList from './StoryList.astro';
@@ -14,10 +15,8 @@ const { lead, latest, sections, analysis } = composeNewsroom(articles);
   <div class="edition-heading"><h1>{t(locale,'latest')}</h1><p>{t(locale,'tagline')}</p></div>
   {unavailable ? <section class="empty-state"><h2>{t(locale,'unavailable')}</h2><p>{t(locale,'retry')}</p></section> : lead ? <div class="front-grid">
     <article class="lead-story">
-      <a class="lead-link" href={localePath(locale,`articles/${lead.slug}`)}>
-        <figure class="lead-figure"><img class="lead-image" src={storyImage(lead,locale).url} alt={storyImage(lead,locale).alt} width="1200" height="630" fetchpriority="high" />{imageCaption(lead)&&<figcaption>{imageCaption(lead)}</figcaption>}</figure>
-        <h2>{lead.title}</h2>
-      </a>
+      <figure class="lead-figure"><a href={localePath(locale,`articles/${lead.slug}`)} tabindex="-1" aria-hidden="true"><img class="lead-image" src={storyImage(lead,locale).url} alt="" width="1200" height="630" fetchpriority="high" /></a>{imageCaption(lead)&&<ImageCredit image={storyImage(lead,locale)}/>}</figure>
+      <h2><a class="lead-link" href={localePath(locale,`articles/${lead.slug}`)}>{lead.title}</a></h2>
       <p class="deck">{lead.summary}</p>
       <div class="story-footer"><RelationshipLabel locale={locale} relationship={lead.relationship} /><span>{t(locale,lead.section)} / {t(locale,lead.format)}</span><span>{t(locale,'editor')} jienweng</span><a href={localePath(locale,`articles/${lead.slug}`)}>{t(locale,'read')} <span aria-hidden="true">→</span></a></div>
     </article>

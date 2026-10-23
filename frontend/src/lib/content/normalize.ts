@@ -78,6 +78,6 @@ export function normalizeArticle(raw: unknown, mode: 'published' | 'preview' = '
     corrections: corrections.map(c => { const correction = object(c); return { date: date(correction.date), note: text(correction.note) }; }),
     fixture: a.fixture === true, previewOnly: mode === 'preview',
   };
-  if (a.media) { const m = object(a.media); result.media = { url: safeUrl(m.url), alt: text(m.alt), credit: text(m.credit), license: text(m.license) }; }
+  if (a.media) { const m = object(a.media); result.media = { url: safeUrl(m.url), alt: text(m.alt), credit: text(m.credit), license: text(m.license), ...(m.sourceUrl?{sourceUrl:safeUrl(m.sourceUrl)}:{}), ...(m.licenseUrl?{licenseUrl:safeUrl(m.licenseUrl)}:{}) }; }
   return result;
 }

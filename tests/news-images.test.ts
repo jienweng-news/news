@@ -19,3 +19,8 @@ it('uses a branded avatar until a real portrait is supplied',()=>{
 });
 
 it('preserves author and licence attribution at every licensed image placement',()=>{const a=normalizeArticle(rawArticle({media:{url:'https://cdn.sanity.io/photo.jpg',alt:'Map',credit:'Original photographer',license:'CC BY 4.0'}}));expect(imageCaption(a)).toBe('Original photographer · CC BY 4.0');expect(imageCaption({...a,media:undefined})).toBeUndefined()});
+it('retains safe source and license links for image attribution',()=>{
+ const a=normalizeArticle(rawArticle({media:{url:'https://cdn.sanity.io/photo.jpg',alt:'Image',credit:'Foundation',license:'CC BY 4.0',sourceUrl:'https://blog.ethereum.org/',licenseUrl:'https://creativecommons.org/licenses/by/4.0/'}}));
+ expect(a.media).toMatchObject({sourceUrl:'https://blog.ethereum.org/',licenseUrl:'https://creativecommons.org/licenses/by/4.0/'});
+ expect(()=>normalizeArticle(rawArticle({media:{url:'https://cdn.sanity.io/photo.jpg',alt:'Image',credit:'Owner',license:'CC',licenseUrl:'javascript:alert(1)'}}))).toThrow();
+});
