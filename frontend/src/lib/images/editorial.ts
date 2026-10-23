@@ -5,6 +5,7 @@ import logo from '../../assets/editorial-logo.svg?raw';
 const bytes=Buffer.from(fontData.split(',')[1],'base64');
 const font=opentype.parse(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));
 type Subject='semiconductors'|'markets'|'earth-observation'|'healthcare'|'crypto-network'|'ai-systems'|'policy'|'technology';
+export interface EditorialImageOptions{layout?:'article'|'thumbnail';width?:320|480|720|960|1200}
 function outline(path:opentype.Path){
  const keys:Record<string,string[]>={M:['x','y'],L:['x','y'],Q:['x1','y1','x','y'],C:['x1','y1','x2','y2','x','y'],Z:[]};
  const d=path.commands.map(c=>c.type+(keys[c.type]||[]).map(k=>{const value=(c as unknown as Record<string,number>)[k];if(!Number.isFinite(value))throw new Error('Invalid font outline');return Math.round(value*100)/100;}).join(' ')).join('');
@@ -37,12 +38,17 @@ const scenes:Record<Subject,{label:string;accent:string;art:string}>= {
  policy:{label:'RULES / MARKETS',accent:'#e3a643',art:'<path d="M944 245h137l34 34v128H944z" fill="#171717" stroke="#f7f3e8" stroke-width="3"/><path d="M1081 245v37h34m-143 13h98m-98 20h112m-112 20h86m-86 20h112m-112 20h71" stroke="#e3a643" stroke-width="4"/><path d="m967 375 18-16 19 8 24-24" fill="none" stroke="#c92032" stroke-width="5"/>'},
  technology:{label:'TECH / INDUSTRY',accent:'#6da9c6',art:'<path d="M932 390V301l39-28v117m0 0V255l42-27v162m0 0v-96l43-25v121m0 0v-61l40-23v84" fill="#171717" stroke="#f7f3e8" stroke-width="4"/><path d="M930 406h176" stroke="#6da9c6" stroke-width="5"/><circle cx="1147" cy="277" r="25" fill="none" stroke="#c92032" stroke-width="5"/><path d="M1147 241v72m-36-36h72" stroke="#c92032" stroke-width="3"/>'}
 };
-export function editorialSvg(title:string,section:'ai'|'crypto',summary=''){
+export function editorialSvg(title:string,section:'ai'|'crypto',summary='',options:EditorialImageOptions={}){
  const source=`${title} ${summary}`;const subject=subjectFor(source,section),scene=scenes[subject];
  const variant=[...source].reduce((n,c)=>(n+c.charCodeAt(0))%3,0),dark=variant===1;
  const labelPath=outline(font.getPath(scene.label,60,590,22));
  const ornament=variant===0?'<path d="M0 0h1200v14H0z" fill="#c92032"/>':variant===1?'<path d="M0 0h1200v190H0z" fill="#171717"/><path d="m804 0 396 0v205l-226-18z" fill="#c92032"/>':'<path d="M0 0h1200v190H0z" fill="#c92032"/><path d="M770 0h430v190H850z" fill="#171717"/>';
- const svg=`<svg data-composition="${variant}" data-subject="${subject}" xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="${dark?'#171717':'#f7f3e8'}"/>${ornament}${logo.replace('width="560" height="300"','x="60" y="32" width="230" height="123"')}<path d="M886 211h292v226H886z" fill="${variant===1?'#f7f3e8':'#171717'}"/><path d="M886 211h292v5H886z" fill="${scene.accent}"/>${scene.art}<g fill="${dark?'#f7f3e8':'#171717'}">${headlinePaths(title)}${labelPath}</g><path d="M60 548h1080" stroke="${dark?'#f7f3e8':'#171717'}" stroke-width="2"/><path d="m1055 568 83-5v29l-83 5z" fill="#c92032"/></svg>`;
+ const thumbnail=options.layout==='thumbnail';
+ const thumbnailBackground=variant===0?'<path d="M0 0h1200v630H0z" fill="#171717"/><path d="M0 0h300v630H0z" fill="#c92032"/><path d="m300 0 160 0-160 630H140z" fill="#c92032"/>':variant===1?'<path d="M0 0h1200v630H0z" fill="#f7f3e8"/><path d="M0 0h295v630H0z" fill="#171717"/><path d="M0 0h92v630H0z" fill="#c92032"/>':'<path d="M0 0h1200v630H0z" fill="#c92032"/><path d="M900 0h300v630H900z" fill="#171717"/><path d="m845 0 125 0-125 630H720z" fill="#171717"/>';
+ const thumbnailScene=`<g transform="translate(-802 -134) scale(1.45)">${scene.art}</g>`;
+ const svg=thumbnail
+  ?`<svg data-composition="${variant}" data-subject="${subject}" data-layout="thumbnail" xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">${thumbnailBackground}${thumbnailScene}</svg>`
+  :`<svg data-composition="${variant}" data-subject="${subject}" data-layout="article" xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="${dark?'#171717':'#f7f3e8'}"/>${ornament}${logo.replace('width="560" height="300"','x="60" y="32" width="230" height="123"')}<path d="M886 211h292v226H886z" fill="${variant===1?'#f7f3e8':'#171717'}"/><path d="M886 211h292v5H886z" fill="${scene.accent}"/>${scene.art}<g fill="${dark?'#f7f3e8':'#171717'}">${headlinePaths(title)}${labelPath}</g><path d="M60 548h1080" stroke="${dark?'#f7f3e8':'#171717'}" stroke-width="2"/><path d="m1055 568 83-5v29l-83 5z" fill="#c92032"/></svg>`;
  return svg;
 }
-export async function renderEditorialImage(title:string,section:'ai'|'crypto',summary=''){return sharp(Buffer.from(editorialSvg(title,section,summary))).png({compressionLevel:9,adaptiveFiltering:true}).toBuffer();}
+export async function renderEditorialImage(title:string,section:'ai'|'crypto',summary='',options:EditorialImageOptions={}){let image=sharp(Buffer.from(editorialSvg(title,section,summary,options)));if(options.width)image=image.resize({width:options.width,withoutEnlargement:true});return image.png({compressionLevel:9,adaptiveFiltering:true}).toBuffer();}

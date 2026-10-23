@@ -189,6 +189,16 @@ figure.story-thumbnail{margin:0 0 18px}
 .section-stories .news-rows .story-item :is(h2,h3){font-size:27px;line-height:1.12}
 @media(max-width:640px){.section-stories .news-rows .story-item :is(h2,h3){font-size:25px}}
 
+.related-stories .story-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+.related-stories .story-item{min-width:0;padding:0 0 22px;border-bottom:1px solid var(--line)}
+.related-stories .story-thumbnail{max-width:none;margin:0 0 15px}
+.related-stories .story-thumbnail img{width:100%;aspect-ratio:1200/630;object-fit:cover}
+.related-stories .story-item :is(h2,h3){font-size:27px;line-height:1.08}
+.related-stories .story-item>p{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;line-height:1.5;margin:9px 0 12px}
+.related-stories .story-details{gap:6px 12px;margin-top:12px}
+@media(max-width:900px){.related-stories .story-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}}
+@media(max-width:640px){.related-stories .story-list{grid-template-columns:1fr;gap:0}.related-stories .story-item{padding-bottom:20px}.related-stories .story-thumbnail img{aspect-ratio:16/9}.related-stories .story-item :is(h2,h3){font-size:25px}}
+
 /* Compact publication footer: brand, news and publication links share one row. */
 .site-footer{
   display:grid;

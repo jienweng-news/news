@@ -1,7 +1,7 @@
 import {expect,it} from 'vitest';
 import {normalizeArticle} from '../frontend/src/lib/content/normalize';
 import {rawArticle} from './fixtures/articles';
-import {storyImage,shareImage,authorImage,imageCaption,showImageCredit} from '../frontend/src/lib/news-images';
+import {storyImage,storyThumbnail,shareImage,authorImage,imageCaption,showImageCredit} from '../frontend/src/lib/news-images';
 it('normalizes a supplied author portrait and rejects unsafe URLs',()=>{
  const a=normalizeArticle(rawArticle({author:{name:'jienweng',slug:'jienweng',image:{url:'https://cdn.sanity.io/portrait.jpg',alt:'jienweng'}}}));
  expect(a.author.image?.alt).toBe('jienweng');
@@ -12,6 +12,15 @@ it('uses licensed media first and gives missing media a published-story PNG',()=
  const image={url:'https://cdn.sanity.io/story.jpg',alt:'Forest map',credit:'Author',license:'CC BY 4.0'};
  expect(storyImage({...a,media:image},'en')).toMatchObject(image);
  expect(shareImage(a,'en','https://tokenonair.com').url).toBe('https://tokenonair.com/api/images/en/evaluating-ai-tools.png');
+});
+it('uses text-free artwork for branded story-card thumbnails while preserving other images',()=>{
+ const a=normalizeArticle(rawArticle({media:{url:'https://tokenonair.com/api/images/en/evaluating-ai-tools.png?revision=3&version=source-first-v6',alt:'AI tools',credit:'Token on Air',license:'Original editorial illustration · © Token on Air'}}));
+ const thumbnail=storyThumbnail(a,'en');
+ expect(new URL(thumbnail.url,'https://tokenonair.com').searchParams.get('layout')).toBe('thumbnail');
+ const persisted=normalizeArticle(rawArticle({media:{url:'https://cdn.sanity.io/images/4k0o7q9m/production/generated.png',alt:'AI models',credit:'Token on Air',license:'Original editorial illustration · © Token on Air'}}));
+ expect(storyThumbnail(persisted,'zh').url).toBe(`/api/images/zh/${persisted.slug}.png?revision=${encodeURIComponent(persisted.updatedAt)}&layout=thumbnail`);
+ const licensed=normalizeArticle(rawArticle({media:{url:'https://cdn.sanity.io/photo.jpg',alt:'Forest',credit:'Photographer',license:'CC BY 4.0'}}));
+ expect(storyThumbnail(licensed,'en').url).toBe('https://cdn.sanity.io/photo.jpg');
 });
 it('uses a branded avatar until a real portrait is supplied',()=>{
  expect(authorImage({name:'jienweng',slug:'jienweng'}).url).toBe('/brand/editor-avatar.png');

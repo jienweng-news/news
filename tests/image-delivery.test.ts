@@ -12,5 +12,9 @@ it('serves Sanity images in modern formats at responsive display widths',()=>{
 
 it('leaves non-Sanity URLs untouched and does not emit invalid srcsets',()=>{
  expect(responsiveImage('https://example.com/photo.jpg',440)).toEqual({src:'https://example.com/photo.jpg'});
- expect(responsiveImage('/api/images/en/story.png',440)).toEqual({src:'/api/images/en/story.png'});
+ const thumbnail=responsiveImage('/api/images/en/story.png?layout=thumbnail&revision=abc',440,'(max-width: 700px) calc(100vw - 40px), 42vw');
+ expect(thumbnail.src).toBe('/api/images/en/story.png?layout=thumbnail&revision=abc&w=480');
+ expect(thumbnail.srcset).toContain('w=320 320w');
+ expect(thumbnail.srcset).toContain('w=720 720w');
+ expect(thumbnail.sizes).toBe('(max-width: 700px) calc(100vw - 40px), 42vw');
 });

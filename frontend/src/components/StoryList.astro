@@ -1,6 +1,6 @@
 ---
 import {responsiveImage} from '../lib/images/delivery';
-import {storyImage} from '../lib/news-images';
+import {storyImage,storyThumbnail} from '../lib/news-images';
 import RelationshipLabel from './RelationshipLabel.astro';
 import {publicationTime} from '../lib/news-date';
 import {t,localePath,type Locale} from '../lib/i18n';
@@ -8,7 +8,7 @@ import type { ArticleCard } from '../lib/content/types';
 interface Props { articles: ArticleCard[]; compact?: boolean; locale?:Locale; headingLevel?:'h2'|'h3';layout?:'standard'|'rows';priorityFirst?:boolean }
 const { articles, compact = false, locale='en', headingLevel='h3',layout='standard',priorityFirst=false } = Astro.props;
 const Heading=headingLevel;
-const imageDeliveryBySlug=new Map(compact?[]:articles.map(article=>[article.slug,responsiveImage(storyImage(article,locale).url,440,'(max-width: 700px) calc(100vw - 40px), (max-width: 1100px) 45vw, 34vw')]));
+const imageDeliveryBySlug=new Map(compact?[]:articles.map(article=>[article.slug,responsiveImage(storyThumbnail(article,locale).url,440,'(max-width: 700px) calc(100vw - 40px), (max-width: 1100px) 45vw, 34vw')]));
 
 ---
 <div class:list={['story-list', { compact, 'news-rows':layout==='rows' }]}>
