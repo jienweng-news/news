@@ -95,3 +95,95 @@
 @media(max-width:900px){.author-stories .story-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.author-stories .story-list{grid-template-columns:1fr}}
 figure.story-thumbnail{margin:0 0 18px}
+
+/* Newsroom: hierarchy first, with compact supporting coverage. */
+.site-header{min-height:128px;padding-top:18px;padding-bottom:18px}
+.site-header .brand-logo{width:200px}
+.masthead-note{font-size:24px}
+.language-switch{margin-top:8px;margin-bottom:12px}
+.newsroom .edition-heading{margin:20px 0 26px;align-items:center}
+.newsroom .edition-heading h1{font-size:30px;padding:8px 14px}
+.newsroom .edition-heading p{max-width:none;font-size:11px;font-variant-numeric:tabular-nums}
+.newsroom .front-grid{grid-template-columns:minmax(0,1.65fr) minmax(0,1fr) minmax(220px,.8fr);gap:28px;align-items:start}
+.newsroom .front-grid.single-story{grid-template-columns:minmax(0,2fr) minmax(240px,1fr)}
+.news-meta{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;margin:0 0 12px;font-size:10px;line-height:1.5;font-variant-numeric:tabular-nums;color:var(--muted)}
+.news-meta>span{color:var(--red);font-weight:700}
+.newsroom .lead-story h2{font-size:clamp(34px,3.3vw,52px);line-height:1.06;margin:0 0 20px}
+.newsroom .lead-figure{margin:0 0 18px}
+.newsroom .lead-image{aspect-ratio:1.85;object-fit:cover}
+.newsroom .deck{font-size:15px;line-height:1.65;margin:0 0 18px}
+.newsroom .story-footer{padding:12px 0;font-size:11px}
+.supporting-stories{display:grid;gap:24px;border-left:1px solid var(--line);padding-left:28px;min-width:0}
+.supporting-story{min-width:0}
+.supporting-story+article{border-top:1px solid var(--line);padding-top:22px}
+.supporting-story figure{margin:0 0 12px}
+.supporting-story img{aspect-ratio:1.85;width:100%;object-fit:cover}
+.supporting-story figcaption{font-size:10px;line-height:1.5;margin-top:6px}
+.supporting-story .news-meta{margin-bottom:8px}
+.supporting-story h2{font:700 clamp(24px,2.1vw,31px)/1.12 var(--display);margin:0}
+.newsroom .latest-column{padding:20px;align-self:start;border-top-width:4px}
+.newsroom .latest-column>h2{font-size:24px;padding-bottom:16px}
+.newsroom .latest-column .story-item{padding:18px 0}
+.newsroom .latest-column .story-item h3{font-size:23px;line-height:1.15}
+.newsroom .latest-column .story-details{font-size:10px;gap:5px 10px}
+.newsroom .latest-column .story-details>time{flex-basis:100%;margin-left:0}
+.newsroom-links{display:grid;gap:12px;margin-top:22px;font-size:12px;font-weight:700}
+.newsroom-links a{display:flex;justify-content:space-between;gap:14px;min-height:28px;align-items:center}
+.newsroom .section-grid{gap:36px;margin:36px 0 48px;padding-top:0}
+.newsroom .section-heading{padding:13px 0}
+.newsroom .section-heading h2{font-size:28px;background:none;color:var(--ink);transform:none;padding:0}
+.newsroom .section-heading h2:before{display:none}
+.news-rows .story-item{display:grid;grid-template-columns:minmax(120px,32%) minmax(0,1fr);column-gap:18px;align-content:start;padding:20px 0}
+.news-rows .story-thumbnail{grid-column:1;grid-row:1/4;margin:0;max-width:none}
+.news-rows .story-thumbnail figcaption{font-size:10px;line-height:1.5;margin-top:6px}
+.news-rows .story-item :is(h2,h3){grid-column:2;font-size:27px;line-height:1.12}
+.news-rows .story-item>p{grid-column:2;font-size:13px;line-height:1.55;margin:8px 0 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.news-rows .story-details{grid-column:2;font-size:10px;margin-top:10px;gap:5px 10px}
+.news-rows .story-details time{flex-basis:100%;margin-left:0}
+@media(max-width:1100px){
+ .newsroom .front-grid{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:24px}
+ .supporting-stories{padding-left:24px}
+ .newsroom .latest-column{grid-column:1/-1;display:grid;grid-template-columns:180px minmax(0,1fr);column-gap:24px}
+ .newsroom .latest-column>h2{border-bottom:0;font-size:26px}
+ .newsroom .latest-column .story-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px}
+ .newsroom .latest-column .story-item{padding-top:0;padding-bottom:14px}
+ .newsroom-links{grid-column:2;margin-top:14px;display:flex;gap:24px}
+ .newsroom-links a{justify-content:flex-start}
+ .newsroom .front-grid.single-story .latest-column{display:block;grid-column:auto}
+ .news-rows .story-item{grid-template-columns:112px minmax(0,1fr);column-gap:14px}
+ .news-rows .story-item :is(h2,h3){font-size:24px}
+}
+@media(max-width:760px){
+ .newsroom .front-grid,.newsroom .front-grid.single-story{grid-template-columns:1fr}
+ .supporting-stories{border-left:0;padding-left:0;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;border-top:1px solid var(--line);padding-top:22px}
+ .supporting-story+article{border-top:0;padding-top:0}
+ .newsroom .latest-column{display:block;grid-column:auto}
+ .newsroom .latest-column>h2{border-bottom:2px solid var(--red);margin-bottom:18px}
+ .newsroom-links{display:flex;flex-wrap:wrap}
+ .newsroom .section-grid{grid-template-columns:1fr;gap:28px}
+}
+@media(max-width:640px){
+ .site-header{min-height:104px;padding-top:16px;padding-bottom:16px}
+ .site-header .brand-logo{width:144px}
+ .main-nav{flex-wrap:nowrap;overflow-x:auto;gap:24px;scrollbar-width:thin;padding-top:0;padding-bottom:0}
+ .main-nav>a{white-space:nowrap;flex-shrink:0;min-height:48px}
+ .language-switch{margin:6px 0 12px}
+ .newsroom .edition-heading{margin:18px 0 24px;gap:16px;align-items:baseline}
+ .newsroom .edition-heading h1{font-size:27px;padding:7px 11px}
+ .newsroom .edition-heading p{display:block;font-size:10px;text-align:right;max-width:18ch;line-height:1.5}
+ .newsroom .lead-story h2{font-size:38px;margin-bottom:18px}
+ .newsroom .lead-figure figcaption{font-size:10px;line-height:1.5}
+ .supporting-stories{gap:18px}
+ .supporting-story h2{font-size:25px}
+ .supporting-story .news-meta time{flex-basis:100%}
+ .newsroom .latest-column .story-list{display:block}
+ .newsroom .latest-column .story-item{padding:16px 0}
+ .newsroom .latest-column .story-item h3{font-size:26px}
+ .newsroom .section-heading h2{font-size:29px}
+ .news-rows .story-item{grid-template-columns:104px minmax(0,1fr);gap:0 14px}
+ .news-rows .story-item :is(h2,h3){font-size:25px}
+ .news-rows .story-item>p{display:none}
+}
+.newsroom .section-heading h2 a:hover{color:var(--red)}
+.section-stories .news-rows .story-item :is(h2,h3){font-size:27px;line-height:1.12}
+@media(max-width:640px){.section-stories .news-rows .story-item :is(h2,h3){font-size:25px}}

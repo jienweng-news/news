@@ -1,6 +1,8 @@
 ---
 import ImageCredit from './ImageCredit.astro';
+import NewsMeta from './NewsMeta.astro';
 import {storyImage,imageCaption} from '../lib/news-images';
+import {publicationTime} from '../lib/news-date';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import StoryList from './StoryList.astro';
 import RelationshipLabel from './RelationshipLabel.astro';
@@ -9,27 +11,38 @@ import { t, localePath, type Locale } from '../lib/i18n';
 import type { ArticleCard } from '../lib/content/types';
 interface Props { locale:Locale; articles:ArticleCard[]; unavailable:boolean }
 const {locale,articles,unavailable}=Astro.props;
-const { lead, latest, sections, analysis } = composeNewsroom(articles);
+const { lead, supporting, latest, sections, analysis } = composeNewsroom(articles);
+const topStories={en:'Top stories',zh:'焦點報導','zh-cn':'焦点报道'}[locale];
 ---
 <BaseLayout locale={locale} title={t(locale,'latest')} noindex={unavailable}>
-  <div class="edition-heading"><h1>{t(locale,'latest')}</h1><p>{t(locale,'tagline')}</p></div>
-  {unavailable ? <section class="empty-state"><h2>{t(locale,'unavailable')}</h2><p>{t(locale,'retry')}</p></section> : lead ? <div class="front-grid">
+<div class="newsroom">
+  <div class="edition-heading"><h1>{t(locale,'latest')}</h1>{lead&&!unavailable&&<p>{t(locale,'updated')} <time datetime={lead.publishedAt}>{publicationTime(lead.publishedAt,locale)}</time></p>}</div>
+  {unavailable ? <section class="empty-state"><h2>{t(locale,'unavailable')}</h2><p>{t(locale,'retry')}</p></section> : lead ? <div class:list={['front-grid',{'single-story':!supporting.length}]}>
     <article class="lead-story">
-      <figure class="lead-figure"><a href={localePath(locale,`articles/${lead.slug}`)} tabindex="-1" aria-hidden="true"><img class="lead-image" src={storyImage(lead,locale).url} alt="" width="1200" height="630" fetchpriority="high" /></a>{imageCaption(lead)&&<ImageCredit image={storyImage(lead,locale)}/>}</figure>
+      <NewsMeta article={lead} locale={locale}/>
       <h2><a class="lead-link" href={localePath(locale,`articles/${lead.slug}`)}>{lead.title}</a></h2>
+      <figure class="lead-figure"><a href={localePath(locale,`articles/${lead.slug}`)} tabindex="-1" aria-hidden="true"><img class="lead-image" src={storyImage(lead,locale).url} alt="" width="1200" height="630" fetchpriority="high" /></a>{imageCaption(lead)&&<ImageCredit image={storyImage(lead,locale)}/>}</figure>
       <p class="deck">{lead.summary}</p>
-      <div class="story-footer"><RelationshipLabel locale={locale} relationship={lead.relationship} /><span>{t(locale,lead.section)} / {t(locale,lead.format)}</span><span>{t(locale,'editor')} jienweng</span><a href={localePath(locale,`articles/${lead.slug}`)}>{t(locale,'read')} <span aria-hidden="true">→</span></a></div>
+      <div class="story-footer"><RelationshipLabel locale={locale} relationship={lead.relationship} /><span>{t(locale,'editor')} jienweng</span><a href={localePath(locale,`articles/${lead.slug}`)}>{t(locale,'read')} <span aria-hidden="true">→</span></a></div>
     </article>
+    {supporting.length>0&&<section class="supporting-stories" aria-label={topStories}>
+      {supporting.map(article=><article class="supporting-story">
+        <figure><a href={localePath(locale,`articles/${article.slug}`)} tabindex="-1" aria-hidden="true"><img src={storyImage(article,locale).url} alt="" width="1200" height="630" loading="lazy" decoding="async"/></a>{imageCaption(article)&&<ImageCredit image={storyImage(article,locale)}/>}</figure>
+        <NewsMeta article={article} locale={locale}/>
+        <h2><a href={localePath(locale,`articles/${article.slug}`)}>{article.title}</a></h2>
+      </article>)}
+    </section>}
     <aside class="latest-column" aria-label={t(locale,'headlines')}><h2>{t(locale,'headlines')}</h2>
       {latest.length ? <StoryList locale={locale} articles={latest} compact /> : <p>{t(locale,'more')}</p>}
-      <div class="desk-note"><h3>{t(locale,'curious')}</h3><p>{t(locale,'technology')}</p></div>
+      <nav class="newsroom-links" aria-label={t(locale,'feeds')}><a href={localePath(locale,'archive')}>{t(locale,'archive')} <span aria-hidden="true">→</span></a><a href={`/${locale}/rss.xml`}>{t(locale,'feeds')} <span aria-hidden="true">↗</span></a></nav>
     </aside>
   </div> : <section class="empty-state"><h2>{t(locale,'preparing')}</h2><p>{t(locale,'empty')}</p></section>}
   {!unavailable && <>
     <div class="section-grid">{(['ai','crypto'] as const).map(section => <section class="section-front" id={section}>
-      <div class="section-heading"><h2><a href={localePath(locale,section)}>{t(locale,section)}</a></h2><a href={localePath(locale,section)} aria-label={`All ${section === 'ai' ? 'AI' : 'crypto'} stories`}>{t(locale,'all')} <span aria-hidden="true">→</span></a></div>
-      {sections[section].length ? <StoryList locale={locale} articles={sections[section].slice(0, 3)} /> : <p class="section-empty">{t(locale,'empty')}</p>}
+      <div class="section-heading"><h2><a href={localePath(locale,section)}>{t(locale,section)}</a></h2><a href={localePath(locale,section)} aria-label={`${t(locale,'all')} ${t(locale,section)}`}>{t(locale,'all')} <span aria-hidden="true">→</span></a></div>
+      {sections[section].length ? <StoryList locale={locale} articles={sections[section].slice(0, 3)} layout="rows" /> : <p class="section-empty">{t(locale,'empty')}</p>}
     </section>)}</div>
-    {analysis.length > 0 && <section class="analysis-front"><div class="section-heading"><h2>{t(locale,'perspective')}</h2><span>Analysis</span></div><StoryList locale={locale} articles={analysis} /></section>}
+    {analysis.length > 0 && <section class="analysis-front"><div class="section-heading"><h2>{t(locale,'perspective')}</h2></div><StoryList locale={locale} articles={analysis} /></section>}
   </>}
+</div>
 </BaseLayout>

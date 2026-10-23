@@ -11,5 +11,5 @@ const articles=selectSection(allArticles,section);
 ---
 <BaseLayout locale={locale} title={title} noindex={unavailable} description={section === 'ai' ? 'AI news, practical guides and analysis from Token on Air.' : 'Crypto news, practical guides and analysis from Token on Air.'}>
   <div class="section-page-heading"><a class="back-link" href={`/${locale}/`}>{t(locale,'back')}</a><h1>{title}</h1><p>{t(locale,'technology')}</p><a class="feed-link" href={`/${locale}/${section}/rss.xml`}>{t(locale,'feeds')}</a></div>
-  {unavailable ? <section class="empty-state"><h2>{t(locale,'unavailable')}</h2><p>{t(locale,'retry')}</p></section> : articles.length ? <div class="section-stories"><StoryList locale={locale} headingLevel="h2" articles={articles} /></div> : <section class="empty-state"><h2>{t(locale,'preparing')}</h2><p>{t(locale,'empty')}</p></section>}
+  {unavailable ? <section class="empty-state"><h2>{t(locale,'unavailable')}</h2><p>{t(locale,'retry')}</p></section> : articles.length ? <div class="section-stories"><StoryList layout="rows" locale={locale} headingLevel="h2" articles={articles} /></div> : <section class="empty-state"><h2>{t(locale,'preparing')}</h2><p>{t(locale,'empty')}</p></section>}
 </BaseLayout>

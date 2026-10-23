@@ -56,3 +56,7 @@ Founder selected dramatic Persona direction B: full-width ink masthead, compact 
 Founder requested full browser width after reviewing the live screenshot. The page shell has no maximum width; desktop/tablet/mobile gutters remain 40/24/20px. Masthead extends to both browser edges. Article and prose width limits remain for reading comfort.
 
 Lower surfaces also span edge to edge: newsletter and footer use ink backgrounds with shared 40/24/20px gutters. The intervening analytics consent row uses matching minimum44px buttons and preserves native hidden states and opt-in behavior.
+
+## Approved newsroom hierarchy — 2026-10-23
+
+Owner selected magazine newsroom preserving the Persona-inspired red/black identity. Desktop content uses lead/supporting/latest columns (1.65/1/.8), becoming two columns plus a full-width latest rail at1100px and stacked at760px. Masthead minimum128px desktop/104px mobile, 200/144px wordmark. Lead headline34–52px desktop/38px mobile precedes its image; supporting headlines24–31px. News rows use27px headlines/25px mobile, 13px decks and10–11px timestamp/credit text; long-form reading remains18–19px. Compact metadata intentionally uses the existing publication scale. Desktop gap28px, supporting inset28px with1px neutral separator; mobile gaps18–24px. All timestamps show absolute publication date/time in UTC, localized to edition language. Mobile nav remains one scrollable row of native links. Image/source credits remain outside story anchors.
