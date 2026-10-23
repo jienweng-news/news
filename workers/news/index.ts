@@ -115,7 +115,9 @@ export default {
   }catch(error){return json({error:error instanceof Refused?error.label:'Operation failed'},error instanceof Refused?error.status:502);}
  },
  async scheduled(controller:{cron:string;scheduledTime?:number},env:Env){
-  if(!enabled(env))return;
-  if(controller.cron==='7 0 * * *')await new D1Store(env.DB).prune();else{if(env.RSS_POLLING_ENABLED!=='0')await runScheduled(env);if(Math.floor((controller.scheduledTime??Date.now())/60000)%5===0)await retryPublishedImage(env);}
+  const automationEnabled=enabled(env);
+  if(controller.cron==='7 0 * * *'){if(automationEnabled)await new D1Store(env.DB).prune();return;}
+  if(automationEnabled&&env.RSS_POLLING_ENABLED!=='0')await runScheduled(env);
+  if(env.IMAGE_MAINTENANCE_ENABLED==='1'&&Math.floor((controller.scheduledTime??Date.now())/60000)%5===0)await retryPublishedImage(env);
  }
 };

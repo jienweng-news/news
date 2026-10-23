@@ -6,7 +6,7 @@ import {fetchFeed} from '../workers/news/network';
 import {candidateHash,requiredChecks,signReport} from '../automation/publisher';
 import {rawArticle} from './fixtures/articles';
 const token='w'.repeat(40),admin='a'.repeat(40),secret='s'.repeat(40);
-const envFor=(db:any)=>({DB:db,WRITER_TOKEN:token,ADMIN_TOKEN:admin,VALIDATION_SECRET:secret,AUTOMATION_ENABLED:'1',AUTOMATION_KILL_SWITCH:'0',SANITY_PROJECT_ID:'4k0o7q9m',SANITY_DATASET:'production',SANITY_EDITOR_ID:'editor-jienweng',SANITY_WRITE_TOKEN:'private-token'});
+const envFor=(db:any)=>({DB:db,WRITER_TOKEN:token,ADMIN_TOKEN:admin,VALIDATION_SECRET:secret,AUTOMATION_ENABLED:'1',AUTOMATION_KILL_SWITCH:'0',IMAGE_MAINTENANCE_ENABLED:'1',SANITY_PROJECT_ID:'4k0o7q9m',SANITY_DATASET:'production',SANITY_EDITOR_ID:'editor-jienweng',SANITY_WRITE_TOKEN:'private-token'});
 const request=(path:string,body:any={},key=token)=>{const image={url:'https://upload.wikimedia.org/wikipedia/commons/a/ab/Technology.jpg',alt:'A real technology photograph',credit:'Photo by A. Photographer on Wikimedia Commons',license:'CC BY 4.0',sourceUrl:'https://commons.wikimedia.org/wiki/File:Technology.jpg',licenseUrl:'https://creativecommons.org/licenses/by/4.0/',provider:'commons',kind:'source'};const payload=path.endsWith('/publish')&&body.candidate&&!Object.hasOwn(body,'image')?{...body,image}:body;return new Request('https://worker.test'+path,{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify(payload)});};
 const ethereumPhoto=()=>Response.json({query:{pages:[{title:'File:Close-up of a physical Ethereum coin (51002904687).jpg',imageinfo:[{thumburl:'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/ethereum.jpg/1280px-ethereum.jpg?utm_source=commons',width:6048,height:4024,descriptionurl:'https://commons.wikimedia.org/wiki/File:Close-up_of_a_physical_Ethereum_coin_(51002904687).jpg',extmetadata:{LicenseShortName:{value:'CC BY 2.0'},LicenseUrl:{value:'https://creativecommons.org/licenses/by/2.0'},Artist:{value:'<a>Ivan Radic</a>'},ImageDescription:{value:'Close-up photograph of a physical Ethereum coin.'}}}]}]}});
 export function signedCandidate(url:string){const now=new Date().toISOString(),raw=rawArticle({sources:[url],publishedAt:now,updatedAt:now});const article={...raw,translations:Object.fromEntries(['en','zh','zhCn'].map(l=>[l,{title:'Story',summary:'Story',slug:'stable-story',body:raw.body}]))};const evidence=[{url,quote:'Evidence',contentHash:'a'.repeat(64)}];return {article,evidence,report:signReport(candidateHash({article,evidence}),Object.fromEntries(requiredChecks.map(c=>[c,true])),now,secret)};}
@@ -17,6 +17,15 @@ it('authenticates before touching data and keeps paused schedules inert',async()
  expect((await worker.fetch(request('/v1/jobs/claim',{},'wrong'),env)).status).toBe(401);
  expect((await worker.fetch(request('/v1/jobs/claim'),env)).status).toBe(503);
  expect(await runScheduled(env,vi.fn())).toEqual({paused:true});
+});
+it('runs explicitly enabled image maintenance while news publishing remains paused',async()=>{
+ const {env,store,item}=await setup();env.AUTOMATION_ENABLED='0';env.AUTOMATION_KILL_SWITCH='1';env.RSS_POLLING_ENABLED='0';env.IMAGE_MAINTENANCE_ENABLED='1';
+ const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({result:[]}));
+ try{
+  await worker.scheduled({cron:'* * * * *',scheduledTime:Date.parse('2026-10-23T17:45:00.000Z')},env);
+  expect(get).toHaveBeenCalledOnce();expect(String(get.mock.calls[0][0])).toContain('/data/query/production');
+  expect((await store.get(item.fingerprint))?.state).toBe('queued');
+ }finally{get.mockRestore();}
 });
 it('rejects browser cross-origin posts, oversized bodies and malformed claims',async()=>{
  const {env}=await setup();const cross=request('/v1/jobs/claim');cross.headers.set('Origin','https://evil.test');expect((await worker.fetch(cross,env)).status).toBe(403);
@@ -170,13 +179,13 @@ it('refuses attaching media when the published CMS identity differs from the job
  const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({result:{_id:'story-'+item.fingerprint,_type:'article',_rev:'r',publicationState:'published',automation:{candidateHash:'different'}}}));
  try{expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/attach-image',{},admin),env)).status).toBe(409);expect(get).toHaveBeenCalledTimes(1);}finally{get.mockRestore();}
 });
-it('keeps image retries bounded to five-minute ticks and the automation kill switch',async()=>{
+it('keeps image retries bounded to five-minute ticks without resuming news polling',async()=>{
  const {env}=await setup();const e={...env,RSS_POLLING_ENABLED:'0'};
- const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({result:[]}));
+ const get=vi.spyOn(globalThis,'fetch').mockImplementation(async()=>Response.json({result:[]}));
  try{
   await worker.scheduled({cron:'* * * * *',scheduledTime:60000},e);expect(get).not.toHaveBeenCalled();
   await worker.scheduled({cron:'* * * * *',scheduledTime:300000},e);expect(get).toHaveBeenCalledTimes(1);
-  await worker.scheduled({cron:'* * * * *',scheduledTime:600000},{...e,AUTOMATION_KILL_SWITCH:'1'});expect(get).toHaveBeenCalledTimes(1);
+  await worker.scheduled({cron:'* * * * *',scheduledTime:600000},{...e,AUTOMATION_KILL_SWITCH:'1'});expect(get).toHaveBeenCalledTimes(2);expect(get.mock.calls.every(([url])=>String(url).includes('/data/query/production'))).toBe(true);
  }finally{get.mockRestore();}
 });
 it('refuses unexpected uploaded assets without patching or holding a published job',async()=>{

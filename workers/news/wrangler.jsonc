@@ -12,6 +12,7 @@
     "RSS_POLLING_ENABLED": "0",
     "AUTOMATION_ENABLED": "0",
     "AUTOMATION_KILL_SWITCH": "1",
+    "IMAGE_MAINTENANCE_ENABLED": "1",
     "SANITY_PROJECT_ID": "4k0o7q9m",
     "SANITY_DATASET": "production",
     "SANITY_EDITOR_ID": "editor-jienweng"
