@@ -1,0 +1,167 @@
+[
+  {
+    "id": "toa-queue",
+    "name": "Token on Air — news queue",
+    "active": false,
+    "nodes": [
+      {
+        "parameters": {},
+        "id": "manual",
+        "name": "Run manually",
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          100
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "http://coordinator:5680/v1/tick",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "{\"mode\": \"queue\"}",
+          "options": {
+            "timeout": 250000
+          }
+        },
+        "id": "process",
+        "name": "Process safely",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          320,
+          100
+        ],
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "toa-coordinator",
+            "name": "Private newsroom coordinator"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "minutes",
+                "minutesInterval": 5
+              }
+            ]
+          }
+        },
+        "id": "schedule",
+        "name": "Every five minutes",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          0,
+          -100
+        ]
+      }
+    ],
+    "connections": {
+      "Run manually": {
+        "main": [
+          [
+            {
+              "node": "Process safely",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Every five minutes": {
+        "main": [
+          [
+            {
+              "node": "Process safely",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "executionTimeout": 280,
+      "saveDataSuccessExecution": "none",
+      "saveDataErrorExecution": "all",
+      "timezone": "Asia/Kuala_Lumpur"
+    },
+    "pinData": {}
+  },
+  {
+    "id": "toa-smoke",
+    "name": "Token on Air — private Codex smoke",
+    "active": false,
+    "nodes": [
+      {
+        "parameters": {},
+        "id": "manual",
+        "name": "Run manually",
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          100
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "http://coordinator:5680/v1/tick",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "{\"mode\": \"smoke\"}",
+          "options": {
+            "timeout": 250000
+          }
+        },
+        "id": "process",
+        "name": "Process safely",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          320,
+          100
+        ],
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "toa-coordinator",
+            "name": "Private newsroom coordinator"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Run manually": {
+        "main": [
+          [
+            {
+              "node": "Process safely",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "executionTimeout": 280,
+      "saveDataSuccessExecution": "none",
+      "saveDataErrorExecution": "all",
+      "timezone": "Asia/Kuala_Lumpur"
+    },
+    "pinData": {}
+  }
+]
