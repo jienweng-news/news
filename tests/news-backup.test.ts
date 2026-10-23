@@ -9,3 +9,7 @@ it('rejects wrong keys or tampering and removes incomplete plaintext',async()=>{
 it('never overwrites or deletes a preexisting restore destination',async()=>{
  const dir=mkdtempSync(join(tmpdir(),'toa-backup-'));try{const input=join(dir,'input'),enc=join(dir,'encrypted'),out=join(dir,'restored'),key=randomBytes(32);writeFileSync(input,'secret');writeFileSync(out,'existing data');await encryptBackup(input,enc,key);await expect(decryptBackup(enc,out,key)).rejects.toThrow();expect(readFileSync(out,'utf8')).toBe('existing data');}finally{rmSync(dir,{recursive:true,force:true});}
 });
+it('rejects an incomplete backup even if its manifest claims all expected databases',async()=>{
+ const {assertCompleteSnapshot}=await import('../scripts/lib/news-backup.mjs');
+ const dir=mkdtempSync(join(tmpdir(),'toa-incomplete-'));try{writeFileSync(join(dir,'manifest.json'),JSON.stringify({format:1,databases:['n8n.sqlite','runs.sqlite','intake.sqlite'],fingerprints:{}}));writeFileSync(join(dir,'n8n.sqlite'),'present');await expect(assertCompleteSnapshot(dir)).rejects.toThrow('Required database missing');}finally{rmSync(dir,{recursive:true,force:true});}
+});
