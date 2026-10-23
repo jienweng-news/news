@@ -51,6 +51,7 @@ export function pipeline(config:Settings){
   const signed=verifyAndSign(candidate,snapshots,review,config.validationSecret,activeSource(source));
   if(signal.aborted||job.leaseUntil-Date.now()<10000)throw Error('Lease too short for publish');
   const result=await worker(`/v1/jobs/${job.jobId}/publish`,{leaseToken:job.leaseToken,candidate:signed},signal);
+  if(result.published!=='story.'+job.jobId)throw Error('Publication identity mismatch');
   return {state:'published',jobId:job.jobId,documentId:result.published};
  };
 }

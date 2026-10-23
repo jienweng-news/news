@@ -1,0 +1,114 @@
+name: token-on-air-automation
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:2.44.6@sha256:d02752c6ab446ae9db8deec2f9cc887c378f77cdcad31650814df936b7386dfb
+    container_name: token-on-air-n8n
+    user: "${NEWSROOM_UID:?Set NEWSROOM_UID}:${NEWSROOM_GID:?Set NEWSROOM_GID}"
+    restart: unless-stopped
+    ports: ["127.0.0.1:5678:5678"]
+    environment:
+      N8N_ENCRYPTION_KEY_FILE: /run/secrets/n8n_key
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_SECURE_COOKIE: "false"
+      HOME: /home/node/.n8n
+      N8N_USER_FOLDER: /home/node
+      N8N_HOST: localhost
+      N8N_PROTOCOL: http
+      N8N_EDITOR_BASE_URL: http://localhost:5678
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+      N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
+      N8N_TEMPLATES_ENABLED: "false"
+      N8N_COMMUNITY_PACKAGES_ENABLED: "false"
+      N8N_UNVERIFIED_PACKAGES_ENABLED: "false"
+      N8N_COMPRESSION_NODE_MAX_DECOMPRESSED_SIZE_BYTES: "67108864"
+      N8N_COMPRESSION_NODE_MAX_ZIP_ENTRIES: "1000"
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "true"
+      NODES_EXCLUDE: '["n8n-nodes-base.executeCommand","n8n-nodes-base.readWriteFile"]'
+      GENERIC_TIMEZONE: Asia/Kuala_Lumpur
+      TZ: Asia/Kuala_Lumpur
+      EXECUTIONS_TIMEOUT: "280"
+      EXECUTIONS_TIMEOUT_MAX: "280"
+      N8N_CONCURRENCY_PRODUCTION_LIMIT: "1"
+      EXECUTIONS_DATA_PRUNE: "true"
+      EXECUTIONS_DATA_MAX_AGE: "168"
+      EXECUTIONS_DATA_PRUNE_MAX_COUNT: "1000"
+      EXECUTIONS_DATA_SAVE_ON_SUCCESS: none
+      EXECUTIONS_DATA_SAVE_ON_ERROR: all
+      EXECUTIONS_DATA_SAVE_ON_PROGRESS: "false"
+      EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS: "false"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ${NEWSROOM_PRIVATE_DIR:?Set NEWSROOM_PRIVATE_DIR}/import:/import:ro
+    tmpfs: ["/home/node/.cache:uid=${NEWSROOM_UID},gid=${NEWSROOM_GID},mode=700,size=128m"]
+    secrets: [n8n_key]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 1536m
+    cpus: 1.0
+    pids_limit: 200
+    stop_grace_period: 300s
+    healthcheck:
+      test: [CMD, wget, --spider, -q, http://127.0.0.1:5678/healthz/readiness]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    logging: {driver: json-file, options: {max-size: 5m, max-file: "2"}}
+  coordinator:
+    build:
+      context: ${NEWSROOM_PRIVATE_DIR:?Set NEWSROOM_PRIVATE_DIR}/context
+      dockerfile: Coordinator.Dockerfile
+    container_name: token-on-air-coordinator
+    user: "${NEWSROOM_UID:?Set NEWSROOM_UID}:${NEWSROOM_GID:?Set NEWSROOM_GID}"
+    restart: unless-stopped
+    environment: {NEWSROOM_ENABLED: "0"}
+    volumes: [coordinator_data:/data]
+    secrets: [coordinator_token, agent_token, writer_token, validation_secret]
+    read_only: true
+    tmpfs: ["/tmp:size=32m,mode=1777"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 64
+    stop_grace_period: 250s
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:5680/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging: {driver: json-file, options: {max-size: 5m, max-file: "2"}}
+  codex:
+    build:
+      context: ${NEWSROOM_PRIVATE_DIR:?Set NEWSROOM_PRIVATE_DIR}/context
+      dockerfile: Agent.Dockerfile
+    container_name: token-on-air-codex
+    user: "${NEWSROOM_UID:?Set NEWSROOM_UID}:${NEWSROOM_GID:?Set NEWSROOM_GID}"
+    restart: unless-stopped
+    environment: {CODEX_HOME: /auth, HOME: /tmp/agent-home}
+    volumes:
+      - ${NEWSROOM_PRIVATE_DIR:?Set NEWSROOM_PRIVATE_DIR}/auth:/auth
+    secrets: [agent_token]
+    read_only: true
+    tmpfs: ["/tmp:size=128m,mode=1777"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 1024m
+    cpus: 1.0
+    pids_limit: 128
+    stop_grace_period: 70s
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:5681/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging: {driver: json-file, options: {max-size: 5m, max-file: "2"}}
+volumes:
+  n8n_data:
+  coordinator_data:
+secrets:
+  n8n_key: {file: "${NEWSROOM_PRIVATE_DIR}/secrets/n8n_key"}
+  coordinator_token: {file: "${NEWSROOM_PRIVATE_DIR}/secrets/coordinator_token"}
+  agent_token: {file: "${NEWSROOM_PRIVATE_DIR}/secrets/agent_token"}
+  writer_token: {file: "${NEWSROOM_PRIVATE_DIR}/secrets/writer_token"}
+  validation_secret: {file: "${NEWSROOM_PRIVATE_DIR}/secrets/validation_secret"}
