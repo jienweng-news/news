@@ -15,6 +15,7 @@ const options={modules:true,scriptPath:resolve('.private/cloudflare/bundle/index
   requests++;const target=new URL(request.url);
   if(target.hostname==='openai.com'){feedRequests++;return new Response('<rss><channel>'+Array.from({length:50},(_,i)=>`<item><title>Runtime feed ${i}</title><link>https://openai.com/index/runtime-${i}</link><pubDate>${new Date().toUTCString()}</pubDate></item>`).join('')+'</channel></rss>');}
   assert.equal(target.hostname,'4k0o7q9m.api.sanity.io','No unexpected external request');
+  if(target.pathname.includes('/assets/images/'))return Response.json({document:{_id:'image-'+'c'.repeat(64)+'-1200x800-jpg'}});
   if(target.pathname.includes('/query/'))return Response.json({result:target.searchParams.get('query').startsWith('count(')?0:saved||null});
   const body=await request.json();mutations++;const mutation=body.mutations[0];
   if(mutation.createIfNotExists)saved=saved||{...mutation.createIfNotExists,_rev:'r'+mutations};
@@ -47,9 +48,9 @@ try{
  const claim=values.find(v=>v.jobId);assert.ok(claim,JSON.stringify(values));assert.equal(values.filter(v=>v.jobId).length,1,'Atomic concurrent claim');assert.equal(claim.item.publishedAt,sourceDate);
  const now=new Date().toISOString();const body=[{_type:'block',_key:'b',style:'normal',children:[{_type:'span',_key:'s',text:'Local runtime fixture; no reporting.',marks:[]}],markDefs:[]}];
  const article={section:'ai',format:'news',relationship:'none',author:{name:'jienweng',slug:'jienweng'},publishedAt:now,updatedAt:now,language:'en',sources:[url],corrections:[],translations:Object.fromEntries(['en','zh','zhCn'].map(l=>[l,{title:'Local smoke',slug:'local-smoke',summary:'Test only.',body}]))};
- let candidate=signed(article);let r=await post('/v1/jobs/'+id+'/publish',{leaseToken:claim.leaseToken,candidate});assert.equal(r.status,200,await r.text());
+ let candidate=signed(article);const image={url:'https://upload.wikimedia.org/wikipedia/commons/a/ab/Photo.jpg',alt:'A real photo',credit:'Photo by A. Photographer on Wikimedia Commons',license:'CC BY 4.0',sourceUrl:'https://commons.wikimedia.org/wiki/File:Photo.jpg',licenseUrl:'https://creativecommons.org/licenses/by/4.0/',provider:'commons',kind:'source'};let r=await post('/v1/jobs/'+id+'/publish',{leaseToken:claim.leaseToken,candidate,image});assert.equal(r.status,200,await r.text());
  assert.equal(saved._id,'story-'+id);assert.equal(saved.provenance.sourcePublishedAt,sourceDate);assert.equal(saved.provenance.importedAt,saved.publishedAt);assert.ok(Date.parse(saved.publishedAt)>Date.parse(sourceDate));
- r=await post('/v1/jobs/'+id+'/publish',{leaseToken:claim.leaseToken,candidate});assert.equal(r.status,200);assert.equal(mutations,1,'Idempotent CMS write');
+ r=await post('/v1/jobs/'+id+'/publish',{leaseToken:claim.leaseToken,candidate,image});assert.equal(r.status,200);assert.equal(mutations,1,'Idempotent CMS write');
  const first=saved.publishedAt;article.publishedAt=first;article.updatedAt=new Date(Date.parse(first)+1).toISOString();article.corrections=[{date:article.updatedAt,notes:{en:'Correction',zh:'更正',zhCn:'更正'}}];candidate=signed(article);
  r=await post('/v1/jobs/'+id+'/correct',{candidate},admin);assert.equal(r.status,200,await r.text());assert.equal(saved.publishedAt,first);assert.equal(saved.provenance.sourcePublishedAt,sourceDate);
  r=await post('/v1/jobs/'+id+'/withdraw',{},admin);assert.equal(r.status,200);assert.equal(saved.publicationState,'withdrawn');

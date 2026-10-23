@@ -12,8 +12,9 @@ import type { ArticleCard } from '../lib/content/types';
 interface Props { locale:Locale; articles:ArticleCard[]; unavailable:boolean }
 const {locale,articles,unavailable}=Astro.props;
 const { lead, supporting, latest, sections, analysis } = composeNewsroom(articles);
-const leadDelivery=lead?responsiveImage(storyImage(lead,locale).url,960,'(max-width: 850px) calc(100vw - 40px), 62vw'):undefined;
-const supportingDelivery=new Map(supporting.map(article=>[article.slug,responsiveImage(storyImage(article,locale).url,520,'(max-width: 760px) calc(100vw - 40px), 42vw')]));
+const leadImage=lead?storyImage(lead,locale):undefined;
+const leadDelivery=leadImage?responsiveImage(leadImage.url,960,'(max-width: 850px) calc(100vw - 40px), 62vw'):undefined;
+const supportingDelivery=new Map(supporting.flatMap(article=>{const image=storyImage(article,locale);return image?[[article.slug,responsiveImage(image.url,520,'(max-width: 760px) calc(100vw - 40px), 42vw')]]:[]}));
 const topStories={en:'Top stories',zh:'焦點報導','zh-cn':'焦点报道'}[locale];
 ---
 <BaseLayout locale={locale} title={t(locale,'latest')} noindex={unavailable}>
@@ -23,13 +24,13 @@ const topStories={en:'Top stories',zh:'焦點報導','zh-cn':'焦点报道'}[loc
     <article class="lead-story">
       <NewsMeta article={lead} locale={locale}/>
       <h2><a class="lead-link" href={localePath(locale,`articles/${lead.slug}`)}>{lead.title}</a></h2>
-      <figure class="lead-figure"><a href={localePath(locale,`articles/${lead.slug}`)} tabindex="-1" aria-hidden="true"><img class:list={['lead-image',{'source-chart':storyImage(lead,locale).credit==='PANews'}]} src={leadDelivery?.src} srcset={leadDelivery?.srcset} sizes={leadDelivery?.sizes} alt="" width="1200" height="630" loading="eager" decoding="sync" fetchpriority="high" /></a></figure>
+      {leadImage&&leadDelivery&&<figure class="lead-figure"><a href={localePath(locale,`articles/${lead.slug}`)} tabindex="-1" aria-hidden="true"><img class:list={['lead-image',{'source-chart':leadImage.credit==='PANews'}]} src={leadDelivery.src} srcset={leadDelivery.srcset} sizes={leadDelivery.sizes} alt="" width="1200" height="630" loading="eager" decoding="sync" fetchpriority="high" /></a></figure>}
       <p class="deck">{lead.summary}</p>
       <div class="story-footer"><RelationshipLabel locale={locale} relationship={lead.relationship} /><span>{t(locale,'editor')} jienweng</span><a href={localePath(locale,`articles/${lead.slug}`)}>{t(locale,'read')} <span aria-hidden="true">→</span></a></div>
     </article>
     {supporting.length>0&&<section class="supporting-stories" aria-label={topStories}>
       {supporting.map((article,index)=><article class="supporting-story">
-        <figure><a href={localePath(locale,`articles/${article.slug}`)} tabindex="-1" aria-hidden="true"><img class:list={{'source-chart':storyImage(article,locale).credit==='PANews'}} src={supportingDelivery.get(article.slug)?.src} srcset={supportingDelivery.get(article.slug)?.srcset} sizes={supportingDelivery.get(article.slug)?.sizes} alt="" width="1200" height="630" loading={index===0?'eager':'lazy'} decoding={index===0?'sync':'async'} fetchpriority={index===0?'low':'auto'}/></a></figure>
+        {storyImage(article,locale)&&supportingDelivery.has(article.slug)&&<figure><a href={localePath(locale,`articles/${article.slug}`)} tabindex="-1" aria-hidden="true"><img class:list={{'source-chart':storyImage(article,locale)?.credit==='PANews'}} src={supportingDelivery.get(article.slug)?.src} srcset={supportingDelivery.get(article.slug)?.srcset} sizes={supportingDelivery.get(article.slug)?.sizes} alt="" width="1200" height="630" loading={index===0?'eager':'lazy'} decoding={index===0?'sync':'async'} fetchpriority={index===0?'low':'auto'}/></a></figure>}
         <NewsMeta article={article} locale={locale}/>
         <h2><a href={localePath(locale,`articles/${article.slug}`)}>{article.title}</a></h2>
       </article>)}

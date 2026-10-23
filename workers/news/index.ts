@@ -7,6 +7,8 @@ import inventory from '../../docs/research/source-checks/2026-10-22-fixed-source
 import {createHash} from 'node:crypto';
 import {fetchFeed} from './network';
 import {attachPublishedImage,retryPublishedImage} from './media';
+import {validateSourceImagePlan} from './source-images';
+import {imageVersion} from '../../frontend/src/lib/images/policy';
 import {sanityApi} from './sanity';
 const active=(s:any)=>s?.automation_enabled===1&&s.rights_status==='reviewed'&&s.allowed_reuse==='metadata-discovery';
 export async function runScheduled(env:Env,get=fetchFeed){
@@ -44,7 +46,11 @@ async function publish(body:any,env:Env,store:D1Store,id:string){
   if(typeof body.leaseToken!=='string'||!await store.owned(id,body.leaseToken))throw new Refused(409,'Active owned lease required');
   const api=sanityApi(env),item=JSON.parse(job.payload);const sourceTime=feedPublicationTime(item.publishedAt);const now=new Date().toISOString();
   if(!Number.isFinite(sourceTime)||sourceTime>Date.now()+300000||!Number.isFinite(job.created_at)||job.created_at>Date.now()+300000||!validated.editions[0].sources.includes(item.url))throw new Refused(422,'Invalid source provenance');
-  const document={...publicationDocument(validated.editions,id,env.SANITY_EDITOR_ID!,validated.hash),publishedAt:now,updatedAt:now,provenance:{sourceUrl:item.url,sourcePublishedAt:new Date(sourceTime).toISOString(),discoveredAt:new Date(job.created_at).toISOString(),importedAt:now}};
+  const image=validateSourceImagePlan(body.image,item.url);if(!image){await store.hold(job.id,body.leaseToken,'Approved real image required before publication');throw new Refused(422,'Approved real image required before publication');}
+  const usedImages=await api.usedImageSources();if(usedImages.includes(image.originalImageUrl||image.sourceUrl)){await store.hold(job.id,body.leaseToken,'Image already used; select another real image');throw new Refused(409,'Image is already used by another story');}
+  const document:any={...publicationDocument(validated.editions,id,env.SANITY_EDITOR_ID!,validated.hash),publishedAt:now,updatedAt:now,provenance:{sourceUrl:item.url,sourcePublishedAt:new Date(sourceTime).toISOString(),discoveredAt:new Date(job.created_at).toISOString(),importedAt:now}};
+  const imageAsset=await api.uploadEditorialImage(validated.editions[0].slug,validated.hash,validated.editions[0].title,id,item.url,image);
+  document.mainImage={_type:'image',asset:{_type:'reference',_ref:imageAsset},alt:image.alt,credit:image.credit,license:image.license,sourceUrl:image.sourceUrl,...(image.licenseUrl?{licenseUrl:image.licenseUrl}:{}),...(image.originalImageUrl?{originalImageUrl:image.originalImageUrl}:{}),generatedVersion:imageVersion,generatedBy:'token-on-air',generatedTitle:validated.editions[0].title,generatedAssetId:imageAsset};
   try{
    try{await store.reserveSlugs(id,locales.map((l,i)=>[localeKey[l],validated.editions[i].slug]));}
    catch{throw new Refused(409,'Edition slug reservation refused');}

@@ -1,5 +1,6 @@
 import {mkdirSync,readFileSync,writeFileSync,existsSync,copyFileSync,chmodSync,realpathSync} from 'node:fs';
 import {resolve,join} from 'node:path';import {homedir} from 'node:os';import {randomBytes} from 'node:crypto';import {execFileSync} from 'node:child_process';
+import {preservedNewsroomEnabled} from '../automation/n8n/deployment.ts';
 const root=resolve(import.meta.dirname,'..'),dir=join(root,'.private/n8n');
 for(const sub of ['','context','secrets','auth','import'])mkdirSync(join(dir,sub),{recursive:true,mode:0o700});
 const credentials=JSON.parse(readFileSync(join(root,'.private/cloudflare/service-credentials.json'),'utf8'));
@@ -15,5 +16,6 @@ copyFileSync(join(root,'docs/research/source-checks/2026-10-22-fixed-sources.jso
 execFileSync(join(root,'node_modules/.bin/esbuild'),['automation/n8n/agent-main.ts','automation/n8n/coordinator-main.ts','automation/n8n/acceptance-main.ts','automation/n8n/operate-main.ts','--bundle','--platform=node','--format=esm','--outdir='+join(dir,'context')],{cwd:root,stdio:'inherit'});
 copyFileSync(join(root,'deploy/n8n/workflows.json'),join(dir,'import/workflows.json'));
 writeFileSync(join(dir,'import/credentials.json'),JSON.stringify([{id:'toa-coordinator',name:'Private newsroom coordinator',type:'httpHeaderAuth',data:{name:'Authorization',value:'Bearer '+readFileSync(join(dir,'secrets/coordinator_token'),'utf8').trim()}}]),{mode:0o600});
-writeFileSync(join(dir,'compose.env'),'NEWSROOM_PRIVATE_DIR='+dir+'\nNEWSROOM_UID='+process.getuid()+'\nNEWSROOM_GID='+process.getgid()+'\n',{mode:0o600});
+const composeEnvPath=join(dir,'compose.env'),previous=existsSync(composeEnvPath)?readFileSync(composeEnvPath,'utf8'):'';
+writeFileSync(composeEnvPath,'NEWSROOM_PRIVATE_DIR='+dir+'\nNEWSROOM_UID='+process.getuid()+'\nNEWSROOM_GID='+process.getgid()+'\nNEWSROOM_ENABLED='+preservedNewsroomEnabled(previous)+'\n',{mode:0o600});
 console.log('Prepared private n8n files. No secret values printed. Compose env: .private/n8n/compose.env');

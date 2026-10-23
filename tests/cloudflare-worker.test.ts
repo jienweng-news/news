@@ -7,7 +7,8 @@ import {candidateHash,requiredChecks,signReport} from '../automation/publisher';
 import {rawArticle} from './fixtures/articles';
 const token='w'.repeat(40),admin='a'.repeat(40),secret='s'.repeat(40);
 const envFor=(db:any)=>({DB:db,WRITER_TOKEN:token,ADMIN_TOKEN:admin,VALIDATION_SECRET:secret,AUTOMATION_ENABLED:'1',AUTOMATION_KILL_SWITCH:'0',SANITY_PROJECT_ID:'4k0o7q9m',SANITY_DATASET:'production',SANITY_EDITOR_ID:'editor-jienweng',SANITY_WRITE_TOKEN:'private-token'});
-const request=(path:string,body:unknown={},key=token)=>new Request('https://worker.test'+path,{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify(body)});
+const request=(path:string,body:any={},key=token)=>{const image={url:'https://upload.wikimedia.org/wikipedia/commons/a/ab/Technology.jpg',alt:'A real technology photograph',credit:'Photo by A. Photographer on Wikimedia Commons',license:'CC BY 4.0',sourceUrl:'https://commons.wikimedia.org/wiki/File:Technology.jpg',licenseUrl:'https://creativecommons.org/licenses/by/4.0/',provider:'commons',kind:'source'};const payload=path.endsWith('/publish')&&body.candidate&&!Object.hasOwn(body,'image')?{...body,image}:body;return new Request('https://worker.test'+path,{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify(payload)});};
+const ethereumPhoto=()=>Response.json({query:{pages:[{title:'File:Close-up of a physical Ethereum coin (51002904687).jpg',imageinfo:[{thumburl:'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/ethereum.jpg/1280px-ethereum.jpg?utm_source=commons',width:6048,height:4024,descriptionurl:'https://commons.wikimedia.org/wiki/File:Close-up_of_a_physical_Ethereum_coin_(51002904687).jpg',extmetadata:{LicenseShortName:{value:'CC BY 2.0'},LicenseUrl:{value:'https://creativecommons.org/licenses/by/2.0'},Artist:{value:'<a>Ivan Radic</a>'},ImageDescription:{value:'Close-up photograph of a physical Ethereum coin.'}}}]}]}});
 export function signedCandidate(url:string){const now=new Date().toISOString(),raw=rawArticle({sources:[url],publishedAt:now,updatedAt:now});const article={...raw,translations:Object.fromEntries(['en','zh','zhCn'].map(l=>[l,{title:'Story',summary:'Story',slug:'stable-story',body:raw.body}]))};const evidence=[{url,quote:'Evidence',contentHash:'a'.repeat(64)}];return {article,evidence,report:signReport(candidateHash({article,evidence}),Object.fromEntries(requiredChecks.map(c=>[c,true])),now,secret)};}
 async function setup(){const {db,sqlite}=testDB();sqlite.exec("INSERT INTO sources(id,url,automation_enabled,rights_status,allowed_reuse) VALUES('openai','https://openai.com/news/rss.xml',1,'reviewed','metadata-discovery')");const store=new D1Store(db);const item={title:'Original event',url:'https://openai.com/index/example',publishedAt:new Date(Date.now()-3600000).toISOString(),fingerprint:'b'.repeat(64)};await store.enqueue('openai',item);return {db,sqlite,store,item,env:envFor(db)};}
 it('authenticates before touching data and keeps paused schedules inert',async()=>{
@@ -30,11 +31,16 @@ it('claims once, requires independent validation, holds bad candidates and can r
  expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/release',{},token),env)).status).toBe(401);
  expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/release',{},admin),env)).status).toBe(200);
 });
+it('requires an approved source photograph before publishing an article',async()=>{
+ const {env,store,item}=await setup();const claim=await(await worker.fetch(request('/v1/jobs/claim'),env)).json() as any;
+ const r=await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/publish',{leaseToken:claim.leaseToken,candidate:signedCandidate(item.url),image:null}),env);
+ expect(r.status).toBe(422);expect((await store.get(item.fingerprint))?.state).toBe('held');
+});
 it('keeps Sanity identity and import dates fixed and recovers an uncertain write',async()=>{
  const {env,store,item}=await setup();const claim=await(await worker.fetch(request('/v1/jobs/claim'),env)).json() as any;
  const input={leaseToken:claim.leaseToken,candidate:signedCandidate(item.url)};let saved:any;let calls=0;
  const get=vi.spyOn(globalThis,'fetch').mockImplementation(async(url,init)=>{
-  calls++;if(String(url).includes('/data/query/'))return Response.json({result:String(url).includes('count(')||String(url).includes('count%28')?0:saved||null});
+  calls++;if(String(url).includes('/data/query/'))return Response.json({result:String(url).includes('count(')||String(url).includes('count%28')?0:saved||null});if(String(url).includes('/assets/images/'))return Response.json({document:{_id:'image-'+'a'.repeat(40)+'-1200x630-jpg'}});
   const body=JSON.parse(init!.body as string);saved=body.mutations[0].createIfNotExists;throw Error('Connection lost after commit');
  });
  try{
@@ -95,7 +101,7 @@ it('handles a 50-item feed within the Free plan query budget',async()=>{
 it('reserves slugs across jobs even when a remote write commits after a timeout',async()=>{
  const {env,store,item}=await setup();const first=await(await worker.fetch(request('/v1/jobs/claim'),env)).json() as any;let writes=0;const pending:any[]=[];
  const get=vi.spyOn(globalThis,'fetch').mockImplementation(async(url,init)=>{
-  if(String(url).includes('/data/query/'))return Response.json({result:String(url).includes('count(')||String(url).includes('count%28')?0:null});
+  if(String(url).includes('/data/query/'))return Response.json({result:String(url).includes('count(')||String(url).includes('count%28')?0:null});if(String(url).includes('/assets/images/'))return Response.json({document:{_id:'image-'+'b'.repeat(40)+'-1200x630-jpg'}});
   writes++;pending.push(JSON.parse(init!.body as string).mutations[0].createIfNotExists);throw Error('Timeout before remote commit');
  });
  try{
@@ -141,17 +147,18 @@ it('refuses mismatched public-ID repair and allows safe retry after a completed 
 });
 it('attaches real Sanity assets only through an admin, preserves selected images and replays safely',async()=>{
  const {env,store,item}=await setup();const lease=await store.claim();await store.published(item.fingerprint,lease!.lease_token,'expected');
- let doc:any={_id:'story-'+item.fingerprint,_type:'article',_rev:'rev1',publicationState:'published',automation:{jobId:item.fingerprint,candidateHash:'expected'},translations:{en:{title:'Published headline',slug:{current:'published-headline'}}},publishedAt:'2026-10-23T00:00:00Z'};
+ let doc:any={_id:'story-'+item.fingerprint,_type:'article',_rev:'rev1',publicationState:'published',automation:{jobId:item.fingerprint,candidateHash:'expected'},provenance:{sourceUrl:'https://blog.ethereum.org/en/2026/10/22/glamsterdam-hoodi-delay'},translations:{en:{title:'Ethereum postpones Hoodi Glamsterdam upgrade',slug:{current:'published-headline'}}},publishedAt:'2026-10-23T00:00:00Z'};
  const asset='image-'+'c'.repeat(40)+'-1200x630-png';let uploads=0,patches=0;
  vi.stubGlobal('fetch',vi.fn(async(url,init)=>{
+  if(String(url).includes('commons.wikimedia.org/w/api.php'))return ethereumPhoto();
   if(String(url).includes('/data/query/'))return Response.json({result:doc});
-  if(String(url).includes('/assets/images/')){uploads++;const body=JSON.parse(init!.body as string);expect(body.url).toBe('https://tokenonair.com/api/images/en/published-headline.png?revision=rev1&version=source-first-v6');return Response.json({document:{_id:asset}});}
+  if(String(url).includes('/assets/images/')){uploads++;const body=JSON.parse(init!.body as string);expect(body.url).toBe('https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/ethereum.jpg/1280px-ethereum.jpg');return Response.json({document:{_id:asset}});}
   const patch=JSON.parse(init!.body as string).mutations[0].patch;patches++;expect(patch.ifRevisionID).toBe('rev1');expect(Object.keys(patch.set)).toEqual(['mainImage']);doc={...doc,...patch.set,_rev:'rev2'};return Response.json({results:[{document:doc}]});
  }));
  try{
   const path='/v1/jobs/'+item.fingerprint+'/attach-image';expect((await worker.fetch(request(path),env)).status).toBe(401);expect(uploads).toBe(0);
   const first=await worker.fetch(request(path,{},admin),env);expect(first.status).toBe(200);
-  expect(doc.mainImage.asset).toEqual({_type:'reference',_ref:asset});expect(doc.mainImage.alt).toBe('Published headline');expect(doc.publishedAt).toBe('2026-10-23T00:00:00Z');
+  expect(doc.mainImage.asset).toEqual({_type:'reference',_ref:asset});expect(doc.mainImage.alt).toContain('physical Ethereum coin');expect(doc.mainImage.credit).toBe('Photo by Ivan Radic on Wikimedia Commons');expect(doc.publishedAt).toBe('2026-10-23T00:00:00Z');
   expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);expect(uploads).toBe(1);expect(patches).toBe(1);
   doc.mainImage={...doc.mainImage,asset:{_ref:'chosen-photo'},credit:'Photographer'};
   doc.translations.en.title='Corrected headline';
@@ -174,8 +181,8 @@ it('keeps image retries bounded to five-minute ticks and the automation kill swi
 });
 it('refuses unexpected uploaded assets without patching or holding a published job',async()=>{
  const {env,store,item}=await setup();const lease=await store.claim();await store.published(item.fingerprint,lease!.lease_token,'expected');
- const doc={_id:'story-'+item.fingerprint,_type:'article',_rev:'r',publicationState:'published',automation:{candidateHash:'expected'},translations:{en:{title:'Title',slug:{current:'published'}}}};
- const get=vi.spyOn(globalThis,'fetch').mockImplementation(async url=>Response.json(String(url).includes('/data/query/')?{result:doc}:{document:{_id:'file-unknown-pdf'}}));
+ const doc={_id:'story-'+item.fingerprint,_type:'article',_rev:'r',publicationState:'published',automation:{candidateHash:'expected'},provenance:{sourceUrl:'https://blog.ethereum.org/en/2026/10/22/glamsterdam-hoodi-delay'},translations:{en:{title:'Ethereum postpones Hoodi Glamsterdam upgrade',slug:{current:'published'}}}};
+ const get=vi.spyOn(globalThis,'fetch').mockImplementation(async url=>String(url).includes('commons.wikimedia.org/w/api.php')?ethereumPhoto():Response.json(String(url).includes('/data/query/')?{result:doc}:{document:{_id:'file-unknown-pdf'}}));
  try{expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/attach-image',{},admin),env)).status).toBe(502);expect(get).toHaveBeenCalledTimes(4);expect(get.mock.calls.some(([url])=>String(url).includes('/mutate/'))).toBe(false);expect((await store.get(item.fingerprint))?.state).toBe('published');}finally{get.mockRestore();}
 });
 
@@ -197,15 +204,16 @@ it('backs off a failed image so a later published article can proceed on the nex
 it('selects only reviewed source imagery and versions managed upgrades without overwriting chosen photos',async()=>{
  const {env,store,item}=await setup();const lease=await store.claim();await store.published(item.fingerprint,lease!.lease_token,'expected');
  const asset='image-'+'a'.repeat(40)+'-2000x1250-jpg';
- let doc:any={_id:'story-'+item.fingerprint,_type:'article',_rev:'rev1',publicationState:'published',automation:{candidateHash:'expected'},provenance:{sourceUrl:'https://blog.ethereum.org/en/2026/10/22/glamsterdam-hoodi-delay'},translations:{en:{title:'Ethereum update',slug:{current:'ethereum-update'}}},mainImage:{asset:{_ref:'old-generated'},generatedBy:'token-on-air',generatedAssetId:'old-generated',generatedTitle:'Ethereum update'}};
+ let doc:any={_id:'story-'+item.fingerprint,_type:'article',_rev:'rev1',publicationState:'published',automation:{candidateHash:'expected'},provenance:{sourceUrl:'https://blog.ethereum.org/en/2026/10/22/glamsterdam-hoodi-delay'},translations:{en:{title:'Ethereum update',slug:{current:'ethereum-update'}}},mainImage:{asset:{_ref:'old-generated'},credit:'Token on Air',license:'Original editorial illustration · © Token on Air',generatedBy:'token-on-air',generatedAssetId:'old-generated',generatedTitle:'Ethereum update',generatedVersion:'source-first-v6'}};
  let uploads=0;vi.stubGlobal('fetch',vi.fn(async(url,init)=>{
+  if(String(url).includes('commons.wikimedia.org/w/api.php'))return ethereumPhoto();
   if(String(url).includes('/data/query/'))return Response.json({result:doc});
-  if(String(url).includes('/assets/')){uploads++;expect(JSON.parse(init!.body as string).url).toBe('https://blog.ethereum.org/images/eth-org.jpeg');return Response.json({document:{_id:asset}});}
+  if(String(url).includes('/assets/')){uploads++;expect(JSON.parse(init!.body as string).url).toBe('https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/ethereum.jpg/1280px-ethereum.jpg');return Response.json({document:{_id:asset}});}
   const patch=JSON.parse(init!.body as string).mutations[0].patch;doc={...doc,...patch.set};return Response.json({results:[{document:doc}]});
  }));
  try{
   const path='/v1/jobs/'+item.fingerprint+'/attach-image';expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);
-  expect(doc.mainImage).toMatchObject({credit:'Ethereum Foundation',license:'CC BY 4.0 · Unmodified',sourceUrl:doc.provenance.sourceUrl,licenseUrl:'https://creativecommons.org/licenses/by/4.0/',generatedVersion:'source-first-v6'});
+  expect(doc.mainImage).toMatchObject({credit:'Photo by Ivan Radic on Wikimedia Commons',license:'CC BY 2.0',sourceUrl:'https://commons.wikimedia.org/wiki/File:Close-up_of_a_physical_Ethereum_coin_(51002904687).jpg',licenseUrl:'https://creativecommons.org/licenses/by/2.0',generatedVersion:'source-first-v7-real-images'});
   expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);expect(uploads).toBe(1);
  }finally{vi.unstubAllGlobals();}
 });

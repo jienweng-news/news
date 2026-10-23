@@ -4,6 +4,7 @@ import {safeFetch} from '../network';
 import {activeSource,reportingEvidenceSource,sourceHosts,type Source} from '../sources';
 import {buildCandidate,verifyAndSign,type Snapshot} from './coordinator';
 import {limitedText} from '../../workers/news/config';
+import {resolvePublishedImage} from '../../workers/news/source-images';
 type Policy=Source&{classification:string;name?:string;review?:{license?:string;attribution_name?:string;permission_status?:string}};
 export interface Settings{workerUrl:string;writerToken:string;agentUrl:string;agentToken:string;validationSecret:string;sources:Policy[];projectId:string;dataset:string;acceptanceItem?:FeedItem;context?:()=>FeedItem[];canAccess?:(url:string,signal:AbortSignal)=>Promise<boolean>;collect?:(signal:AbortSignal)=>Promise<unknown>}
 // These functions fetch only the fixed source registry's public HTTPS hosts, with DNS pinning and checked redirects.
@@ -84,9 +85,16 @@ export function pipeline(config:Settings){
   reviewForDebug=review;stage='signed-validation';
   const signed=verifyAndSign(candidate,snapshots,review,config.validationSecret,candidate.evidence.every((e:any)=>config.sources.some(s=>activeSource(s)&&sourceHosts(s).has(new URL(e.url).hostname))));
   if(dryRun)return {state:'validated',published:false,jobId:job.jobId,candidate:signed,snapshotUrls:snapshots.map(s=>s.url),reviewReason:review.reason};
+  stage='image-discovery';
+  const imageQuery=new URL(`https://${config.projectId}.api.sanity.io/v2026-10-01/data/query/${config.dataset}`);imageQuery.searchParams.set('query','*[_type == "article" && publicationState == "published" && (defined(mainImage.originalImageUrl) || defined(mainImage.sourceUrl))]{"source":coalesce(mainImage.originalImageUrl,mainImage.sourceUrl)}');
+  const imageHistory=await fetch(imageQuery,{signal,redirect:'error'});if(!imageHistory.ok)throw Error('Image duplicate check unavailable');
+  const usedSources=JSON.parse(await limitedText(imageHistory,262144)).result;if(!Array.isArray(usedSources))throw Error('Image duplicate data unavailable');
+  const english=(candidate.article.translations as any).en;
+  const image=await resolvePublishedImage(job.item.url,english.slug,job.jobId,english.title,english.summary,undefined,usedSources.map((row:any)=>row?.source).filter((value:unknown):value is string=>typeof value==='string'));
+  if(!image||image.kind!=='source')return hold('No suitable licensed real image found');
   if(signal.aborted||job.leaseUntil-Date.now()<10000)throw Error('Lease too short for publish');
   stage='publish';
-  const result=await worker(`/v1/jobs/${job.jobId}/publish`,{leaseToken:job.leaseToken,candidate:signed},signal);
+  const result=await worker(`/v1/jobs/${job.jobId}/publish`,{leaseToken:job.leaseToken,candidate:signed,image},signal);
   if(result.published!=='story-'+job.jobId)throw Error('Publication identity mismatch');
   return {state:'published',jobId:job.jobId,documentId:result.published};
   }catch(e){const known=['Independent review refused','Edition numbers disagree','Evidence snapshot mismatch','Primary citation required','Agent unavailable'];const cause=e instanceof Error&&known.includes(e.message)?e.message:'Refused';return hold(`Processing failed at ${stage}: ${cause}; inspect before release`);}
