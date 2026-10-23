@@ -1,0 +1,9 @@
+# Source accumulation and news activation
+
+User completed n8n owner setup and instructed us to finish remaining work, accumulate sources, check conflicts and duplicates. Continue native execution without another approval loop. Existing website, publisher, attribution and independent verification contracts remain.
+
+Collect a current 48-hour inventory from all fixed feeds, preserve provenance and record source review decisions without treating RSS access as a republication license. Launch only individually reviewed primary sources for original factual reporting; explicit reuse restrictions remain blocked. Do not copy source articles/images or claim permissions not granted. Attribution/license requirements must be carried into all editions.
+
+Move large-feed collection to the existing host, keeping Workers/D1 as a bounded metadata queue. Canonical URL identity hard-deduplicates; similar headlines are related leads, never blindly merged. Give research and verification related metadata and approved primary notices so superseding announcements prevail; unresolved conflicts must hold. Independently compare recent published claims to avoid duplicate reporting while permitting material updates.
+
+Add a real-source dry-run that uses the production generation/verifier path without queue/CMS writes. Verify an actual superseded Ethereum schedule, original wording, all three languages, provenance, signed validation and strict evidence approval. Then activate the reviewed subset and queue schedule only when acceptance passes. Preserve emergency pause/owned holds. No emails, paid services, arbitrary source expansion or public n8n exposure. Build and test a private local consistent backup and isolated restore; report off-server backup destination as pending if unavailable. Verify actual account/Free-limit evidence without inventing billing access.

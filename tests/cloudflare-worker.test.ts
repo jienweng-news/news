@@ -116,3 +116,12 @@ it('lets only the lease owner durably quarantine rejected work, including after 
  expect((await store.get(item.fingerprint))?.state).toBe('held');expect(await store.claim(Date.now()+360000)).toBeNull();
  expect((await worker.fetch(request(path,{leaseToken:claim.leaseToken}),env)).status).toBe(200);
 });
+it('accepts only bounded canonical fresh metadata from the fixed reviewed source',async()=>{
+ const {env,store,item,sqlite}=await setup();const path='/v1/ingest';const fresh={...item,url:'https://openai.com/index/ingest',fingerprint:''};fresh.fingerprint=(await import('node:crypto')).createHash('sha256').update(fresh.url).digest('hex');
+ expect((await worker.fetch(request(path,{source:'openai',items:[fresh]},'wrong'),env)).status).toBe(401);
+ expect((await worker.fetch(request(path,{source:'openai',items:[fresh]}),env)).status).toBe(200);
+ expect((await store.get(fresh.fingerprint))?.state).toBe('queued');
+ for(const bad of [{...fresh,fingerprint:'a'.repeat(64)},{...fresh,url:'https://evil.test/a'},{...fresh,publishedAt:'2020-01-01T00:00:00Z'}])expect((await worker.fetch(request(path,{source:'openai',items:[bad]}),env)).status).toBe(422);
+ expect((await worker.fetch(request(path,{source:'openai',items:Array(51).fill(fresh)}),env)).status).toBe(422);
+ sqlite.prepare("UPDATE sources SET automation_enabled=0 WHERE id='openai'").run();expect((await worker.fetch(request(path,{source:'openai',items:[fresh]}),env)).status).toBe(409);
+});
