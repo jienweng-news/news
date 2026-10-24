@@ -1,9 +1,10 @@
 import {resolvePublishedImage} from './source-images';
-import {imageVersion,rejectedImageSources} from '../../frontend/src/lib/images/policy';
+import {editorialImageRevision,imageVersion,rejectedImageSources,type ImagePlan} from '../../frontend/src/lib/images/policy';
 import {Refused,type Env} from './config';
+import {validateImagePlan} from './source-images';
 import {sanityApi} from './sanity';
 import {D1Store} from './store';
-export async function attachPublishedImage(env:Env,store:D1Store,id:string){
+export async function attachPublishedImage(env:Env,store:D1Store,id:string,suppliedPlan?:unknown){
  const job=await store.get(id);
  if(!job||job.state!=='published'||!job.candidate_hash)throw new Refused(409,'Published job required');
  const owner=crypto.randomUUID();if(!await store.lock(owner))throw new Refused(409,'Publisher busy');
@@ -12,11 +13,13 @@ export async function attachPublishedImage(env:Env,store:D1Store,id:string){
   if(!doc||doc._id!=='story-'+id||doc._type!=='article'||doc.publicationState!=='published'||doc.automation?.candidateHash!==job.candidate_hash||!doc._rev)throw new Refused(409,'Published CMS identity required');
   const title=doc.translations?.en?.title||doc.title,slug=doc.translations?.en?.slug?.current||doc.slug?.current;
   if(typeof title!=='string'||!title.trim()||title.length>200||typeof slug!=='string'||slug.length>200||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))throw new Refused(409,'Published image metadata required');
-  if(doc.mainImage?.asset&&!rejectedImageSources.some(source=>source===doc.mainImage?.sourceUrl)&&(doc.mainImage.generatedBy!=='token-on-air'||doc.mainImage.generatedAssetId!==doc.mainImage.asset._ref||(doc.mainImage.generatedTitle===title&&doc.mainImage.generatedVersion===imageVersion)))return {documentId:doc._id,assetId:doc.mainImage.asset._ref,preserved:true};
+  if(doc.mainImage?.asset&&!rejectedImageSources.some(source=>source===doc.mainImage?.sourceUrl)&&doc.mainImage.editorialImageRevision===editorialImageRevision)return {documentId:doc._id,assetId:doc.mainImage.asset._ref,preserved:true};
   const usedImageSources=await api.usedImageSources();
-  const plan=await resolvePublishedImage(doc.provenance?.sourceUrl,slug,doc._rev,title,doc.translations?.en?.summary||doc.summary||'',env.PEXELS_API_KEY,usedImageSources);if(!plan)throw new Refused(422,'No suitable licensed real image found');
+  const plan=(suppliedPlan===undefined?await resolvePublishedImage(doc.provenance?.sourceUrl,slug,doc._rev,title,doc.translations?.en?.summary||doc.summary||'',env.PEXELS_API_KEY,usedImageSources):validateImagePlan(suppliedPlan,doc.provenance?.sourceUrl||'')) as ImagePlan|undefined;
+  if(!plan)throw new Refused(422,'No suitable licensed source image or validated illustration found');
+  if(plan.kind==='source'&&usedImageSources.includes(plan.originalImageUrl||plan.sourceUrl))throw new Refused(409,'Image is already used by another story');
   const assetId=await api.uploadEditorialImage(slug,doc._rev,title,id,doc.provenance?.sourceUrl,plan);
-  const mainImage={_type:'image',asset:{_type:'reference',_ref:assetId},alt:plan.alt,credit:plan.credit,license:plan.license,...('sourceUrl' in plan?{sourceUrl:plan.sourceUrl,licenseUrl:plan.licenseUrl}:{}),...(plan.originalImageUrl?{originalImageUrl:plan.originalImageUrl}:{}),generatedVersion:imageVersion,generatedBy:'token-on-air',generatedTitle:title,generatedAssetId:assetId};
+  const mainImage={_type:'image',asset:{_type:'reference',_ref:assetId},alt:plan.alt,credit:plan.credit,license:plan.license,...(plan.kind==='source'?{sourceUrl:plan.sourceUrl,licenseUrl:plan.licenseUrl,...(plan.originalImageUrl?{originalImageUrl:plan.originalImageUrl}:{})}:{}),generatedVersion:imageVersion,generatedBy:'token-on-air',generatedTitle:title,generatedAssetId:assetId,editorialImageRevision};
   await api.patch(doc._id,doc._rev,{mainImage});
   const saved=await api.read(doc._id);
   if(saved?.mainImage?.asset?._ref!==assetId||saved.publicationState!=='published')throw new Refused(502,'Image attachment not verified');

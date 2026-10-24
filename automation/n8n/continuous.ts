@@ -17,7 +17,7 @@ export class ContinuousQueue {
   try{
    while(!this.stopping&&this.now()<this.leaseUntil){
     const result=await this.tick();
-    if(!['published','held'].includes(result?.state))return;
+    if(!['published','held','image-attached'].includes(result?.state))return;
     // Let incoming heartbeats and shutdown signals run even when a job finishes immediately.
     await new Promise<void>(resolve=>setImmediate(resolve));
    }

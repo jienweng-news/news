@@ -47,9 +47,9 @@ it('uses the matching PANews RSS image when the article body contains no image',
  const get=vi.spyOn(globalThis,'fetch').mockResolvedValueOnce(new Response('<article class="article-content"><p>Text only</p></article>',{headers:{'content-type':'text/html'}})).mockResolvedValueOnce(new Response('<rss><item><link>https://www.panewslab.com/en/articles/01a16853-4f0a-7098-997a-9864ad5b2631</link><media:content url="https://uploads.panewslab.com/2edcab5f-2557-48b4-96da-6c558160538e" medium="image" /></item></rss>',{headers:{'content-type':'application/rss+xml'}}));
  try{const p=await resolvePublishedImage('https://www.panewslab.com/en/articles/01a16853-4f0a-7098-997a-9864ad5b2631','story','rev','Story');expect(p).toMatchObject({kind:'source',url:'https://uploads.panewslab.com/2edcab5f-2557-48b4-96da-6c558160538e'});}finally{get.mockRestore();}
 });
-it('follows only PANews article redirects and refuses off-site redirects',async()=>{
+it('follows only PANews article redirects, refuses off-site redirects, and avoids generic fallback images',async()=>{
  const get=vi.spyOn(globalThis,'fetch').mockResolvedValueOnce(new Response(null,{status:301,headers:{location:'https://evil.example/article'}})).mockResolvedValueOnce(new Response('<rss></rss>',{headers:{'content-type':'application/rss+xml'}})).mockResolvedValueOnce(Response.json({query:{pages:[]}}));
- try{expect(await resolvePublishedImage('https://www.panewslab.com/en/articles/01a16853-4f0a-7098-997a-9864ad5b2631','story','rev','Story')).toBeUndefined();expect(get).toHaveBeenCalledTimes(3);expect(get.mock.calls[0][0]).toBe('https://www.panewslab.com/en/articles/01a16853-4f0a-7098-997a-9864ad5b2631');expect(String(get.mock.calls[1][0])).toContain('panewslab.com/rss.xml');expect(String(get.mock.calls[2][0])).toContain('commons.wikimedia.org/w/api.php');expect(get.mock.calls.some(([url])=>String(url).includes('evil.example'))).toBe(false);}finally{get.mockRestore();}
+ try{expect(await resolvePublishedImage('https://www.panewslab.com/en/articles/01a16853-4f0a-7098-997a-9864ad5b2631','story','rev','Story')).toBeUndefined();expect(get).toHaveBeenCalledTimes(2);expect(get.mock.calls[0][0]).toBe('https://www.panewslab.com/en/articles/01a16853-4f0a-7098-997a-9864ad5b2631');expect(String(get.mock.calls[1][0])).toContain('panewslab.com/rss.xml');expect(get.mock.calls.some(([url])=>String(url).includes('evil.example'))).toBe(false);expect(get.mock.calls.some(([url])=>String(url).includes('commons.wikimedia.org'))).toBe(false);}finally{get.mockRestore();}
 });
 it('does not fetch arbitrary sources or promote external and credential-bearing image URLs',async()=>{
  const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({query:{pages:[]}}));
@@ -70,7 +70,7 @@ it('turns technology headlines into descriptive stock-photo searches rather than
 it('selects a relevant, unused Pexels landscape image and retains its required attribution',async()=>{
  const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({photos:[
   {id:11,width:1800,height:1200,url:'https://www.pexels.com/photo/used-11/',photographer:'A. One',src:{landscape:'https://images.pexels.com/photos/11/large.jpeg'}},
-  {id:12,width:1800,height:1200,url:'https://www.pexels.com/photo/chip-12/',photographer:'B. Two',src:{landscape:'https://images.pexels.com/photos/12/large.jpeg'}}
+  {id:12,width:1800,height:1200,url:'https://www.pexels.com/photo/chip-12/',alt:'A semiconductor chip on a circuit board',photographer:'B. Two',src:{landscape:'https://images.pexels.com/photos/12/large.jpeg'}}
  ]}));
  try{
   const plan=await resolvePublishedImage(undefined,'story','rev','Nvidia chip announcement','HBM semiconductor manufacturing','secret',['https://www.pexels.com/photo/used-11/']);

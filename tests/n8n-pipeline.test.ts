@@ -4,6 +4,7 @@ import {pipeline} from '../automation/n8n/pipeline';
 import {requiredChecks,validateCandidate} from '../automation/publisher';
 const id='a'.repeat(64),sourceUrl='https://example.org/news';
 const draft={section:'ai',editions:Object.fromEntries(['en','zh','zhCn'].map(l=>[l,{title:'Update',summary:'A factual update.',slug:'update-'+l.toLowerCase(),paragraphs:['An original factual brief.','The company announced an update.']}])),evidence:[{url:sourceUrl,quote:'The company announced an update.'}]};
+const illustration='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630"><rect width="1200" height="630" fill="#f5f0e6"/><circle cx="500" cy="315" r="150" fill="#cc2032"/><path d="M100 500L1100 130" fill="none" stroke="#171717" stroke-width="20"/></svg>';
 function harness({approved=true,primary=true,duplicate=false,badIdentity=false,imageAvailable=true}={}){
  const calls:{url:string;body:any}[]=[];const config={workerUrl:'https://worker.test',writerToken:'writer-secret',agentUrl:'http://codex',agentToken:'agent-secret',validationSecret:'s'.repeat(48),sources:[{id:'fixture',url:'https://example.org/rss',automation_enabled:true,rights_status:'reviewed',allowed_reuse:'metadata-discovery',proposed_poll_minutes:5,classification:'ai-primary'}],projectId:'fixture',dataset:'production'};
  vi.stubGlobal('fetch',vi.fn(async(input:any,init:any={})=>{
@@ -14,8 +15,10 @@ function harness({approved=true,primary=true,duplicate=false,badIdentity=false,i
    expect(JSON.stringify(body)).not.toContain(config.writerToken);expect(JSON.stringify(body)).not.toContain(config.validationSecret);
    if(body.task==='research')return Response.json({primaryUrls:[],reason:'Primary already supplied'});
    if(body.task==='write')return Response.json(draft);
+   if(body.task==='illustrate')return Response.json({svg:illustration});
    return Response.json({...Object.fromEntries(requiredChecks.filter(k=>k!=='sourceRights').map(k=>[k,true])),claimsVerified:approved,primaryEvidence:primary,reason:'Independent judgment'});
   }
+  if(url.endsWith('/v1/images/resolve'))return Response.json({image:imageAvailable?{kind:'source',provider:'commons',url:'https://upload.wikimedia.org/wikipedia/commons/1/2a/technology-data-center.jpg',alt:'A semiconductor research facility',credit:'Photo by A. Photographer on Wikimedia Commons',license:'CC BY 4.0',sourceUrl:'https://commons.wikimedia.org/wiki/File:Technology_data_center.jpg',licenseUrl:'https://creativecommons.org/licenses/by/4.0/'}:null});
   if(url.startsWith('https://commons.wikimedia.org/w/api.php'))return Response.json({query:{pages:imageAvailable?[{title:'File:Technology data center.jpg',imageinfo:[{thumburl:'https://upload.wikimedia.org/wikipedia/commons/1/2a/technology-data-center.jpg',width:1800,height:1200,descriptionurl:'https://commons.wikimedia.org/wiki/File:Technology_data_center.jpg',extmetadata:{LicenseShortName:{value:'CC BY 4.0'},LicenseUrl:{value:'https://creativecommons.org/licenses/by/4.0/'},Artist:{value:'A. Photographer'},ImageDescription:{value:'A real technology data center photograph.'}}}]}]:[]}});
   if(url.endsWith('/hold'))return Response.json({held:id});
   if(url.endsWith('/publish')){validateCandidate(body.candidate,config.validationSecret);return Response.json({published:badIdentity?'story-wrong':'story-'+id});}
@@ -30,9 +33,11 @@ it('separates writing, fresh review and signed publication without leaking servi
  expect(calls.filter(c=>c.url.endsWith('/v1/task')).map(c=>c.body.task)).toEqual(['research','write','review']);
  expect(calls.filter(c=>c.url.endsWith('/publish'))).toHaveLength(1);
 });
-it('holds a story before publication when no suitable licensed real image is available',async()=>{
- const {run,calls}=harness({imageAvailable:false});expect(await run('queue')).toMatchObject({state:'held',reason:'No suitable licensed real image found'});
- expect(calls.some(c=>c.url.endsWith('/publish'))).toBe(false);expect(calls.some(c=>c.url.endsWith('/hold'))).toBe(true);
+it('generates a validated Codex illustration when no suitable photo is available',async()=>{
+ const {run,calls}=harness({imageAvailable:false});expect(await run('queue')).toMatchObject({state:'published',documentId:'story-'+id});
+ expect(calls.find(c=>c.url.endsWith('/publish'))?.body.image).toMatchObject({kind:'generated',credit:'Token on Air · Editorial illustration',license:'© Token on Air'});
+ expect(calls.filter(c=>c.url.endsWith('/v1/task')).map(c=>c.body.task)).toEqual(['research','write','review','illustrate']);
+ expect(calls.some(c=>c.url.endsWith('/hold'))).toBe(false);
 });
 it('never publishes failed independent verification',async()=>{
  for(const options of [{approved:false},{primary:false}]){const {run,calls}=harness(options);expect(await run('queue')).toMatchObject({state:'held'});expect(calls.some(c=>c.url.endsWith('/publish'))).toBe(false);}

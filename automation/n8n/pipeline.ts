@@ -4,7 +4,8 @@ import {safeFetch} from '../network';
 import {activeSource,reportingEvidenceSource,sourceHosts,type Source} from '../sources';
 import {buildCandidate,verifyAndSign,type Snapshot} from './coordinator';
 import {limitedText} from '../../workers/news/config';
-import {resolvePublishedImage} from '../../workers/news/source-images';
+import {editorialImageRevision,sanitizeEditorialSvg} from '../../frontend/src/lib/images/policy';
+import {validateImagePlan} from '../../workers/news/source-images';
 type Policy=Source&{classification:string;name?:string;review?:{license?:string;attribution_name?:string;permission_status?:string}};
 export interface Settings{workerUrl:string;writerToken:string;agentUrl:string;agentToken:string;validationSecret:string;sources:Policy[];projectId:string;dataset:string;acceptanceItem?:FeedItem;context?:()=>FeedItem[];canAccess?:(url:string,signal:AbortSignal)=>Promise<boolean>;collect?:(signal:AbortSignal)=>Promise<unknown>}
 // These functions fetch only the fixed source registry's public HTTPS hosts, with DNS pinning and checked redirects.
@@ -25,6 +26,23 @@ export function pipeline(config:Settings){
   const res=await fetch(config.workerUrl+path,{method:'POST',headers:{authorization:'Bearer '+config.writerToken,'content-type':'application/json'},body:JSON.stringify(body),signal,redirect:'error'});
   if(!res.ok)throw Error('Worker refused');return JSON.parse(await limitedText(res,65536));
  }
+ async function repairOnePublishedImage(signal:AbortSignal){
+  const url=new URL(`https://${config.projectId}.api.sanity.io/v2026-10-01/data/query/${config.dataset}`);
+  url.searchParams.set('query','*[_type == "article" && publicationState == "published" && defined(automation.jobId) && (!defined(mainImage.asset) || coalesce(mainImage.editorialImageRevision, "") != $revision)] | order(publishedAt asc)[0...1]{"jobId":automation.jobId,"sourceUrl":provenance.sourceUrl,"title":coalesce(translations.en.title,title),"summary":coalesce(translations.en.summary,summary),"section":section,"body":translations.en.body}');url.searchParams.set('$revision',JSON.stringify(editorialImageRevision));
+  const response=await fetch(url,{signal,redirect:'error'});if(!response.ok)throw Error('Image backfill query unavailable');const result=JSON.parse(await limitedText(response,262144)).result;
+  if(!Array.isArray(result))throw Error('Invalid image backfill data');const story=result[0];if(!story)return {state:'idle'};
+  if(typeof story.jobId!=='string'||!/^[a-f0-9]{64}$/.test(story.jobId)||typeof story.title!=='string'||typeof story.summary!=='string')throw Error('Invalid image backfill story');
+  const imageSlug=story.title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,180)||'editorial-story';
+  const discovered=await worker('/v1/images/resolve',{sourceUrl:story.sourceUrl,slug:imageSlug,revision:story.jobId,title:story.title,summary:story.summary},signal);
+  let image=validateImagePlan(discovered?.image,typeof story.sourceUrl==='string'?story.sourceUrl:'');
+  if(!image){
+   const paragraphs=Array.isArray(story.body)?story.body.map((block:any)=>Array.isArray(block.children)?block.children.map((span:any)=>span.text||'').join(''):'').filter(Boolean).slice(0,8):[];
+   const illustration=await agent('illustrate',{section:story.section,title:story.title,summary:story.summary,reportedParagraphs:paragraphs},signal),svg=sanitizeEditorialSvg(illustration?.svg);
+   if(!svg)throw Error('Codex illustration unavailable');image={kind:'generated',svg,alt:`Editorial illustration for: ${story.title}`,credit:'Token on Air · Editorial illustration',license:'© Token on Air'};
+  }
+  const attached=await worker(`/v1/jobs/${story.jobId}/attach-image`,{image},signal);if(attached.documentId!=='story-'+story.jobId||!attached.attached)throw Error('Image backfill identity mismatch');
+  return {state:'image-attached',jobId:story.jobId,documentId:attached.documentId};
+ }
  return async(mode:'smoke'|'queue')=>{
   const signal=AbortSignal.timeout(230000);
   if(mode==='smoke'){
@@ -35,7 +53,7 @@ export function pipeline(config:Settings){
   }
   if(!config.validationSecret||!config.sources.some(activeSource))return {state:'paused',reason:'Reviewed sources and verifier configuration required'};
   if(!dryRun&&config.collect)await config.collect(AbortSignal.any([signal,AbortSignal.timeout(45000)])).catch(()=>{});
-  const job=acceptanceItem?{jobId:acceptanceItem.fingerprint,leaseToken:'dry-run-only',leaseUntil:Date.now()+300000,item:acceptanceItem}:await worker('/v1/jobs/claim',{},signal);if(!job.jobId)return {state:'idle'};
+  const job=acceptanceItem?{jobId:acceptanceItem.fingerprint,leaseToken:'dry-run-only',leaseUntil:Date.now()+300000,item:acceptanceItem}:await worker('/v1/jobs/claim',{},signal);if(!job.jobId)return dryRun?{state:'idle'}:await repairOnePublishedImage(signal);
   let stage='source';let candidateForDebug:any,reviewForDebug:any;
   const hold=async(reason:string)=>{
    if(dryRun)return {state:'held',jobId:job.jobId,reason,published:false,diagnostics:{stage,candidate:candidateForDebug,review:reviewForDebug}};
@@ -86,12 +104,17 @@ export function pipeline(config:Settings){
   const signed=verifyAndSign(candidate,snapshots,review,config.validationSecret,candidate.evidence.every((e:any)=>config.sources.some(s=>activeSource(s)&&sourceHosts(s).has(new URL(e.url).hostname))));
   if(dryRun)return {state:'validated',published:false,jobId:job.jobId,candidate:signed,snapshotUrls:snapshots.map(s=>s.url),reviewReason:review.reason};
   stage='image-discovery';
-  const imageQuery=new URL(`https://${config.projectId}.api.sanity.io/v2026-10-01/data/query/${config.dataset}`);imageQuery.searchParams.set('query','*[_type == "article" && publicationState == "published" && (defined(mainImage.originalImageUrl) || defined(mainImage.sourceUrl))]{"source":coalesce(mainImage.originalImageUrl,mainImage.sourceUrl)}');
-  const imageHistory=await fetch(imageQuery,{signal,redirect:'error'});if(!imageHistory.ok)throw Error('Image duplicate check unavailable');
-  const usedSources=JSON.parse(await limitedText(imageHistory,262144)).result;if(!Array.isArray(usedSources))throw Error('Image duplicate data unavailable');
   const english=(candidate.article.translations as any).en;
-  const image=await resolvePublishedImage(job.item.url,english.slug,job.jobId,english.title,english.summary,undefined,usedSources.map((row:any)=>row?.source).filter((value:unknown):value is string=>typeof value==='string'));
-  if(!image||image.kind!=='source')return hold('No suitable licensed real image found');
+  const discovered=await worker('/v1/images/resolve',{sourceUrl:job.item.url,slug:english.slug,revision:job.jobId,title:english.title,summary:english.summary},signal);
+  let image=validateImagePlan(discovered?.image,job.item.url);
+  if(!image){
+   stage='local-illustration';
+   const article=(candidate.article.translations as any).en;
+   const illustration=await agent('illustrate',{section:candidate.article.section,title:article.title,summary:article.summary,reportedParagraphs:article.body.map((block:any)=>block.children?.map((span:any)=>span.text).join('')||'')},signal);
+   const svg=sanitizeEditorialSvg(illustration?.svg);
+   if(!svg)return hold('No suitable licensed photo or valid local illustration');
+   image={kind:'generated',svg,alt:`Editorial illustration for: ${article.title}`,credit:'Token on Air · Editorial illustration',license:'© Token on Air'};
+  }
   if(signal.aborted||job.leaseUntil-Date.now()<10000)throw Error('Lease too short for publish');
   stage='publish';
   const result=await worker(`/v1/jobs/${job.jobId}/publish`,{leaseToken:job.leaseToken,candidate:signed,image},signal);

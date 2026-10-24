@@ -7,8 +7,8 @@ import inventory from '../../docs/research/source-checks/2026-10-22-fixed-source
 import {createHash} from 'node:crypto';
 import {fetchFeed} from './network';
 import {attachPublishedImage,retryPublishedImage} from './media';
-import {validateSourceImagePlan} from './source-images';
-import {imageVersion} from '../../frontend/src/lib/images/policy';
+import {resolvePublishedImage,validateImagePlan} from './source-images';
+import {editorialImageRevision,imageVersion} from '../../frontend/src/lib/images/policy';
 import {sanityApi} from './sanity';
 const active=(s:any)=>s?.automation_enabled===1&&s.rights_status==='reviewed'&&s.allowed_reuse==='metadata-discovery';
 export async function runScheduled(env:Env,get=fetchFeed){
@@ -46,11 +46,11 @@ async function publish(body:any,env:Env,store:D1Store,id:string){
   if(typeof body.leaseToken!=='string'||!await store.owned(id,body.leaseToken))throw new Refused(409,'Active owned lease required');
   const api=sanityApi(env),item=JSON.parse(job.payload);const sourceTime=feedPublicationTime(item.publishedAt);const now=new Date().toISOString();
   if(!Number.isFinite(sourceTime)||sourceTime>Date.now()+300000||!Number.isFinite(job.created_at)||job.created_at>Date.now()+300000||!validated.editions[0].sources.includes(item.url))throw new Refused(422,'Invalid source provenance');
-  const image=validateSourceImagePlan(body.image,item.url);if(!image){await store.hold(job.id,body.leaseToken,'Approved real image required before publication');throw new Refused(422,'Approved real image required before publication');}
-  const usedImages=await api.usedImageSources();if(usedImages.includes(image.originalImageUrl||image.sourceUrl)){await store.hold(job.id,body.leaseToken,'Image already used; select another real image');throw new Refused(409,'Image is already used by another story');}
+  const image=validateImagePlan(body.image,item.url);if(!image){await store.hold(job.id,body.leaseToken,'Approved source image or validated illustration required before publication');throw new Refused(422,'Approved source image or validated illustration required before publication');}
+  if(image.kind==='source'){const usedImages=await api.usedImageSources();if(usedImages.includes(image.originalImageUrl||image.sourceUrl)){await store.hold(job.id,body.leaseToken,'Image already used; select another real image');throw new Refused(409,'Image is already used by another story');}}
   const document:any={...publicationDocument(validated.editions,id,env.SANITY_EDITOR_ID!,validated.hash),publishedAt:now,updatedAt:now,provenance:{sourceUrl:item.url,sourcePublishedAt:new Date(sourceTime).toISOString(),discoveredAt:new Date(job.created_at).toISOString(),importedAt:now}};
   const imageAsset=await api.uploadEditorialImage(validated.editions[0].slug,validated.hash,validated.editions[0].title,id,item.url,image);
-  document.mainImage={_type:'image',asset:{_type:'reference',_ref:imageAsset},alt:image.alt,credit:image.credit,license:image.license,sourceUrl:image.sourceUrl,...(image.licenseUrl?{licenseUrl:image.licenseUrl}:{}),...(image.originalImageUrl?{originalImageUrl:image.originalImageUrl}:{}),generatedVersion:imageVersion,generatedBy:'token-on-air',generatedTitle:validated.editions[0].title,generatedAssetId:imageAsset};
+  document.mainImage={_type:'image',asset:{_type:'reference',_ref:imageAsset},alt:image.alt,credit:image.credit,license:image.license,...(image.kind==='source'?{sourceUrl:image.sourceUrl,...(image.licenseUrl?{licenseUrl:image.licenseUrl}:{}),...(image.originalImageUrl?{originalImageUrl:image.originalImageUrl}:{})}:{}),generatedVersion:imageVersion,generatedBy:'token-on-air',generatedTitle:validated.editions[0].title,generatedAssetId:imageAsset,editorialImageRevision};
   try{
    try{await store.reserveSlugs(id,locales.map((l,i)=>[localeKey[l],validated.editions[i].slug]));}
    catch{throw new Refused(409,'Edition slug reservation refused');}
@@ -87,14 +87,18 @@ export default {
    const url=new URL(request.url);if(request.method==='GET'&&url.pathname==='/health')return json({service:'token-on-air-news',ok:true});
    if(url.pathname==='/v1/status'&&request.method==='GET'){authorize(request,env.ADMIN_TOKEN);return json({enabled:enabled(env),...await new D1Store(env.DB).status()});}
    const match=/^\/v1\/jobs\/([a-f0-9]{64})\/(publish|hold|correct|withdraw|release|repair-public-id|attach-image)$/.exec(url.pathname);
-   const claim=url.pathname==='/v1/jobs/claim',ingest=url.pathname==='/v1/ingest';if(request.method!=='POST'||(!claim&&!ingest&&!match))return json({error:'Not found'},404);
-   authorize(request,claim||ingest||match?.[2]==='publish'||match?.[2]==='hold'?env.WRITER_TOKEN:env.ADMIN_TOKEN);
+   const claim=url.pathname==='/v1/jobs/claim',ingest=url.pathname==='/v1/ingest',imageResolve=url.pathname==='/v1/images/resolve';if(request.method!=='POST'||(!claim&&!ingest&&!match&&!imageResolve))return json({error:'Not found'},404);
+   authorize(request,claim||ingest||imageResolve||match?.[2]==='publish'||match?.[2]==='hold'||match?.[2]==='attach-image'?env.WRITER_TOKEN:env.ADMIN_TOKEN);
    if(request.headers.has('Origin'))throw new Refused(403,'Browser-origin requests refused');
    if(!enabled(env))throw new Refused(503,'Automation paused');
    if(!request.headers.get('Content-Type')?.startsWith('application/json'))throw new Refused(415,'JSON required');
    let body:any;try{body=JSON.parse(await limitedText(request,65536));}catch(error){if(error instanceof Refused)throw error;throw new Refused(400,'Invalid JSON');}
    if(!body||typeof body!=='object'||Array.isArray(body))throw new Refused(400,'JSON object required');
    const store=new D1Store(env.DB);
+   if(imageResolve){
+    if(Object.keys(body).some(k=>!['sourceUrl','slug','revision','title','summary'].includes(k))||typeof body.slug!=='string'||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(body.slug)||typeof body.revision!=='string'||body.revision.length>128||typeof body.title!=='string'||!body.title.trim()||body.title.length>200||typeof body.summary!=='string'||body.summary.length>500||(body.sourceUrl!==undefined&&(typeof body.sourceUrl!=='string'||body.sourceUrl.length>2048)))throw new Refused(422,'Invalid image discovery request');
+    const image=await resolvePublishedImage(body.sourceUrl,body.slug,body.revision,body.title,body.summary,env.PEXELS_API_KEY,await sanityApi(env).usedImageSources());return json({image:image||null});
+   }
    if(ingest){
     const source=await store.source(body.source);const known=inventory.sources.find(s=>s.id===body.source);
     if(!source||!known||!active(source))throw new Refused(409,'Source not reviewed and enabled');
@@ -110,7 +114,7 @@ export default {
     if(!await store.hold(job.id,body.leaseToken,'Independent processing refused; inspect before release'))throw new Refused(409,'Processing job required');
     await store.audit(job.id,'held');return json({held:job.id});
    }
-   if(match![2]==='attach-image')return json(await attachPublishedImage(env,store,match![1]));
+   if(match![2]==='attach-image')return json(await attachPublishedImage(env,store,match![1],body.image));
    return json(match![2]==='publish'?await publish(body,env,store,match![1]):await lifecycle(match![2],body,env,store,match![1]));
   }catch(error){return json({error:error instanceof Refused?error.label:'Operation failed'},error instanceof Refused?error.status:502);}
  },

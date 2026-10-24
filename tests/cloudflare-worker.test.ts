@@ -154,7 +154,7 @@ it('refuses mismatched public-ID repair and allows safe retry after a completed 
  vi.stubGlobal('fetch',vi.fn(async(input:any,init:any)=>{if(init?.method==='POST'){writes++;throw Error('No write expected');}const u=new URL(String(input)),id=JSON.parse(u.searchParams.get('$id')!);return Response.json({result:id.startsWith('story.')?old:current});}));
  try{expect(await sanityApi(env).repairPublicId(item.fingerprint,'expected')).toBe(current._id);current.automation.candidateHash='other';await expect(sanityApi(env).repairPublicId(item.fingerprint,'expected')).rejects.toThrow('Public identity collision');current=null;old={_id:'story.'+item.fingerprint,_rev:'rev',_type:'article',publicationState:'published',automation:{candidateHash:'other'}};await expect(sanityApi(env).repairPublicId(item.fingerprint,'expected')).rejects.toThrow('Legacy identity mismatch');expect(writes).toBe(0);}finally{vi.unstubAllGlobals();}
 });
-it('attaches real Sanity assets only through an admin, preserves selected images and replays safely',async()=>{
+it('attaches real Sanity assets only through the writer, preserves selected images and replays safely',async()=>{
  const {env,store,item}=await setup();const lease=await store.claim();await store.published(item.fingerprint,lease!.lease_token,'expected');
  let doc:any={_id:'story-'+item.fingerprint,_type:'article',_rev:'rev1',publicationState:'published',automation:{jobId:item.fingerprint,candidateHash:'expected'},provenance:{sourceUrl:'https://blog.ethereum.org/en/2026/10/22/glamsterdam-hoodi-delay'},translations:{en:{title:'Ethereum postpones Hoodi Glamsterdam upgrade',slug:{current:'published-headline'}}},publishedAt:'2026-10-23T00:00:00Z'};
  const asset='image-'+'c'.repeat(40)+'-1200x630-png';let uploads=0,patches=0;
@@ -165,19 +165,19 @@ it('attaches real Sanity assets only through an admin, preserves selected images
   const patch=JSON.parse(init!.body as string).mutations[0].patch;patches++;expect(patch.ifRevisionID).toBe('rev1');expect(Object.keys(patch.set)).toEqual(['mainImage']);doc={...doc,...patch.set,_rev:'rev2'};return Response.json({results:[{document:doc}]});
  }));
  try{
-  const path='/v1/jobs/'+item.fingerprint+'/attach-image';expect((await worker.fetch(request(path),env)).status).toBe(401);expect(uploads).toBe(0);
-  const first=await worker.fetch(request(path,{},admin),env);expect(first.status).toBe(200);
+  const path='/v1/jobs/'+item.fingerprint+'/attach-image';expect((await worker.fetch(request(path,{},admin),env)).status).toBe(401);expect(uploads).toBe(0);
+  const first=await worker.fetch(request(path,{},token),env);expect(first.status).toBe(200);
   expect(doc.mainImage.asset).toEqual({_type:'reference',_ref:asset});expect(doc.mainImage.alt).toContain('physical Ethereum coin');expect(doc.mainImage.credit).toBe('Photo by Ivan Radic on Wikimedia Commons');expect(doc.publishedAt).toBe('2026-10-23T00:00:00Z');
-  expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);expect(uploads).toBe(1);expect(patches).toBe(1);
+  expect((await worker.fetch(request(path,{},token),env)).status).toBe(200);expect(uploads).toBe(1);expect(patches).toBe(1);
   doc.mainImage={...doc.mainImage,asset:{_ref:'chosen-photo'},credit:'Photographer'};
   doc.translations.en.title='Corrected headline';
-  expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);expect(uploads).toBe(1);
+  expect((await worker.fetch(request(path,{},token),env)).status).toBe(200);expect(uploads).toBe(1);
  }finally{vi.unstubAllGlobals();}
 });
 it('refuses attaching media when the published CMS identity differs from the job',async()=>{
  const {env,store,item}=await setup();const lease=await store.claim();await store.published(item.fingerprint,lease!.lease_token,'expected');
  const get=vi.spyOn(globalThis,'fetch').mockResolvedValue(Response.json({result:{_id:'story-'+item.fingerprint,_type:'article',_rev:'r',publicationState:'published',automation:{candidateHash:'different'}}}));
- try{expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/attach-image',{},admin),env)).status).toBe(409);expect(get).toHaveBeenCalledTimes(1);}finally{get.mockRestore();}
+ try{expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/attach-image',{},token),env)).status).toBe(409);expect(get).toHaveBeenCalledTimes(1);}finally{get.mockRestore();}
 });
 it('runs one image refresh per minute without resuming news polling',async()=>{
  const {env}=await setup();const e={...env,RSS_POLLING_ENABLED:'0'};
@@ -191,22 +191,32 @@ it('refuses unexpected uploaded assets without patching or holding a published j
  const {env,store,item}=await setup();const lease=await store.claim();await store.published(item.fingerprint,lease!.lease_token,'expected');
  const doc={_id:'story-'+item.fingerprint,_type:'article',_rev:'r',publicationState:'published',automation:{candidateHash:'expected'},provenance:{sourceUrl:'https://blog.ethereum.org/en/2026/10/22/glamsterdam-hoodi-delay'},translations:{en:{title:'Ethereum postpones Hoodi Glamsterdam upgrade',slug:{current:'published'}}}};
  const get=vi.spyOn(globalThis,'fetch').mockImplementation(async url=>String(url).includes('commons.wikimedia.org/w/api.php')?ethereumPhoto():Response.json(String(url).includes('/data/query/')?{result:doc}:{document:{_id:'file-unknown-pdf'}}));
- try{expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/attach-image',{},admin),env)).status).toBe(502);expect(get).toHaveBeenCalledTimes(4);expect(get.mock.calls.some(([url])=>String(url).includes('/mutate/'))).toBe(false);expect((await store.get(item.fingerprint))?.state).toBe('published');}finally{get.mockRestore();}
+ try{expect((await worker.fetch(request('/v1/jobs/'+item.fingerprint+'/attach-image',{},token),env)).status).toBe(502);expect(get).toHaveBeenCalledTimes(4);expect(get.mock.calls.some(([url])=>String(url).includes('/mutate/'))).toBe(false);expect((await store.get(item.fingerprint))?.state).toBe('published');}finally{get.mockRestore();}
 });
 
-it('backs off a failed image so a later published article can proceed on the next tick',async()=>{
+it('backs off a failed image so a later published article can be repaired on the next tick',async()=>{
  const {env,store,item}=await setup();const lease=await store.claim();await store.published(item.fingerprint,lease!.lease_token,'expected');
  const second='d'.repeat(64);await store.enqueue('openai',{...item,fingerprint:second,url:'https://openai.com/index/second'});const claim=await store.claim();await store.published(second,claim!.lease_token,'second');
- let queries=0;const get=vi.spyOn(globalThis,'fetch').mockImplementation(async input=>{
+ env.PEXELS_API_KEY='test';let queries=0,photos=0;
+ const docs=new Map<string,any>([
+  [item.fingerprint,{_id:'story-'+item.fingerprint,_type:'article',_rev:'r1',publicationState:'published',automation:{jobId:item.fingerprint,candidateHash:'expected'},provenance:{sourceUrl:'https://openai.com/index/example'},translations:{en:{title:'Bitcoin report',summary:'Bitcoin market update',slug:{current:'bitcoin-report'}}},publishedAt:'2026-10-23T00:00:00Z'}],
+  [second,{_id:'story-'+second,_type:'article',_rev:'r2',publicationState:'published',automation:{jobId:second,candidateHash:'second'},provenance:{sourceUrl:'https://openai.com/index/second'},translations:{en:{title:'Bitcoin reserves rise',summary:'Bitcoin treasury update',slug:{current:'bitcoin-reserves-rise'}}},publishedAt:'2026-10-23T00:00:00Z'}]
+ ]);
+ const get=vi.spyOn(globalThis,'fetch').mockImplementation(async(input,init)=>{
   const url=new URL(String(input));
-  if(url.searchParams.has('$excluded')){const excluded=JSON.parse(url.searchParams.get('$excluded')!);queries++;expect(excluded).toEqual(queries===1?[]:[item.fingerprint]);return Response.json({result:[{jobId:queries===1?item.fingerprint:second}]});}
-  if(url.pathname.includes('/assets/'))throw Error('First image unavailable');
-  const id=JSON.parse(url.searchParams.get('$id')!);return Response.json({result:{_id:id,_type:'article',_rev:'r',publicationState:'published',automation:{candidateHash:id.endsWith(second)?'second':'expected'},translations:{en:{title:'Title',slug:{current:'valid'}}},mainImage:id.endsWith(second)?{asset:{_ref:'chosen'}}:undefined}});
+  if(url.pathname==='/v1/search'){photos++;if(photos===1)return Response.json({photos:[]});return Response.json({photos:[{id:12,width:1800,height:1200,url:'https://www.pexels.com/photo/bitcoin-12/',alt:'Bitcoin coins on a trading desk',photographer:'B. Two',src:{landscape:'https://images.pexels.com/photos/12/large.jpeg'}}]});}
+  if(url.searchParams.has('$excluded')){const excluded=JSON.parse(url.searchParams.get('$excluded')!);queries++;expect(excluded).toEqual(queries===1?[]:[item.fingerprint]);const candidate=queries===1?docs.get(item.fingerprint):docs.get(second);return Response.json({result:[{jobId:candidate.automation.jobId,title:candidate.translations.en.title,summary:candidate.translations.en.summary,sourceUrl:candidate.provenance.sourceUrl,section:'crypto'}]});}
+  if(url.searchParams.has('$id')){const id=JSON.parse(url.searchParams.get('$id')!);return Response.json({result:docs.get(id.slice('story-'.length))});}
+  if(String(input).includes('/assets/images/production/from-url'))return Response.json({document:{_id:'image-'+'d'.repeat(40)+'-1800x1200-jpg'}});
+  if(String(input).includes('/mutate/production')){const patch=JSON.parse(String(init?.body)).mutations[0].patch;const doc=docs.get(patch.id.slice('story-'.length));Object.assign(doc,patch.set,{_rev:'r3'});return Response.json({results:[{document:doc}]});}
+  if(url.searchParams.get('query')?.includes('mainImage.originalImageUrl'))return Response.json({result:[]});
+  throw Error('Unexpected image maintenance request');
  });
  try{
   const {retryPublishedImage}=await import('../workers/news/media');
   expect(await retryPublishedImage(env)).toEqual({pending:item.fingerprint});
-  expect(await retryPublishedImage(env)).toMatchObject({preserved:true,documentId:'story-'+second});
+  expect(await retryPublishedImage(env)).toMatchObject({attached:true,documentId:'story-'+second});
+  expect(docs.get(second)?.mainImage?.editorialImageRevision).toBe('codex-local-illustration-v1');
  }finally{get.mockRestore();}
 });
 it('selects only reviewed source imagery and versions managed upgrades without overwriting chosen photos',async()=>{
@@ -220,9 +230,9 @@ it('selects only reviewed source imagery and versions managed upgrades without o
   const patch=JSON.parse(init!.body as string).mutations[0].patch;doc={...doc,...patch.set};return Response.json({results:[{document:doc}]});
  }));
  try{
-  const path='/v1/jobs/'+item.fingerprint+'/attach-image';expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);
+  const path='/v1/jobs/'+item.fingerprint+'/attach-image';expect((await worker.fetch(request(path,{},token),env)).status).toBe(200);
   expect(doc.mainImage).toMatchObject({credit:'Photo by Ivan Radic on Wikimedia Commons',license:'CC BY 2.0',sourceUrl:'https://commons.wikimedia.org/wiki/File:Close-up_of_a_physical_Ethereum_coin_(51002904687).jpg',licenseUrl:'https://creativecommons.org/licenses/by/2.0',generatedVersion:'source-first-v8-topic-relevance'});
-  expect((await worker.fetch(request(path,{},admin),env)).status).toBe(200);expect(uploads).toBe(1);
+  expect((await worker.fetch(request(path,{},token),env)).status).toBe(200);expect(uploads).toBe(1);
  }finally{vi.unstubAllGlobals();}
 });
 it('queues Worker-managed source photos for version refresh regardless of their photographer credit',async()=>{
@@ -233,6 +243,8 @@ it('queues Worker-managed source photos for version refresh regardless of their 
   await sanityApi(env).imageCandidates();
   const query=new URL(String(get.mock.calls[0][0])).searchParams.get('query')||'';
   expect(query).toContain('mainImage.generatedAssetId == mainImage.asset._ref');
+  expect(query).toContain('mainImage.editorialImageRevision');
+  expect(new URL(String(get.mock.calls[0][0])).searchParams.get('$editorialImageRevision')).toBe('"codex-local-illustration-v1"');
   expect(query).not.toContain('mainImage.credit == "Token on Air"');
  }finally{get.mockRestore();}
 });

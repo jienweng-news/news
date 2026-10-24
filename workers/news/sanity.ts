@@ -1,4 +1,4 @@
-import {imagePlan,imageVersion,rejectedImageSources,type ImagePlan} from '../../frontend/src/lib/images/policy';
+import {editorialImageRevision,imagePlan,imageVersion,rejectedImageSources,sanitizeEditorialSvg,type ImagePlan} from '../../frontend/src/lib/images/policy';
 import {slugCollisionQuery} from '../../frontend/src/lib/content/slugs';
 import {limitedText,Refused,type Env} from './config';
 export function sanityApi(env:Env){
@@ -33,13 +33,20 @@ export function sanityApi(env:Env){
  }
  async function uploadEditorialImage(slug:string,revision:string,title:string,id:string,sourceUrl?:string,suppliedPlan?:ImagePlan){
   const plan=suppliedPlan||imagePlan(sourceUrl,slug,revision,title);if(!plan)throw new Refused(422,'No source image plan available');
+  if(plan.kind==='generated'){
+   const svg=sanitizeEditorialSvg(plan.svg);if(!svg||plan.credit!=='Token on Air · Editorial illustration'||plan.license!=='© Token on Air')throw new Refused(422,'Invalid generated image');
+   const upload=new URL(base.replace(/\/data$/,'/assets')+'/images/production');upload.searchParams.set('filename',slug+'-'+revision.slice(0,10)+'.svg');upload.searchParams.set('title',title);upload.searchParams.set('creditLine',plan.credit);
+   const response=await fetch(upload.href,{method:'POST',headers:{Authorization:'Bearer '+env.SANITY_WRITE_TOKEN,'Content-Type':'image/svg+xml'},body:svg,redirect:'manual',signal});
+   if(!response.ok)throw new Refused(502,'CMS image upload failed');const result=JSON.parse(await limitedText(response,262144));const asset=result.document?._id;
+   if(typeof asset!=='string'||!/^image-[a-f0-9]{32,64}-1200x630-svg$/.test(asset))throw new Refused(502,'Unexpected generated image asset');return asset;
+  }
   const url=new URL(base.replace(/\/data$/,'/assets')+'/images/production/from-url');
   url.searchParams.set('title',title);url.searchParams.set('creditLine',plan.credit);url.searchParams.set('sourceName',plan.credit);url.searchParams.set('sourceId',id+':'+revision);
   const result=await call(url.href,{url:plan.url,filename:slug+(plan.kind==='source'?'.jpg':'.png')});const asset=result.document?._id;
   if(typeof asset!=='string'||!(plan.kind==='source'?/^image-[a-f0-9]{32,64}-[1-9][0-9]{1,3}x[1-9][0-9]{1,3}-(?:jpg|png|webp)$/:/^image-[a-f0-9]{32,64}-1200x630-png$/).test(asset))throw new Refused(502,'Unexpected editorial image asset');
   return asset;
  }
- async function imageCandidates(excluded:string[]=[]){return (await query(`*[_type == "article" && publicationState == "published" && _id match "story-*" && defined(automation.jobId) && !(automation.jobId in $excluded) && (!defined(mainImage.asset) || mainImage.sourceUrl in $rejectedImages || (mainImage.generatedBy == "token-on-air" && mainImage.generatedAssetId == mainImage.asset._ref && (mainImage.generatedTitle != coalesce(translations.en.title,title) || coalesce(mainImage.generatedVersion,"") != $imageVersion)))] | order(publishedAt desc)[0...10]{"jobId":automation.jobId}`,{excluded,imageVersion,rejectedImages:[...rejectedImageSources]})).result;}
+ async function imageCandidates(excluded:string[]=[]){return (await query(`*[_type == "article" && publicationState == "published" && _id match "story-*" && defined(automation.jobId) && !(automation.jobId in $excluded) && (!defined(mainImage.asset) || coalesce(mainImage.editorialImageRevision, "") != $editorialImageRevision || mainImage.sourceUrl in $rejectedImages || (mainImage.generatedBy == "token-on-air" && mainImage.generatedAssetId == mainImage.asset._ref && (mainImage.generatedTitle != coalesce(translations.en.title,title) || coalesce(mainImage.generatedVersion,"") != $imageVersion)))] | order(publishedAt desc)[0...10]{"jobId":automation.jobId}`,{excluded,imageVersion,editorialImageRevision,rejectedImages:[...rejectedImageSources]})).result;}
  async function repairPublicId(id:string,hash:string){
   const oldId='story.'+id,newId='story-'+id;const old=await read(oldId),current=await read(newId);
   if(current&&(current.automation?.candidateHash!==hash||current.publicationState!=='published'))throw new Refused(409,'Public identity collision');

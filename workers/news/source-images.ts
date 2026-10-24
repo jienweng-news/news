@@ -1,4 +1,4 @@
-import {imagePlan,rejectedImageSources,type ImagePlan} from '../../frontend/src/lib/images/policy';
+import {imagePlan,rejectedImageSources,sanitizeEditorialSvg,type GeneratedImagePlan,type ImagePlan,type SourceImagePlan} from '../../frontend/src/lib/images/policy';
 import inventory from '../../docs/research/source-checks/2026-10-22-fixed-sources.json';
 import {limitedText} from './config';
 const sourceImageUrl=(value:string)=>{try{const url=new URL(value);return url.protocol==='https:'&&url.hostname==='uploads.panewslab.com'&&!url.username&&!url.password&&!url.port&&/^\/[a-f0-9-]{20,64}$/.test(url.pathname)&&!url.search&&!url.hash?url.href:undefined;}catch{return undefined;}};
@@ -25,7 +25,7 @@ export function pexelsSearchQuery(title:string,summary=''){
  const text=`${title} ${summary}`.toLowerCase();
  if(/gold|bullion|precious metal/.test(text))return 'gold bullion bar';
  if(/bridge|hack|exploit|security incident|unauthorized mint|attack|breach/.test(text)&&/crypto|cryptocurr|blockchain|token|on-chain|cross-chain/.test(text))return 'blockchain bridge security';
- if(/forest|satellite|earth observation|land cover|climate|ecosystem|wildfire|habitat|biodiversity/.test(text))return 'forest canopy';
+ if(/forest|satellite|earth observation|land cover|climate change|wildfire|habitat|biodiversity|deforestation/.test(text))return 'forest canopy';
  if(/ultrasound|pregnan|fetal|maternal|medical|healthcare|clinical|patient|diagnos|hospital|biomedical/.test(text))return 'pregnancy ultrasound';
  if(/semiconductor|memory chip|\bhbm\b|wafer|chip|foundry|gpu|processor/.test(text))return 'semiconductor chip';
  if(/bitcoin|\bbtc\b/.test(text))return 'bitcoin';
@@ -34,14 +34,14 @@ export function pexelsSearchQuery(title:string,summary=''){
  if(/etf|market value|market cap|outflow|inflow|trading|gold price|interest rate|bond yield|stock market/.test(text))return 'financial markets';
  if(/ai model|language model|\bllm\b|artificial intelligence|machine learning|\bai\b|research|model release/.test(text))return 'data center server racks';
  if(/sec |regulat|legislation|policy|court|compliance|lawmakers|bill |sanction/.test(text))return 'financial regulation';
- if(/funding|acquisition|merger|company|business|revenue|startup|investment/.test(text))return 'technology business';
- return 'technology data center';
+ if(/funding|acquisition|merger|company|business|revenue|startup|investment/.test(text))return '';
+ return '';
 }
 export function commonsSearchQuery(title:string,summary=''){
  const text=`${title} ${summary}`.toLowerCase();
  if(/gold|bullion|precious metal/.test(text))return 'gold bullion bar';
  if(/bridge|hack|exploit|security incident|unauthorized mint|attack|breach/.test(text)&&/crypto|cryptocurr|blockchain|token|on-chain|cross-chain/.test(text))return 'blockchain bridge security';
- if(/forest|satellite|earth observation|land cover|climate|ecosystem|wildfire|habitat|biodiversity/.test(text))return 'forest canopy';
+ if(/forest|satellite|earth observation|land cover|climate change|wildfire|habitat|biodiversity|deforestation/.test(text))return 'forest canopy';
  if(/ultrasound|pregnan|fetal|maternal/.test(text))return 'ultrasound scan fetal';
  if(/medical|healthcare|clinical|patient|diagnos|hospital|biomedical/.test(text))return 'medical ultrasound examination';
  if(/semiconductor|memory chip|\bhbm\b|wafer|chip|foundry|gpu|processor/.test(text))return 'semiconductor chip';
@@ -53,8 +53,8 @@ export function commonsSearchQuery(title:string,summary=''){
  if(/ai model|language model|\bllm\b|artificial intelligence|machine learning|\bai\b|research|model release/.test(text))return 'data center server racks';
  if(/sec |regulat|legislation|policy|court|compliance|lawmakers|bill |sanction/.test(text))return 'technology regulation';
  if(/changpeng|\bcz\b/.test(text))return 'Changpeng Zhao';
- if(/founder|funding|acquisition|merger|company|business|revenue|startup|investment/.test(text))return 'technology startup founder';
- return 'technology data center';
+ if(/founder|startup|entrepreneur/.test(text))return '';
+ return '';
 }
 const pexelsPhotoId=(value:string)=>{try{const url=new URL(value);const last=url.pathname.split('/').filter(Boolean).at(-1)||'';return url.protocol==='https:'&&url.hostname==='www.pexels.com'&&!url.username&&!url.password&&!url.port&&/^photo-[a-z0-9-]+$/.test('photo-'+last)&&last.match(/-(\d+)$/)?.[1];}catch{return undefined;}};
 const commonsFileTitle=(value:string)=>{try{const url=new URL(value);return url.protocol==='https:'&&url.hostname==='commons.wikimedia.org'&&!url.username&&!url.password&&!url.port&&!url.search&&!url.hash&&/^\/wiki\/File:[^/]+$/.test(url.pathname)?url.pathname.slice('/wiki/'.length):undefined;}catch{return undefined;}};
@@ -67,16 +67,16 @@ function commonsRelevant(topic:string,asset:string){
  if(/\bbitcoin\b|\bbtc\b/.test(topic))return /bitcoin|\bbtc\b|bitcoin coin|digital currency/.test(asset)&&!/regulation|regulatory|laws?|gavel/.test(asset);
  if(/\bethereum\b|\beth\b/.test(topic))return /ethereum|\beth\b|ether coin/.test(asset);
  const patterns:[RegExp,RegExp][]=[
-  [/forest|satellite|earth observation|land cover|climate|ecosystem|wildfire|habitat|biodiversity/,/forest|woodland|tree|canopy|rainforest/],
+  [/forest|satellite|earth observation|land cover|climate change|wildfire|habitat|biodiversity|deforestation/,/forest|woodland|tree|canopy|rainforest|satellite|earth observation|wildfire|habitat|biodiversity/],
   [/ultrasound|pregnan|fetal|maternal|medical|healthcare|clinical|patient|diagnos|hospital|biomedical/,/ultrasound|sonogram|fetal|pregnan|obstetric|medical/],
   [/semiconductor|memory chip|\bhbm\b|wafer|chip|foundry|gpu|processor/,/semiconductor|integrated circuit|\bchips?\b|wafer|processor/],
   [/bitcoin|\bbtc\b|ethereum|\beth\b|hoodi|glamsterdam|crypto|blockchain|token|wallet|defi|dex|stablecoin|on-chain|protocol|bridge|hyperliquid|\bhype\b/,/bitcoin|cryptocurr|crypto|blockchain|ethereum|digital asset|mining equipment/],
-  [/changpeng|\bcz\b|founder|startup|entrepreneur/,/changpeng|binance|startup|founder|entrepreneur/],
+  [/changpeng|\bcz\b/,/changpeng|binance/],
   [/etf|market value|market cap|outflow|inflow|trading|gold price|interest rate|bond yield|stock market/,/market|stock|exchange|trading|financial|nasdaq|nyse|bourse/],
   [/ai model|language model|\bllm\b|artificial intelligence|machine learning|\bai\b|research/,/data center|server|rack|technician|computer/],
   [/sec |regulat|legislation|policy|court|compliance|lawmakers|bill |sanction/,/regulat|law|court|government|policy/],
  ];
- const category=patterns.find(([matcher])=>matcher.test(topic));return category?category[1].test(asset):/technology|data center|computer|server/.test(asset);
+ const category=patterns.find(([matcher])=>matcher.test(topic));return category?category[1].test(asset):false;
 }
 function commonsLicenseUrlMatches(license:string,value:string){
  try{
@@ -86,7 +86,7 @@ function commonsLicenseUrlMatches(license:string,value:string){
   return /^CC0(?: 1\.0)?$/i.test(license.trim())&&path.startsWith('/publicdomain/zero/1.0');
  }catch{return false;}
 }
-export function validateSourceImagePlan(value:unknown,discoveryUrl:string):ImagePlan|undefined{
+export function validateSourceImagePlan(value:unknown,discoveryUrl:string):SourceImagePlan|undefined{
  if(!value||typeof value!=='object')return;
  const input=value as Record<string,unknown>,url=typeof input.url==='string'?input.url:'',alt=typeof input.alt==='string'?input.alt:'',credit=typeof input.credit==='string'?input.credit:'',license=typeof input.license==='string'?input.license:'',sourceUrl=typeof input.sourceUrl==='string'?input.sourceUrl:'',licenseUrl=typeof input.licenseUrl==='string'?input.licenseUrl:undefined;
  if(!url||url.length>2048||!alt.trim()||alt.length>500||!credit.trim()||credit.length>300||!sourceUrl||sourceUrl.length>2048)return;
@@ -99,27 +99,35 @@ export function validateSourceImagePlan(value:unknown,discoveryUrl:string):Image
  if(panews&&sourceUrl===discoveryUrl&&sourceImageUrl(url)&&sourceImageUrl(originalImageUrl||'')===url&&license==='Used with permission'&&credit==='PANews')return {url,alt,credit,license,sourceUrl,originalImageUrl,kind:'source'};
  return;
 }
+export function validateImagePlan(value:unknown,discoveryUrl:string):ImagePlan|undefined{
+ if(value&&typeof value==='object'&&(value as Record<string,unknown>).kind==='generated'){
+  const input=value as Record<string,unknown>,svg=sanitizeEditorialSvg(input.svg),alt=typeof input.alt==='string'?input.alt:'';
+  if(!svg||!alt.trim()||alt.length>500||input.credit!=='Token on Air · Editorial illustration'||input.license!=='© Token on Air')return;
+  return {kind:'generated',svg,alt,credit:'Token on Air · Editorial illustration',license:'© Token on Air'} satisfies GeneratedImagePlan;
+ }
+ return validateSourceImagePlan(value,discoveryUrl);
+}
 async function pexelsImage(title:string,summary:string,key:string|undefined,usedSources:string[]):Promise<ImagePlan|undefined>{
  if(!key||key.length>512)return;
  try{
-  const query=pexelsSearchQuery(title,summary),url=new URL('https://api.pexels.com/v1/search');url.searchParams.set('query',query);url.searchParams.set('orientation','landscape');url.searchParams.set('per_page','80');
+  const query=pexelsSearchQuery(title,summary);if(!query)return;const url=new URL('https://api.pexels.com/v1/search');url.searchParams.set('query',query);url.searchParams.set('orientation','landscape');url.searchParams.set('per_page','80');
   const response=await fetch(url.href,{headers:{Authorization:key,Accept:'application/json'},signal:AbortSignal.timeout(5000)});
   if(!response.ok||!response.headers.get('content-type')?.toLowerCase().includes('application/json'))return;
-  const data=JSON.parse(await limitedText(response,524288)) as {photos?:Array<{id?:number;width?:number;height?:number;url?:string;photographer?:string;src?:{landscape?:string;large?:string}}>};
+  const data=JSON.parse(await limitedText(response,524288)) as {photos?:Array<{id?:number;width?:number;height?:number;url?:string;alt?:string;photographer?:string;src?:{landscape?:string;large?:string}}>};
   if(!Array.isArray(data.photos))return;
   const used=new Set(usedSources.map(pexelsPhotoId).filter((id):id is string=>!!id));
   for(const photo of data.photos){
    const id=Number.isSafeInteger(photo.id)?String(photo.id):undefined,sourceUrl=photo.url||'',photoId=pexelsPhotoId(sourceUrl),imageUrl=photo.src?.landscape||photo.src?.large;
-   if(!id||photoId!==id||used.has(id)||!Number.isFinite(photo.width)||photo.width!<1000||!Number.isFinite(photo.height)||photo.height!<500||!photo.photographer)continue;
+   if(!id||photoId!==id||used.has(id)||!Number.isFinite(photo.width)||photo.width!<1000||!Number.isFinite(photo.height)||photo.height!<500||!photo.photographer||!photo.alt?.trim()||!commonsRelevant(`${title} ${summary}`.toLowerCase(),photo.alt.toLowerCase()))continue;
    try{const image=new URL(imageUrl||'');if(image.protocol!=='https:'||image.hostname!=='images.pexels.com'||image.username||image.password||image.port)continue;}catch{continue;}
-   return {url:imageUrl!,alt:title,credit:`Photo by ${photo.photographer} on Pexels`,license:'Pexels License',sourceUrl,licenseUrl:'https://www.pexels.com/license/',provider:'pexels',kind:'source'};
+   return {url:imageUrl!,alt:photo.alt,credit:`Photo by ${photo.photographer} on Pexels`,license:'Pexels License',sourceUrl,licenseUrl:'https://www.pexels.com/license/',provider:'pexels',kind:'source'};
   }
  }catch{/* Stock-photo search is optional. */}
 }
 async function commonsImage(title:string,summary:string,usedSources:string[]):Promise<ImagePlan|undefined>{
  try{
-  const url=new URL('https://commons.wikimedia.org/w/api.php');
-  for(const [key,value] of Object.entries({action:'query',generator:'search',gsrsearch:`filetype:bitmap ${commonsSearchQuery(title,summary)}`,gsrnamespace:'6',gsrlimit:'30',prop:'imageinfo',iiprop:'url|size|extmetadata',iiurlwidth:'1200',format:'json',formatversion:'2'}))url.searchParams.set(key,value);
+  const query=commonsSearchQuery(title,summary);if(!query)return;const url=new URL('https://commons.wikimedia.org/w/api.php');
+  for(const [key,value] of Object.entries({action:'query',generator:'search',gsrsearch:`filetype:bitmap ${query}`,gsrnamespace:'6',gsrlimit:'30',prop:'imageinfo',iiprop:'url|size|extmetadata',iiurlwidth:'1200',format:'json',formatversion:'2'}))url.searchParams.set(key,value);
   const response=await fetch(url.href,{headers:{'User-Agent':'TokenOnAirNews/1.0 (editorial image discovery)','Accept':'application/json'},signal:AbortSignal.timeout(7000)});
   if(!response.ok||!response.headers.get('content-type')?.toLowerCase().includes('application/json'))return;
   const data=JSON.parse(await limitedText(response,1048576)) as {query?:{pages?:Array<{title?:string;imageinfo?:Array<{thumburl?:string;width?:number;height?:number;descriptionurl?:string;extmetadata?:Record<string,{value?:string}>}>}>}};
