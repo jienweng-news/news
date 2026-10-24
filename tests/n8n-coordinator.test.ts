@@ -30,11 +30,11 @@ it('stores failures without credentials and closes interrupted runs on restart',
  const c=new Coordinator(':memory:',async()=>{throw Error('secret credential');},true);
  expect(await c.tick('smoke')).toMatchObject({state:'failed'});expect(JSON.stringify(c.history())).not.toContain('secret credential');c.close();
 });
-it('ships inactive credential-backed five-minute queue and manual smoke workflows',()=>{
+it('ships inactive credential-backed one-minute heartbeat and manual smoke workflows',()=>{
  const workflows=JSON.parse(readFileSync('deploy/n8n/workflows.json','utf8'));
  expect(workflows).toHaveLength(2);
- for(const w of workflows){expect(w.active).toBe(false);const http=w.nodes.find((n:any)=>n.type==='n8n-nodes-base.httpRequest');expect(http.credentials.httpHeaderAuth.id).toBe('toa-coordinator');expect(http.parameters.url).toBe('http://coordinator:5680/v1/tick');expect(w.settings.executionTimeout).toBeLessThanOrEqual(300);}
- expect(workflows[0].nodes.find((n:any)=>n.type==='n8n-nodes-base.scheduleTrigger').parameters.rule.interval[0].minutesInterval).toBe(5);
+ for(const w of workflows){expect(w.active).toBe(false);const http=w.nodes.find((n:any)=>n.type==='n8n-nodes-base.httpRequest');expect(http.credentials.httpHeaderAuth.id).toBe('toa-coordinator');expect(http.parameters.url).toBe(w.id==='toa-queue'?'http://coordinator:5680/v1/dispatch':'http://coordinator:5680/v1/tick');if(w.id==='toa-queue'){expect(JSON.parse(http.parameters.jsonBody)).toEqual({});expect(http.parameters.options.timeout).toBeLessThanOrEqual(10000);}expect(w.settings.executionTimeout).toBeLessThanOrEqual(300);}
+ expect(workflows[0].nodes.find((n:any)=>n.type==='n8n-nodes-base.scheduleTrigger').parameters.rule.interval[0].minutesInterval).toBe(1);
  expect(JSON.stringify(workflows)).not.toContain('Bearer ');
 });
 it('persists a safety pause after an unconfirmed remote hold and prevents new claims after restart',async()=>{

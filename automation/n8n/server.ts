@@ -1,7 +1,7 @@
 import {createServer} from 'node:http';
 import {readFileSync} from 'node:fs';
 export const secret=(name:string)=>readFileSync('/run/secrets/'+name,'utf8').trim();
-export function serve(port:number,handle:(r:Request)=>Promise<Response>,close?:()=>void){
+export function serve(port:number,handle:(r:Request)=>Promise<Response>,close?:()=>void|Promise<void>){
  const server=createServer(async(req,res)=>{
   try{
    const chunks:Buffer[]=[];let size=0;
@@ -13,6 +13,6 @@ export function serve(port:number,handle:(r:Request)=>Promise<Response>,close?:(
  });
  server.requestTimeout=10000;server.headersTimeout=5000;server.keepAliveTimeout=5000;
  server.listen(port,'0.0.0.0',()=>console.log(JSON.stringify({service:'newsroom',listening:port})));
- process.on('SIGTERM',()=>{server.close(()=>{close?.();process.exit(0);});setTimeout(()=>process.exit(1),250000).unref();});
+ process.on('SIGTERM',()=>{server.close(()=>{void Promise.resolve().then(()=>close?.()).then(()=>process.exit(0),()=>process.exit(1));});setTimeout(()=>process.exit(1),250000).unref();});
  return server;
 }

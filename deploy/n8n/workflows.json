@@ -18,14 +18,14 @@
       {
         "parameters": {
           "method": "POST",
-          "url": "http://coordinator:5680/v1/tick",
+          "url": "http://coordinator:5680/v1/dispatch",
           "authentication": "genericCredentialType",
           "genericAuthType": "httpHeaderAuth",
           "sendBody": true,
           "specifyBody": "json",
-          "jsonBody": "{\"mode\": \"queue\"}",
+          "jsonBody": "{}",
           "options": {
-            "timeout": 250000
+            "timeout": 10000
           }
         },
         "id": "process",
@@ -49,13 +49,13 @@
             "interval": [
               {
                 "field": "minutes",
-                "minutesInterval": 5
+                "minutesInterval": 1
               }
             ]
           }
         },
         "id": "schedule",
-        "name": "Every five minutes",
+        "name": "Every minute heartbeat",
         "type": "n8n-nodes-base.scheduleTrigger",
         "typeVersion": 1.2,
         "position": [
@@ -76,7 +76,7 @@
           ]
         ]
       },
-      "Every five minutes": {
+      "Every minute heartbeat": {
         "main": [
           [
             {
@@ -90,7 +90,7 @@
     },
     "settings": {
       "executionOrder": "v1",
-      "executionTimeout": 280,
+      "executionTimeout": 30,
       "saveDataSuccessExecution": "none",
       "saveDataErrorExecution": "all",
       "timezone": "Asia/Kuala_Lumpur"
