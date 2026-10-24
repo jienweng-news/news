@@ -24,7 +24,7 @@ export function verifyAndSign(candidate:ReturnType<typeof buildCandidate>,snapsh
  const signed={...unsigned,report:signReport(hash,checks,new Date().toISOString(),key)};validateCandidate(signed,key);return signed;
 }
 export class Coordinator{
- private db:DatabaseSync;private busy=false;
+ private db:DatabaseSync;private busy=false;private stopping=false;private inFlight:Promise<void>|undefined;
  constructor(path:string,private processRun:(mode:'smoke'|'queue')=>Promise<any>,private enabled:boolean){
   this.db=new DatabaseSync(path);this.db.exec('PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; CREATE TABLE IF NOT EXISTS runs(id TEXT PRIMARY KEY,mode TEXT,state TEXT,created_at INTEGER,finished_at INTEGER,result TEXT); CREATE TABLE IF NOT EXISTS controls(key TEXT PRIMARY KEY,value TEXT);');
   if(this.db.prepare("SELECT id FROM runs WHERE state='running' AND mode='queue' LIMIT 1").get())this.db.prepare("INSERT OR REPLACE INTO controls VALUES('safety_pause','Interrupted queue outcome; inspect D1 and CMS')").run();
@@ -33,9 +33,10 @@ export class Coordinator{
  history(){return this.db.prepare('SELECT id,mode,state,created_at,finished_at FROM runs ORDER BY created_at DESC LIMIT 20').all();}
  async tick(mode:'smoke'|'queue'){
   if(!['smoke','queue'].includes(mode))throw new Refused(400,'Unknown mode');
+  if(this.stopping)throw new Refused(503,'Coordinator stopping');
   if(this.busy)throw new Refused(409,'Coordinator busy');
   if(mode==='queue'&&(!this.enabled||this.db.prepare("SELECT value FROM controls WHERE key='safety_pause'").get()))return {state:'paused',reason:'Activation or safety pause; inspect D1 and CMS before resuming'};
-  this.busy=true;const id=randomUUID(),now=Date.now();
+  this.busy=true;let finish!:()=>void;this.inFlight=new Promise<void>(resolve=>{finish=resolve;});const id=randomUUID(),now=Date.now();
   try{
    this.db.prepare('DELETE FROM runs WHERE created_at < ?').run(now-7*86400000);
    this.db.exec('DELETE FROM runs WHERE id NOT IN (SELECT id FROM runs ORDER BY created_at DESC LIMIT 999)');
@@ -45,7 +46,8 @@ export class Coordinator{
    if(result.state==='needs-attention')this.db.prepare("INSERT OR REPLACE INTO controls VALUES('safety_pause','Remote hold unconfirmed; inspect D1 and CMS')").run();
    this.db.prepare('UPDATE runs SET state=?,finished_at=?,result=? WHERE id=?').run(result.state,Date.now(),JSON.stringify(result),id);
    return {id,...result};
-  }finally{this.busy=false;}
+  }finally{this.busy=false;this.inFlight=undefined;finish();}
  }
+ async stop(){this.stopping=true;await this.inFlight;}
  close(){this.db.close();}
 }

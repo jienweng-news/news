@@ -44,3 +44,13 @@ it('respects the real coordinator single-flight and durable safety pause',async(
  const queue=new ContinuousQueue(()=>coordinator.tick('queue'),true);queue.activate();await expect(coordinator.tick('smoke')).rejects.toThrow('busy');
  pending.resolve({state:'needs-attention'});await vi.waitFor(()=>expect(queue.status().running).toBe(false));queue.activate();await vi.waitFor(()=>expect(queue.status().running).toBe(false));expect(calls).toBe(1);await queue.stop();coordinator.close();
 });
+it('waits for manual coordinator work independently of its HTTP client during shutdown',async()=>{
+ const pending=deferred<{state:string}>();let stopped=false;
+ const coordinator=new Coordinator(':memory:',()=>pending.promise,true);
+ const processing=coordinator.tick('smoke');
+ const stopping=coordinator.stop().then(()=>{stopped=true;});
+ await Promise.resolve();expect(stopped).toBe(false);
+ await expect(coordinator.tick('queue')).rejects.toThrow('stopping');
+ pending.resolve({state:'smoke-passed'});await processing;await stopping;
+ expect(coordinator.history()[0].state).toBe('smoke-passed');coordinator.close();
+});

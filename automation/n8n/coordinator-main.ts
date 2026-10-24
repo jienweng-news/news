@@ -6,5 +6,5 @@ const runtime=createRuntime();
 const c=new Coordinator('/data/runs.sqlite',runtime.processRun,enabled);
 const continuous=new ContinuousQueue(()=>c.tick('queue'),enabled);
 serve(5680,coordinatorHandler(c,continuous,runtime.collector,secret('coordinator_token'),enabled),async()=>{
- await continuous.stop();c.close();runtime.close();
+ const finished=c.stop();await continuous.stop();await finished;c.close();runtime.close();
 });
