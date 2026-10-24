@@ -22,15 +22,15 @@
 ### Task 1: Lease-bound sequential drain
 **Files:** Create automation/n8n/continuous.ts; tests/n8n-continuous.test.ts.
 **Interfaces:** ContinuousQueue(tick:()=>Promise<{state:string}>, enabled:boolean, now?:()=>number), activate() acknowledgement, status() nonsensitive activity, stop():Promise<void>.
-- [ ] Add failing behavior tests for immediate published/held progression, one loop across overlapping heartbeats, paused configuration, expiry/refresh, stop waiting for in-flight work, thrown/error/idle/unexpected outcomes and real coordinator single-flight/safety pause integration. Expected: tests fail because the implementation is missing.
-- [ ] Implement75second refreshed lease, sequential ticks and event-loop fairness; stop safely without changing coordinator verification. Run npm test -- tests/n8n-continuous.test.ts tests/n8n-coordinator.test.ts. Expected: all pass.
-- [ ] Commit this task's files.
+- [x] Add failing behavior tests for immediate published/held progression, one loop across overlapping heartbeats, paused configuration, expiry/refresh, stop waiting for in-flight work, thrown/error/idle/unexpected outcomes and real coordinator single-flight/safety pause integration. Expected: tests fail because the implementation is missing.
+- [x] Implement75second refreshed lease, sequential ticks and event-loop fairness; stop safely without changing coordinator verification. Run npm test -- tests/n8n-continuous.test.ts tests/n8n-coordinator.test.ts. Expected: all pass.
+- [x] Commit this task's files.
 
 ### Task 2: Authenticated heartbeat service/workflow integration
 **Files:** Create automation/n8n/coordinator-http.ts; tests/n8n-continuous-http.test.ts. Modify automation/n8n/coordinator-main.ts; automation/n8n/server.ts; deploy/n8n/workflows.json; tests/n8n-coordinator.test.ts; docs/operations/n8n.md.
 **Interfaces:** coordinatorHandler exposes authenticated POST /v1/dispatch with empty JSON only, existing tick/history/sources and public nonsensitive health. Main shares the same Coordinator with ContinuousQueue. Shutdown waits for dispatcher stop then closes resources; server accepts asynchronous cleanup.
-- [ ] Add failing real-handler tests for authorization, body/method/origin refusal, asynchronous ack, overlapping requests, manual smoke compatibility and health. Add workflow assertions: queue /v1/dispatch, one-minute heartbeat, bounded fast HTTP request; smoke retains manual /v1/tick, exports inactive. Expected: newly required behavior fails.
-- [ ] Implement handler/main/server integration and update workflow/runbook. Run npm test; npm run check:automation; npm run check:worker; git diff --check. Expected: complete green suite/typechecks.
-- [ ] Commit only this task's changes.
+- [x] Add failing real-handler tests for authorization, body/method/origin refusal, asynchronous ack, overlapping requests, manual smoke compatibility and health. Add workflow assertions: queue /v1/dispatch, one-minute heartbeat, bounded fast HTTP request; smoke retains manual /v1/tick, exports inactive. Expected: newly required behavior fails.
+- [x] Implement handler/main/server integration and update workflow/runbook. Run npm test; npm run check:automation; npm run check:worker; git diff --check. Expected: complete green suite/typechecks.
+- [x] Commit only this task's changes.
 
 After code tasks: one fresh reviewer reads this spec/plan and the complete task diff; fix important findings once using TDD and rerun suite. Then roll out only dedicated coordinator/n8n: stop n8n triggering, wait for current coordinator run to finish, prepare/build coordinator, import/update only queue workflow and republish it using installed CLI, restart dedicated services, observe immediate consecutive starts and public responses. Preserve activation flags, source rights, existing held work and separate schedules. Record exact live evidence and limitations in operations docs and ledger.
