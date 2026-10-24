@@ -18,6 +18,7 @@ describe('private Codex agent',()=>{
   expect(output.status).toBe('ok');expect(invocation.args).toContain('--ignore-user-config');
   expect(invocation.args).toContain('--output-schema');expect(invocation.args).toContain('read-only');
   expect(invocation.options.shell).toBe(false);expect(invocation.options.timeout).toBeLessThanOrEqual(60000);
+  await runCodex({task:'illustrate'},async(_file,_args,options)=>{expect(options.timeout).toBeGreaterThan(60000);return {svg:'<svg></svg>'};});
   await expect(runCodex({task:'smoke'},async()=>{throw new Error('secret upstream error')})).rejects.toThrow('Codex task failed');
   await expect(runCodex({task:'smoke'},async()=>({status:'garbage'}))).rejects.toThrow();
  });

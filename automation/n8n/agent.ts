@@ -43,7 +43,7 @@ export async function runCodex(body:any,run:Execute=execute){
  try{
   const schema=join(dir,'schema.json'),output=join(dir,'answer.json');await writeFile(schema,JSON.stringify(task.schema));
   const args=['--no-daemon','--ask-for-approval','never','exec','--ephemeral','--ignore-user-config','--ignore-rules','--skip-git-repo-check','--sandbox','read-only','-c','features.shell_tool=false','-c','web_search="disabled"','--cd',dir,'--output-schema',schema,'--output-last-message',output,'-'];
-  const result=await run('/usr/local/bin/codex',args,{cwd:dir,env:childEnvironment(process.env),shell:false,timeout:60000,killSignal:'SIGKILL',maxBuffer:262144,output,prompt:task.prompt});
+  const result=await run('/usr/local/bin/codex',args,{cwd:dir,env:childEnvironment(process.env),shell:false,timeout:body.task==='illustrate'?180000:60000,killSignal:'SIGKILL',maxBuffer:262144,output,prompt:task.prompt});
   assertShape(result,task.schema);return result;
  }catch{throw new Error('Codex task failed (authentication, allowance, timeout or invalid output)');}
  finally{await rm(dir,{recursive:true,force:true});}
