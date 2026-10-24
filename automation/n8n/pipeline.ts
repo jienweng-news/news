@@ -28,7 +28,7 @@ export function pipeline(config:Settings){
  }
  async function repairOnePublishedImage(signal:AbortSignal){
   const url=new URL(`https://${config.projectId}.api.sanity.io/v2026-10-01/data/query/${config.dataset}`);
-  url.searchParams.set('query','*[_type == "article" && publicationState == "published" && defined(automation.jobId) && (!defined(mainImage.asset) || coalesce(mainImage.editorialImageRevision, "") != $revision)] | order(publishedAt asc)[0...1]{"jobId":automation.jobId,"sourceUrl":provenance.sourceUrl,"title":coalesce(translations.en.title,title),"summary":coalesce(translations.en.summary,summary),"section":section,"body":translations.en.body}');url.searchParams.set('$revision',JSON.stringify(editorialImageRevision));
+  url.searchParams.set('query','*[_type == "article" && publicationState == "published" && defined(automation.jobId) && (!defined(mainImage.asset) || coalesce(mainImage.editorialImageRevision, "") != $revision)] | order(publishedAt desc)[0...1]{"jobId":automation.jobId,"sourceUrl":provenance.sourceUrl,"title":coalesce(translations.en.title,title),"summary":coalesce(translations.en.summary,summary),"section":section,"body":translations.en.body}');url.searchParams.set('$revision',JSON.stringify(editorialImageRevision));
   const response=await fetch(url,{signal,redirect:'error'});if(!response.ok)throw Error('Image backfill query unavailable');const result=JSON.parse(await limitedText(response,262144)).result;
   if(!Array.isArray(result))throw Error('Invalid image backfill data');const story=result[0];if(!story)return {state:'idle'};
   if(typeof story.jobId!=='string'||!/^[a-f0-9]{64}$/.test(story.jobId)||typeof story.title!=='string'||typeof story.summary!=='string')throw Error('Invalid image backfill story');

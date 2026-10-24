@@ -5,11 +5,11 @@ import {requiredChecks,validateCandidate} from '../automation/publisher';
 const id='a'.repeat(64),sourceUrl='https://example.org/news';
 const draft={section:'ai',editions:Object.fromEntries(['en','zh','zhCn'].map(l=>[l,{title:'Update',summary:'A factual update.',slug:'update-'+l.toLowerCase(),paragraphs:['An original factual brief.','The company announced an update.']}])),evidence:[{url:sourceUrl,quote:'The company announced an update.'}]};
 const illustration='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630"><rect width="1200" height="630" fill="#f5f0e6"/><circle cx="500" cy="315" r="150" fill="#cc2032"/><path d="M100 500L1100 130" fill="none" stroke="#171717" stroke-width="20"/></svg>';
-function harness({approved=true,primary=true,duplicate=false,badIdentity=false,imageAvailable=true}={}){
+function harness({approved=true,primary=true,duplicate=false,badIdentity=false,imageAvailable=true,queueEmpty=false}={}){
  const calls:{url:string;body:any}[]=[];const config={workerUrl:'https://worker.test',writerToken:'writer-secret',agentUrl:'http://codex',agentToken:'agent-secret',validationSecret:'s'.repeat(48),sources:[{id:'fixture',url:'https://example.org/rss',automation_enabled:true,rights_status:'reviewed',allowed_reuse:'metadata-discovery',proposed_poll_minutes:5,classification:'ai-primary'}],projectId:'fixture',dataset:'production'};
  vi.stubGlobal('fetch',vi.fn(async(input:any,init:any={})=>{
   const url=String(input),body=init.body?JSON.parse(init.body):null;calls.push({url,body});
-  if(url.endsWith('/claim'))return Response.json({jobId:id,leaseToken:'lease',leaseUntil:Date.now()+300000,item:{url:sourceUrl,publishedAt:new Date().toISOString()}});
+  if(url.endsWith('/claim'))return Response.json(queueEmpty?{job:null}:{jobId:id,leaseToken:'lease',leaseUntil:Date.now()+300000,item:{url:sourceUrl,publishedAt:new Date().toISOString()}});
   if(url.includes('.api.sanity.io'))return Response.json({result:duplicate?[{sources:[sourceUrl]}]:[]});
   if(url.endsWith('/v1/task')){
    expect(JSON.stringify(body)).not.toContain(config.writerToken);expect(JSON.stringify(body)).not.toContain(config.validationSecret);
@@ -27,6 +27,11 @@ function harness({approved=true,primary=true,duplicate=false,badIdentity=false,i
  return {run:pipeline(config),calls,config};
 }
 afterEach(()=>vi.unstubAllGlobals());
+it('repairs the newest outdated published image first when the queue is idle',async()=>{
+ const {run,calls}=harness({queueEmpty:true});expect(await run('queue')).toEqual({state:'idle'});
+ const query=new URL(calls.find(c=>c.url.includes('.api.sanity.io'))!.url).searchParams.get('query')||'';
+ expect(query).toContain('order(publishedAt desc)');expect(query).toContain('editorialImageRevision');
+});
 it('separates writing, fresh review and signed publication without leaking service credentials',async()=>{
  const {run,calls}=harness();expect(await run('queue')).toMatchObject({state:'published',documentId:'story-'+id});
  expect(calls.find(c=>c.url.endsWith('/publish'))?.body.image).toMatchObject({kind:'source',provider:'commons',license:'CC BY 4.0'});
